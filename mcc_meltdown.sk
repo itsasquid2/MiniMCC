@@ -446,7 +446,7 @@ command /mccmeltdown:
 on shoot:
 	world is "meltdown"
 	if {mcc.meltdown.trackarrowsshot} is true:
-		add 1 to {mcc.meltdown.arrowsshot::%player%}
+		add 1 to {mcc.meltdown.arrowsshot::%shooter%}
 
 command /meltdowntogglearrowtracker <boolean>:
 	trigger:
