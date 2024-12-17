@@ -1,0 +1,154 @@
+variables:
+	{canlime.%player%} = true
+
+
+function onlime(p:player) :: boolean:
+	if block under {_p} is lime concrete:
+		return true
+	return false
+
+function opendoor(p:player):
+	if {canlime.%{_p}%} is true:
+		set {_team} to floor(({_p}'s z-coordinate + 16)/33)	
+		set {_roomnum} to floor(({_p}'s x-coordinate)/45)+0.5
+		execute console command "/opendoor %{_team}% %{_roomnum}%"
+		set {canlime.%{_p}%} to false
+		wait 10 seconds
+		set {canlime.%{_p}%} to true 
+		 
+
+on walking on lime concrete:
+	player is in world "gridrunners"
+	if {mcc.grid.transitioning.%{mcc.team.%player%}%} is false: 
+		exit trigger
+	if {mcc.grid.room.%{mcc.team.%player%}%} is equal to 9:
+		exit trigger
+	delete {_bla::*}
+	delete {_ba::*}
+	loop all players:
+		if {mcc.team.%loop-player%} is equal to {mcc.team.%player%}:
+			if onlime(loop-player) is false:
+				exit trigger
+			add loop-player's z-coordinate to {_bla::*}
+			add loop-player's x-coordinate to {_ba::*}
+	set {_ba::*} to sorted {_ba::*}
+	loop {_ba::*}:
+		if loop-value is greater than {mcc.grid.room.%{mcc.team.%player%}%}*45+13:
+			exit trigger
+		else if loop-value is less than {mcc.grid.room.%{mcc.team.%player%}%}*45+10:
+			exit trigger
+
+	if {_ba::2} - {_ba::1} is greater than 4:
+		exit trigger
+	if {_ba::3} - {_ba::2} is greater than 4:
+		exit trigger
+	if {_ba::4} - {_ba::3} is greater than 4:
+		exit trigger
+	set {_bla::*} to sorted {_bla::*}
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}+1%}%.type} is equal to 4 or "4":
+		if {_bla::%size of {_bla::*}%}-{_bla::1} is less than 4:
+			opendoor(player)
+	else if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}+1%}%.type} is equal to 22 or "22":
+		if size of {_bla::*} is equal to 4:
+			if {_bla::2}-{_bla::1} is less than 4:
+				if {_bla::3}-{_bla::2} is greater than 4:
+					if {_bla::4}-{_bla::3} is less than 4:
+						opendoor(player)
+		else if size of {_bla::*} is equal to 3:
+			if {_bla::2}-{_bla::1} is greater than 4:
+				opendoor(player)
+			else if {_bla::3}-{_bla::2} is greater than 4:
+				opendoor(player)
+		else if size of {_bla::*} is equal to 2:
+			if {_bla::2}-{_bla::1} is greater than 4:
+				opendoor(player)
+		else:
+			opendoor(player)
+	else:
+		set {_good} to true
+		if size of {_bla::*} is greater than or equal to 4:
+			if {_bla::4}-{_bla::3} is less than 4:
+				set {_good} to false
+		if size of {_bla::*} is greater than or equal to 3:
+			if {_bla::3}-{_bla::2} is less than 4:
+				set {_good} to false
+		if size of {_bla::*} is greater than or equal to 2:
+			if {_bla::2}-{_bla::1} is less than 4:
+				set {_good} to false
+		if {_good} is true:
+			opendoor(player)
+
+command /opendoor <number> <number>:
+	usage: /opendoor <team> <room number>
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		if floor(arg 2) is not equal to arg 2:
+			set {mcc.grid.transitioning.%arg 1%} to false
+			set {mcc.grid.points.%arg 1%} to 0
+			add 1 to {mcc.grid.room.%arg 1%}
+			loop all dropped items in "gridrunners":
+				if the loop-entity's x-coordinate is between (ceil(arg 2))*45 - 45 and (ceil(arg 2))*45 - 30:
+					if the loop-entity's z-coordinate is between 33*(arg 1)-16 and 33*(arg 1)+16:
+						delete the loop-entity
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to arg 1:
+					clear the loop-player's inventory
+					loop {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%arg 1%}%}%.kit::*}:
+						give the loop-value-2 to the loop-player
+			execute console command "/spawnentities %arg 1% %ceil(arg 2)%"
+			set {_x} to (ceil(arg 2))*45 - 30.5
+			set {mcc.grid.startingtime.team.%arg 1%.room.%ceil(arg 2)%} to {mcc.grid.timestamp}
+		else:
+			#if arg 2 is equal to 8:
+			set {_x} to (arg 2)*45 - 0.5
+			set {mcc.grid.time.team.%arg 1%.room.%arg 2%} to {mcc.grid.timestamp}-{mcc.grid.startingtime.team.%arg 1%.room.%arg 2%}
+		delete {_bla::*}
+		loop numbers from 33*(arg 1)-15.5 to 33*(arg 1)+15.5:
+			if block at the location {_x}, -0.5, loop-number of world "gridrunners" is magenta glazed terracotta:
+				add the block at the location {_x}, -0.5, loop-number of world "gridrunners" to {_bla::*} 
+		loop {_bla::*}:
+			set the block above loop-value to air
+			if floor(arg 2) is not equal to arg 2:
+				set the block 6 meters west of the block above loop-value to white concrete
+		wait 0.2 seconds
+		loop {_bla::*}:
+			set the block 2 above loop-value to air
+			if floor(arg 2) is not equal to arg 2:
+				set the block 6 meters west of the block 2 above loop-value to white concrete
+		wait 0.2 seconds
+		loop {_bla::*}:
+			set the block 3 above loop-value to air
+			if floor(arg 2) is not equal to arg 2:
+				set the block 6 meters west of the block 3 above loop-value to white concrete
+		wait 0.2 seconds
+		loop {_bla::*}:
+			set the block 4 above loop-value to air
+			if floor(arg 2) is not equal to arg 2:
+				if mod((z-coordinate of loop-value)-0.5,33) is equal to 0: 
+					set the block 6 meters west of the block 4 above loop-value to white concrete
+				else:
+					set the block 6 meters west of the block 4 above loop-value to red concrete
+		wait 0.2 seconds
+		loop {_bla::*}:
+			set the block 5 above loop-value to air
+			if floor(arg 2) is not equal to arg 2:
+				set the block 6 meters west of the block 5 above loop-value to red concrete
+		if floor(arg 2) is not equal to arg 2:
+			wait 1 second
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to arg 1:
+					send title "<yellow>%{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%arg 1%}%}%.blurb}%" to loop-player for 3 seconds
+					if {mcc.grid.challenge.%{mcc.grid.room.%arg 1%}%} is 80:
+						set loop-player's gamemode to survival
+
+		else if arg 2 is equal to 8:
+			wait 1 second
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to arg 1:
+					send title "<yellow>Race to the Finish!" to loop-player for 3 seconds	
+
+		
+					

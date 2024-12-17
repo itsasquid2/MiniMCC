@@ -1,0 +1,271 @@
+
+
+function mccgridtutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Grid Runners" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Grid Runners!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Grid Runners is a cooperative racing game!" to {_p}
+	send "" to {_p}
+	send "As a team, you must race through a collection of challenges and complete them before your opponents do." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "Each challenge is based in its own room, and once the challenge is complete, the door to the next one will open." to {_p}
+	send "" to {_p}
+	send "<bold>Teams run their own copy of the course." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "Dividers exist between each room where teams may be split into groups." to {_p}
+	send "" to {_p}
+	send "You must have the correct amount of players in each part of the divider to proceed." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>All four <yellow>of your teammates must cross the finish line at the end to complete the entire course!" to {_p}
+	send "" to {_p}
+	send "Work together, communicate, and good luck!" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+function gridjingle(p:player):
+	loop 4 times:
+		execute console command "/note 7 %{_p}%" 	
+		wait 0.1 seconds
+		execute console command "/note 12 %{_p}%" 	
+		wait 0.1 seconds
+		execute console command "/note 17 %{_p}%" 	
+		wait 0.2 seconds
+
+function timeticks(n:number) :: text:
+	set {_bla} to 5*mod({_n},20) 
+	if mod({_n},20) is less than 2:
+		return "%time(floor({_n}/20))%.0%{_bla}%"
+	return "%time(floor({_n}/20))%.%{_bla}%"
+	
+
+
+
+function gridpoint(n:number, pts:number):
+	if {mcc.grid.transitioning.%{_n}%} is false:
+		if {mcc.grid.stage} is equal to 1:
+			add {_pts} to {mcc.grid.points.%{_n}%}
+			if {_pts} is greater than 0:
+				loop all players:
+					if {mcc.team.%loop-player%} is equal to {_n}:
+						play sound "entity.experience_orb.pickup" with volume 0.5 to loop-player 
+			if {mcc.grid.points.%{_n}%} is greater than or equal to {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}%.pointsreq}:
+				set {_bla} to 1
+				loop 10 times:
+					#if {mcc.grid.room.%loop-number%} is greater than {mcc.grid.room.%{_n}%}:
+					if {mcc.grid.time.team.%loop-number%.room.%{mcc.grid.room.%{_n}%}%} is not equal to 0:
+						add 1 to {_bla}
+				loop all players:
+					if {mcc.team.%loop-player%} is equal to {_n}:
+						gridjingle(loop-player)
+						send "Your team completed [%{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}%.name}%] in <light blue>%nth({_bla})% <white>place!" to loop-player
+						if {mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%} is 80:
+							set loop-player's gamemode to adventure
+					else:
+						send "%{mcc.teams::%{_n}%}% <gray>completed [%{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}%.name}%] in <light blue>%nth({_bla})% <gray>place!" to loop-player
+				execute console command "/opendoor %{_n}% %{mcc.grid.room.%{_n}%}%"
+				set {mcc.grid.transitioning.%{_n}%} to true
+				if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}%.blurb} is equal to "Shoot the Targets!":
+					loop all players:
+						if {mcc.team.%loop-player%} is equal to {_n}:
+							loop blocks in radius 8 of loop-player:
+								if loop-block is gray stained glass pane:
+									set loop-block to air
+				else if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}%.blurb} is equal to "Escape the Maze!":
+					loop all players:
+						if {mcc.team.%loop-player%} is equal to {_n}:
+							loop blocks in radius 8 of loop-player:
+								if loop-block is cracked deepslate bricks:
+									set loop-block to air
+				else if {mcc.grid.crowbars::*} contains {mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}:
+					loop all players:
+						if {mcc.team.%loop-player%} is equal to {_n}:
+							execute console command "/give %loop-player% netherite_pickaxe{CanDestroy:[iron_bars]} 1"
+
+command /setcrowbar <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			add arg 1 to {mcc.grid.crowbars::*}
+			broadcast "%{mcc.grid.crowbars::*}%"
+
+on join:
+	if {mcc.currentevent} is "gridrunners":
+		if {mcc.team.%player%} is not equal to 0:
+			wait 2 seconds
+			add 1 to {mcc.grid.numplayers.%{mcc.team.%player%}%}
+			loop all players:
+				if {mcc.team.%player%} is equal to {mcc.team.%loop-player%}:
+					teleport player to loop-player
+			clear the player's inventory
+			set the player's level to 0
+			set the player's level progress to 0
+			set {immune.%player%} to false
+			set {canlime.%player%} to true
+
+command /mccgridrunners:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true or "notcbop":
+				if command sender is not "notcbop":
+					message "<pink>You do not have permission to run this command!"
+					exit trigger
+		set {mcc.currentevent} to "gridrunners"
+		execute console command "/mccnewgame"
+		loop 10 times:
+			set {mcc.grid.numplayers.%loop-number%} to 0
+			set {mcc.grid.room.%loop-number%} to 0
+			set {mcc.grid.points.%loop-number%} to 0
+			set {mcc.grid.transitioning.%loop-number%} to true
+			set {mcc.grid.numfinished.%loop-number%} to 0
+			loop 9 times:
+				set {mcc.grid.startingtime.team.%loop-number-1%.room.%loop-number-2%} to 0
+				set {mcc.grid.time.team.%loop-number-1%.room.%loop-number-2%} to 0
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				add 1 to {mcc.grid.numplayers.%{mcc.team.%loop-player%}%}
+				teleport loop-player to the location -96, 12, -17+{mcc.grid.numplayers.%{mcc.team.%loop-player%}%}*7+{mcc.team.%loop-player%}*33 of the world "gridrunners"
+				clear the loop-player's inventory
+				set the loop-player's level to 0
+				set the loop-player's level progress to 0
+				set {immune.%loop-player%} to false
+				set {canlime.%loop-player%} to true
+		wait 0.1 seconds
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				set loop-player's game mode to adventure
+				mccgridtutorial(loop-player)
+		set {mcc.grid.stage} to 0
+		set {mcc.grid.timeleft} to 120
+
+
+on damage of player:
+	victim's world is "gridrunners"
+	set damage to 0.01
+	set victim's health to 10
+
+every second:
+	if {mcc.paused} is true:
+		exit trigger
+	if {mcc.grid.timeleft} is greater than 0:
+		subtract 1 from {mcc.grid.timeleft}
+		if {mcc.grid.stage} is equal to 1:
+			if {mcc.grid.timeleft} is equal to 768 or 626 or 484 or 342 or 200 or 58: 
+				execute console command "/playmusic gridrunners"
+		if {mcc.grid.timeleft} is equal to 10:
+			if {mcc.grid.stage} is equal to 0:
+				execute console command "/playmusic gridrunners"
+		if {mcc.grid.timeleft} is equal to 3:
+			if {mcc.grid.stage} is equal to 0:
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						execute console command "/boopboopboopbeep %loop-player%"
+		if {mcc.grid.timeleft} is equal to 0:
+			if {mcc.grid.stage} is equal to 0:
+				set {mcc.grid.stage} to 1
+				set {mcc.grid.timeleft} to 900 
+				set {mcc.grid.timestamp} to 0
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						give a trident of riptide 5 to the loop-player
+						loop blocks in radius 5 of loop-player:
+							if loop-block is minecraft:barrier:
+								if y-coordinate of loop-block is less than or equal to y-coordinate of loop-player + 3:
+									set loop-block to air 	
+			else if {mcc.grid.stage} is equal to 1:
+				set {mcc.grid.stage} to 2
+				set {mcc.grid.timeleft} to 60
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						send title "<pink>Game over!" to loop-player for 3 seconds
+				broadcast "[<gold><bold>Grid Runners<white>] The score breakdown is about to begin..."
+				loop 9 times:
+					wait 5 seconds
+					if {mcc.grid.challenge.%loop-number%} is not equal to -1:
+						gridbreakdown(loop-number)
+					else if loop-number is equal to 9:
+						gridbreakdown(loop-number)
+				execute console command "/mccstandings"
+			else:
+				execute console command "/mccbreak"
+				
+every tick:
+	if {mcc.currentevent} is "gridrunners":
+		add 1 to {mcc.grid.timestamp}
+
+function gridbreakdown(n:number): 
+	broadcast "<lime>--------------------------------------------------"
+	if {_n} is equal to 9:
+		broadcast "Entire course times:"
+	else:
+		broadcast "Room %{_n}%: %{mcc.grid.%{mcc.grid.challenge.%{_n}%}%.name}%"
+	broadcast ""
+	loop 10 times:
+		if {mcc.grid.time.team.%loop-number%.room.%{_n}%} is not equal to 0:
+			add {mcc.grid.time.team.%loop-number%.room.%{_n}%} to {_teamgamecoins::*}
+			add loop-number to {_already::*}
+	set {_teamgamecoins::*} to sorted {_teamgamecoins::*}
+	loop numbers from 1 to 10:
+		if {_teamgamecoins::%loop-number%} is not equal to 0:
+			set {_good} to false
+			loop 10 times:
+				if {_good} is false:
+					if {_already::*} contains loop-number-2:
+						if {mcc.grid.time.team.%loop-number-2%.room.%{_n}%} is equal to {_teamgamecoins::%loop-number-1%}:
+							set {_team} to loop-number-2
+							set {_good} to true
+							remove loop-number-2 from {_already::*}
+			if {_good} is true:
+				set {_bla} to the length of "%(loop-number)%. %{mcc.teams::%{_team}%}% %timeticks({mcc.grid.time.team.%{_team}%.room.%{_n}%})%"
+				delete {_blabla::*}
+				loop 40-{_bla} times:
+					add " " to {_blabla::*}
+				set {_ba} to join {_blabla::*}
+				broadcast "%(loop-number)%. %{mcc.teams::%{_team}%}% %{_ba}% <yellow>%timeticks({mcc.grid.time.team.%{_team}%.room.%{_n}%})%"
+				set {_count} to 0
+				loop all players:
+					if {mcc.team.%loop-player%} is equal to {_team}:
+						add 1 to {_count}
+				loop all players:
+					if {mcc.team.%loop-player%} is equal to {_team}:
+						if {_n} is equal to 9:	
+							ac(loop-player, ceil((1155-105*(loop-number))/{_count}), "Your team finished the course in %nth(loop-number)% place!", true)
+						else:
+							ac(loop-player, ceil((110-10*(loop-number))/{_count}), "Your team finished this room in %nth(loop-number)% place!", false)
+	broadcast "<lime>--------------------------------------------------"
+
+

@@ -1,0 +1,229 @@
+variables:
+	{pkt.playing.%player%} = false
+	{pkt.ready.%player%} = false
+	{pkt.role.%player%} = "none"
+	{pkt.timeleft} = 60
+	{pkt.runners} = 0
+	{pkt.hunters} = 0
+	{pkt.ongoing} = false
+
+
+function pktallready() :: boolean:
+	if {pkt.hunters} is equal to 0:
+		return false
+	if {pkt.runners} is equal to 0:
+		return false
+	loop all players:
+		if {pkt.playing.%loop-player%} is true:
+			if {pkt.ready.%loop-player%} is false:
+				return false
+	return true
+
+function pktdead(p:player):
+	set {_p}'s game mode to spectator
+	launch ball large colored blue at {_p} with duration 0
+	send title "<pink>Tagged!" to {_p} for 3 seconds
+	#set {pkt.playing.%{_p}%} to false
+	set {pkt.role.%{_p}%} to "none"
+	clear {_p}'s scoreboard
+	subtract 1 from {pkt.runners}
+	if {pkt.runners} is equal to 0:
+		pktendgame(1)	
+
+command /setpktcages <text>:
+	trigger:
+		if command sender is "itsasquid2":
+			loop blocks in radius 7 around player:
+				if loop-block is blue stained glass or red stained glass:
+					add loop-block to {pkt%arg%cages::*}
+
+function pktendgame(n:number):
+	if {_n} is equal to 1:
+		broadcast "<green>[Parkour Tag]<pink> The hunter wins!"
+	else:
+		broadcast "<green>[Parkour Tag]&9 The runners win!"
+	set {pkt.runners} to 0
+	set {pkt.hunters} to 0
+	set {pkt.ongoing} to false
+	loop {pktrunnercages::*}:
+		set block at loop-value to blue stained glass 
+	loop {pkthuntercages::*}:
+		set block at loop-value to red stained glass 
+	loop all players:
+		if {pkt.playing.%loop-player%} is true:
+			loop all players:
+				execute console command "/glow %loop-player-1% %loop-player-2% false"
+			clear loop-player's scoreboard
+			set {pkt.playing.%loop-player%} to false
+			set {pkt.role.%loop-player%} to "none"
+			teleport loop-player to {pktout}	
+			set loop-player's game mode to adventure 
+
+
+function pktstartgame():
+	loop all players:
+		loop all players:
+			if {pkt.role.%loop-player-1%} is equal to "runner":
+				if {pkt.playing.%loop-player-2%} is true:
+					execute console command "/glow %loop-player-1% %loop-player-2% true"
+	loop all players:
+		if {pkt.playing.%loop-player%} is true:
+			if "%loop-player's world%" is equal to "world":
+				clear loop-player's inventory
+			set loop-player's health to 10
+			set loop-player's hunger to 10
+			if {pkt.role.%loop-player%} is equal to "runner":
+				apply glowing to the loop-player for 65 seconds replacing existing effect
+			execute console command "/boopboopboopbeep %loop-player%"
+			clear loop-player's scoreboard
+			set title of loop-player's scoreboard to "<green>Parkour Tag"
+			set line 15 of loop-player's scoreboard to ""
+			set line 14 of loop-player's scoreboard to "<lime>Get ready!"
+			set line 13 of loop-player's scoreboard to "<yellow>Runners alive: %{pkt.runners}%"
+	wait 3 seconds
+	loop {pktrunnercages::*}:
+		set block at loop-value to air
+	loop {pkthuntercages::*}:
+		set block at loop-value to air
+	set {pkt.ongoing} to true
+	set {pkt.timeleft} to 60
+	loop all players:
+		if {pkt.playing.%loop-player%} is true:
+			if {pkt.role.%loop-player%} is equal to "runner":
+				set slot 4 of loop-player's inventory to ender pearl named "<gold><bold>Runner vision"
+
+on rightclick on button:
+	event-block is in world "world"
+	z coordinate of event-block is -234.5
+	{pkt.playing.%player%} is false
+	if {mcc.currentevent} is not equal to "none":
+		message "<pink>You cannot do this now!" to event-player
+		exit trigger
+	if {pkt.ongoing} is true:
+		message "<pink>This arena is in use!" to event-player
+		exit trigger
+	if {pkt.hunters} is greater than 0:
+		message "<pink>There is already someone hunting!" to event-player
+		exit trigger
+	teleport player to {pkthunterspawn}
+	set player's game mode to adventure 
+	clear the player's inventory
+	set slot 4 of player's inventory to gunpowder named "<lime>Ready"
+	set slot 8 of player's inventory to red dye named "<pink>Leave"
+	set {pkt.playing.%player%} to true
+	set {pkt.ready.%player%} to false
+	set {pkt.role.%player%} to "hunter"
+	add 1 to {pkt.hunters}
+	broadcast "<green>[Parkour Tag]<white> %player% has joined as a <pink>hunter!"
+
+on rightclick on button:
+	event-block is in world "world"
+	z coordinate of event-block is -233.5
+	{pkt.playing.%player%} is false
+	if {mcc.currentevent} is not equal to "none":
+		message "<pink>You cannot do this now!" to event-player
+		exit trigger
+	if {pkt.ongoing} is true:
+		message "<pink>This arena is in use!" to event-player
+		exit trigger
+	if {pkt.runners} is greater than 2:
+		message "<pink>There are already 3 runners!" to event-player
+		exit trigger
+	teleport player to {pktrunnerspawn}
+	set player's game mode to adventure 
+	clear the player's inventory
+	set slot 4 of player's inventory to gunpowder named "<lime>Ready"
+	set slot 8 of player's inventory to red dye named "<pink>Leave"
+	set {pkt.playing.%player%} to true
+	set {pkt.ready.%player%} to false
+	set {pkt.role.%player%} to "runner"
+	add 1 to {pkt.runners}
+	broadcast "<green>[Parkour Tag]<white> %player% has joined as a &9runner!"
+
+on rightclick:
+	if {pkt.playing.%player%} is true:
+		if player's tool is red dye named "<pink>Leave":
+			set {pkt.playing.%player%} to false
+			if {pkt.role.%player%} is equal to "hunter":
+				subtract 1 from {pkt.hunters}
+			if {pkt.role.%player%} is equal to "runner":
+				subtract 1 from {pkt.runners}
+			set {pkt.role.%player%} to "none"
+			teleport player to {pktout}
+			set player's game mode to adventure
+		else if player's tool is gunpowder named "<lime>Ready":
+			set {pkt.ready.%player%} to true
+			if pktallready() is true:
+				pktstartgame()	
+			else:
+				set player's tool to lime dye named "<gray>Unready"
+		else if player's tool is lime dye named "<gray>Unready":
+			set {pkt.ready.%player%} to false
+			set player's tool to gunpowder named "<lime>Ready"
+		else if player's tool is an ender pearl:
+			cancel event
+			set player's tool to air 
+			loop all players:
+				if {pkt.role.%loop-player%} is equal to "hunter":
+					apply glowing to the loop-player for 5 seconds replacing existing effect
+			
+
+on damage:
+	if {pkt.playing.%victim%} is true:
+		if "%victim's world%" is not equal to "world":
+			exit trigger	
+		cancel event
+		if attacker is a player:
+			if {pkt.role.%attacker%} is equal to "hunter":
+				if {pkt.role.%victim%} is equal to "runner":
+					broadcast "<green>[Parkour Tag]&9 %victim%<white> was tagged by <pink>%attacker%"
+					loop all players:
+						execute console command "/glow %victim% %loop-player% false"
+					pktdead(victim)
+
+on hunger meter change:
+	if {pkt.playing.%player%} is true:
+		if "%player's world%" is not equal to "world":
+			exit trigger	
+		cancel event
+
+on break:
+	if {pkt.playing.%player%} is true:
+		message "<pink>Please don't grief the Parkour Tag arena!" to event-player
+		cancel event
+
+on inventory click:
+	if {pkt.playing.%player%} is true:
+		message "<pink>Inventory clicking is disabled in Parkour Tag!" to event-player
+		cancel event
+
+on swap hand items:
+	if {pkt.playing.%player%} is true:
+		message "<pink>Inventory clicking is disabled in Parkour Tag!" to event-player
+		cancel event
+on disconnect:
+	if {pkt.playing.%player%} is true:
+		if {pkt.role.%player%} is equal to "runner":
+			broadcast "<green>[Parkour Tag]<white> %player% disconnected!"
+			pktdead(player)
+
+on join:
+	if {pkt.ongoing} is equal to false:
+		if {pkt.playing.%player%} is true:
+			set {pkt.playing.%player%} to false
+			set {pkt.role.%player%} to "none"
+			teleport player to {pktout}
+			set player's game mode to adventure
+			clear player's scoreboard
+
+every second:
+	if {pkt.ongoing} is true:
+		subtract 1 from {pkt.timeleft}
+		loop all players:
+			if {pkt.playing.%loop-player%} is true:
+				set line 14 of loop-player's scoreboard to "<pink>Time left: <white>%time({pkt.timeleft})%"	
+				set line 13 of loop-player's scoreboard to "<yellow>Runners alive: %{pkt.runners}%" 
+		if {pkt.timeleft} is equal to 0:
+			pktendgame(2)
+
+

@@ -1,0 +1,1075 @@
+variables:
+	{sg.time} = 0
+	{sg.playing.%player%} = false
+	{sg.kills.%player%} = 0
+	{sg.totalkills.%player%} = 0
+	{sg.wins.%player%} = 0
+	{sg.ycord} = 60
+	{sg.ready.%player%} = false
+	{sgtpcooldown.%player%} = false
+	{sg.ctimer.%player%} = 0
+	{mcc.sg.stage} = 0
+
+
+
+function sgover() :: boolean:
+	if {mcc.currentevent} is equal to "survivalgames":
+		delete {_tl::*}
+		set {_bla} to 0
+		loop all players:
+			if {sg.playing.%loop-player's name%} is true:
+				if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {_tl::*} does not contain {mcc.team.%loop-player's name%}:	
+						add {mcc.team.%loop-player's name%} to {_tl::*}
+						add 1 to {_bla}
+	else:
+		set {_bla} to 0
+		loop all players:
+			if {sg.playing.%loop-player's name%} is true:
+				add 1 to {_bla}
+	if {_bla} is greater than or equal to 2:
+		return false
+	return true
+
+function sgendgame():
+	set {sg.time} to 0
+	set {_w} to 0
+	delete {_win::*}
+	loop all players:
+		if {sg.playing.%loop-player's name%} is true:
+			add formatted "<%mcccolor({mcc.team.%loop-player's name%})%>%loop-player%" to {_win::*}
+			add 1 to {_w}
+	if {_w} is equal to 1:
+		broadcast "<pink>%{_win::1}% <pink>has won the Hunger Games!"
+	else:
+		broadcast "[<gold><bold>Hunger Games<white>] The winners of the Hunger Games are %{_win::*}%!"
+	loop all players:
+		if {sg.playing.%loop-player's name%} is true:
+			set {sg.playing.%loop-player's name%} to false
+			ac(loop-player, 80, "You survived the entire game!", true)
+	if {mcc.sg.round} is equal to 1:
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				send title "<pink>Round over!" to loop-player for 3 seconds
+		wait 10 seconds
+		add 1 to {mcc.sg.round}
+	else:
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				send title "<pink>Game over!" to loop-player for 3 seconds
+				set glowing of loop-player to false
+		execute console command "/mccstandings"
+		set {mcc.sg.stage} to 2
+		set {mcc.sg.timeleft} to 30
+
+
+function sgb(m:text):
+	loop all players:
+		if loop-player's world is equal to {sgworld}:
+			send {_m} to loop-player
+
+function sgstartgame():
+	loop all players:
+		set {sg.ready.%loop-player's name%} to false
+		delete {sg.hitby.%loop-player's name%}
+		set {sg.ctimer.%loop-player's name%} to 0
+		set {sg.kills.%loop-player's name%} to 0
+		if {sg.playing.%loop-player's name%} is true:
+			set {sg.kills.%loop-player's name%} to 0
+			if loop-player's world is equal to {sgworld}:
+				clear the loop-player's inventory
+				give a wooden sword to the loop-player
+				set slot 8 of the loop-player's inventory to compass of curse of vanishing named "<gold>Tracking Compass"
+			execute console command "/boopboopboopbeep %loop-player%"
+	wait 3 seconds
+	loop all players:
+		if {sg.playing.%loop-player's name%} is true:
+			delete {target.%loop-player's name%}
+			set {targeting.%loop-player's name%} to false
+			loop blocks in radius 5 of loop-player:
+				if loop-block is a barrier block:
+					set loop-block to air
+	
+	wait 1 second
+	set {sg.time} to 1
+
+command /addbarrierssg <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop blocks in radius arg 1 of player:
+				if loop-block is minecraft:barrier:
+					add loop-block to {hgbarriers::*}
+
+
+function sgspawnchest(x:number, z:number):
+	set {_bla} to 100.5
+	while block at the location {_x}, {_bla}, {_z} of {sgworld} is air:
+		subtract 1 from {_bla}
+	chance of 0.2%:
+		set the block at the location {_x}, {_bla}+1, {_z} of {sgworld} to a chest
+		add 1 TNT to the inventory of the block at the location {_x}, {_bla}+1, {_z} of {sgworld}
+		add the location {_x}, {_bla}+1, {_z} of {sgworld} to {lootchests::*} 
+
+command addloot <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop {lootchests::*}:
+				chance of arg:
+					add player's tool to the inventory of block at loop-value
+
+
+function sgwildchests():
+	delete {lootchests::*}
+	loop numbers from -99.5 to 99.5:
+		loop numbers from -99.5 to 99.5:
+			sgspawnchest(loop-number-1, loop-number-2)
+	execute console command "/fillchests sg_wild"
+
+
+
+command /sgreloadkiwi:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/mvdelete survivalgames"
+		execute console command "/mvconfirm"
+		execute console command "/mvclone sgmap survivalgames"
+		wait 1 second
+		loop all worlds:
+			if "%loop-world%" is equal to "survivalgames":
+				set {sgworld} to loop-world
+		#sgwildchests()
+		broadcast "Generated chests"
+		# set {sg.ycord} to 128 
+		# while block at the location 0.5, {sg.ycord}+0.5, 0.5 of {sgworld} is air or minecraft:barrier:
+		# 	subtract 1 from {sg.ycord}
+		# set {sg.ycoords.1} to {sg.ycord}
+
+		
+		set the gamerule doImmediateRespawn of {sgworld} to true
+		set the gamerule doMobSpawning of {sgworld} to false
+		set the gamerule showDeathMessages of {sgworld} to false
+		set the gamerule doDaylightCycle of {sgworld} to false
+		set the gamerule doWeatherCycle of {sgworld} to false
+		set damage buffer of world border of {sgworld} to 0
+		execute console command "/fillchestskiwi sg_wild"
+		loop blocks in radius 10 of the location 0.5, 43.5, 0.5 of {sgworld}:
+			if loop-block is a chest:
+				add loop-block to {lootchests::*}
+				remove loop-block's location from {lootchestskiwi::*}
+		execute console command "/fillchests sg_cornucopia"
+		broadcast "Generated cornucopia"	
+
+command /sgreloadkiwi2:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/mvdelete survivalgames2"
+		execute console command "/mvconfirm"
+		execute console command "/mvclone sgmap survivalgames2"
+		wait 1 second
+		loop all worlds:
+			if "%loop-world%" is equal to "survivalgames2":
+				set {sgworld} to loop-world
+		#sgwildchests()
+		broadcast "Generated chests"
+		# set {sg.ycord} to 128 
+		# while block at the location 0.5, {sg.ycord}+0.5, 0.5 of {sgworld} is air or minecraft:barrier:
+		# 	subtract 1 from {sg.ycord}
+		# set {sg.ycoords.2} to {sg.ycord}
+	
+		set the gamerule doImmediateRespawn of {sgworld} to true
+		set the gamerule doMobSpawning of {sgworld} to false
+		set the gamerule showDeathMessages of {sgworld} to false
+		set the gamerule doDaylightCycle of {sgworld} to false
+		set the gamerule doWeatherCycle of {sgworld} to false
+		set damage buffer of world border of {sgworld} to 0
+		execute console command "/fillchestskiwi sg_wild"
+		loop blocks in radius 10 of the location 0.5, 43.5, 0.5 of {sgworld}:
+			if loop-block is a chest:
+				add loop-block to {lootchests::*}
+				remove loop-block's location from {lootchestskiwi::*}
+		execute console command "/fillchests sg_cornucopia"
+		broadcast "Generated cornucopia"	
+
+on anvil prepare:
+	if player's world is {sgworld}:
+		if event-slot is an enchanted book:
+			set repair cost of event-inventory to 999999999999
+			message "<red>You cannot combine books in an anvil in Hunger Games"
+
+command /sgreload:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				if command sender is not "notcbop":
+					message "<pink>You do not have permission to run this command!"
+					exit trigger
+		broadcast "Starting reload of Survival Games world..."
+		execute console command "/mvdelete survivalgames"
+		execute console command "/mvconfirm"
+		execute console command "/mvcreate survivalgames normal"
+		broadcast "Reloaded world"
+		loop all worlds:
+			if "%loop-world%" is equal to "survivalgames":
+				set {sgworld} to loop-world
+		sgwildchests()
+		broadcast "Generated chests"
+		set {sg.ycord} to 128 
+		while block at the location 0.5, {sg.ycord}+0.5, 0.5 of {sgworld} is air:
+			subtract 1 from {sg.ycord}
+		set {sg.ycoords.1} to {sg.ycord}
+		execute console command "/schempaste sg_cornucopia survivalgames 0 %{sg.ycord}% 0"
+		loop blocks in radius 5 of the location 0.5, {sg.ycord}+0.5, 0.5 of {sgworld}:
+			if loop-block is a chest:
+				add loop-block to {lootchests::*}
+		execute console command "/fillchests sg_cornucopia"
+		broadcast "Generated cornucopia"	
+
+command /addloottochests:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop blocks in radius 100 around player:
+				if block at loop-value is a chest:
+					add player's tool to the inventory of the block at loop-value-1
+
+command /sgreload2:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				if command sender is not "notcbop":
+					message "<pink>You do not have permission to run this command!"
+					exit trigger
+		broadcast "Starting reload of Survival Games world 2..."
+		execute console command "/mvdelete survivalgames2"
+		execute console command "/mvconfirm"
+		execute console command "/mvcreate survivalgames2 normal"
+		broadcast "Reloaded world"
+		loop all worlds:
+			if "%loop-world%" is equal to "survivalgames2":
+				set {sgworld} to loop-world
+		sgwildchests()
+		broadcast "Generated chests"
+		set {sg.ycord} to 128 
+		while block at the location 0.5, {sg.ycord}+0.5, 0.5 of {sgworld} is air or minecraft:barrier:
+			subtract 1 from {sg.ycord}
+		set {sg.ycoords.2} to {sg.ycord}
+		execute console command "/schempaste sg_cornucopia survivalgames2 0 %{sg.ycord}% 0"
+		loop blocks in radius 5 of the location 0.5, {sg.ycord}+0.5, 0.5 of {sgworld}:
+			if loop-block is a chest:
+				add loop-block to {lootchests::*}
+		execute console command "/fillchests sg_cornucopia"
+		broadcast "Generated cornucopia"	
+
+on block damaging:
+	"%player's world%" is equal to "survivalgames"
+	player's game mode is survival
+	if {sgmapset} isn't true:
+		apply mining fatigue 1 to the player for 10 seconds replacing existing effect
+
+on break:
+	"%player's world%" is equal to "survivalgames"
+	if {sg.time} is equal to 0:
+		message "<pink>Hunger Games hasn't started yet!" to event-player
+		cancel event 
+
+
+on damage:
+	attacker is a player
+	victim is a player
+	attacker's world is equal to {sgworld} 
+	if {sg.time} is less than 20:
+		send "<pink>The grace period hasn't ended yet!" to attacker
+		cancel event 
+	else if {mcc.team.%attacker%} is equal to {mcc.team.%victim%}:
+		if {mcc.currentevent} is equal to "survivalgames":
+			send "<pink>You cannot attack teammates!" to attacker
+			cancel event
+
+on spawn:
+	"%event-world%" is equal to "survivalgames" or "survivalgames2"
+	if event-entity is a zombie:
+		cancel event
+	else if event-entity is a skeleton:
+		cancel event
+	else if event-entity is a creeper:
+		if "%spawn reason%" is not equal to "spawn egg":
+			cancel event
+	else if event-entity is a spider:
+		cancel event
+	else if event-entity is a phantom:
+		cancel event
+	else if event-entity is a witch:
+		cancel event
+	else if event-entity is a zombie villager:
+		cancel event
+	else if event-entity is a spider:
+		cancel event
+	else if event-entity is an enderman:
+		cancel event
+		
+
+
+on combust:
+	"%event-world%" is equal to "survivalgames"
+	event-entity is not a player
+	cancel event
+
+on join:
+	if {sg.time} is equal to 0:
+		if {sg.playing.%player's name%} is true:
+			set {sg.playing.%player's name%} to false
+			set {sg.kills.%player's name%} to 0  
+			set {sg.ready.%player's name%} to false
+			execute console command "/mv tp %player% world"
+
+on damage of player:
+	victim's world is equal to {sgworld} 
+	if {sg.time} is less than 20:
+		cancel event
+		exit trigger
+	if attacker is a player:
+		if {mcc.team.%attacker%} is equal to {mcc.team.%victim%}:
+			send "<pink>You cannot attack teammates!" to attacker
+			cancel event
+			exit trigger
+		set {sg.hitby.%victim%} to attacker
+		set {sg.ctimer.%victim%} to 10
+	else if attacker is TNT:
+		loop all players:
+			if attacker has scoreboard tags "att %loop-player%":
+				set {sg.hitby.%victim%} to loop-player
+				set {sg.ctimer.%victim%} to 10
+	if damage cause is firework:
+		cancel event
+	
+on death of player:
+	if victim's world is equal to "survivalgames" or "survivalgames2":
+		if {sg.time} is less than 20:
+			cancel event
+			exit trigger
+		cancel event
+		set victim's health to 10
+		set victim's hunger to 10
+		set victim's saturation to 5
+		set victim's gamemode to spectator
+		loop items in victim's inventory:
+			drop the loop-item
+		send title "<pink>You died!" to victim for 3 seconds
+		launch ball large colored mcccolor({mcc.team.%victim%}) at victim with duration 0
+		clear the victim's inventory
+		set {_pl} to "<%mcccolor({mcc.team.%victim%})%>%victim%"
+		set {_msg} to "%{_pl}%<white> died"
+		if attacker is a player:
+			heal attacker by 2 hearts
+			set {_at} to "<%mcccolor({mcc.team.%attacker%})%>%attacker%"
+			if damage cause is attack:
+				set {_msg} to "%{_pl}% <white>was slain by %{_at}%"
+			else if damage cause is projectile:
+				set {_msg} to "%{_pl}% <white>was shot by %{_at}%"
+			else if damage cause is potion:
+				set {_msg} to "%{_pl}% <white>was killed by %{_at}% using magic"
+		else if attacker is a zombie or a skeleton or a spider or an enderman or a blaze or a witch or a wither skeleton or an endermite:
+			set {_msg} to "%{_pl}% <white>was killed by a monster"
+		else if attacker is a iron golem:
+			set {_msg} to "%{_pl}% <white>was killed by an iron golem"
+		else if attacker is a mob:
+			set {_msg} to "%{_pl}% <white>was killed by a mob"
+		else if "%damage cause%" is "unknown":
+			if {skb.hitby.%victim%} is set:
+				heal {skb.hitby.%victim%} by 2 hearts
+				set {_msg} to "%{_pl}% <white>didn't want to live in the same world as %{_at}%"
+			else:
+				set {_msg} to "%{_pl}% <white>fell out of the world"
+		else if "%damage cause%" contains "explosion":
+			if {skb.hitby.%victim%} is set:
+				heal {skb.hitby.%victim%} by 2 hearts
+				set {_msg} to "%{_pl}% <white>was blown up by %{_at}%"
+			else:
+				set {_msg} to "%{_pl}% <white>blew up"
+		else if damage cause is fall:
+			if {skb.hitby.%victim%} is set:
+				heal {skb.hitby.%victim%} by 2 hearts
+				set {_msg} to "%{_pl}% fell from a high place while trying to escape %{_at}%" 
+			else:
+				set {_msg} to "%{_pl}% <white>fell from a high place"
+		else if damage cause is lava:
+			if {skb.hitby.%victim%} is set:
+				heal {skb.hitby.%victim%} by 2 hearts
+				set {_msg} to "%{_pl}%<white> tried to swim in lava while trying to escape %{_at}%" 
+			else:
+				set {_msg} to "%{_pl}% <white>tried to swim in lava"
+		else if damage cause is fire:
+			if {skb.hitby.%victim%} is set:
+				heal {skb.hitby.%victim%} by 2 hearts
+				set {_msg} to "%{_pl}%<white> burnt to a crisp while trying to escape %{_at}%" 
+			else:
+				set {_msg} to "%{_pl}% <white>burnt to a crisp"
+		#else if damage cause is wither:
+		#	set {_msg} to "%{_pl}% <white>withered away"
+		#else if damage cause is falling block:
+		#	set {_msg} to "%{_pl}% <white>was hit by a falling block"
+		else if damage cause is suffocation:
+			set {_msg} to "%{_pl}% <white>suffocated"
+		broadcast formatted {_msg}
+		set {sg.playing.%victim%} to false
+		if {sg.hitby.%victim%} is set:
+			#add 1 to {sg.kills.%attacker%}
+			#add 1 to {sg.totalkills.%attacker%}
+			#ac(attacker, 50, "You killed %victim%!", false)
+			#youkilled(attacker, victim)
+			if {sg.hitby.%victim%} is not equal to victim:
+				add 1 to {sg.kills.%{sg.hitby.%victim%}%}
+				add 1 to {sg.totalkills.%{sg.hitby.%victim%}%}
+				if 55-5*floor({sg.time}/45) is greater than 35:
+					ac({sg.hitby.%victim%}, 55-5*floor({sg.time}/45), "You killed %{sg.hitby.%victim%}%!", false)
+				else:
+					ac({sg.hitby.%victim%}, 55, "You killed %{sg.hitby.%victim%}%!", false)
+				youkilled({sg.hitby.%victim%}, victim)
+		set {_pl} to "<%mcccolor({mcc.team.%victim%})%>%victim%"
+		
+		loop all players:
+			# if "%loop-player's world%" is equal to "survivalgames" or "survivalgames2":
+			# 	send formatted {_msg} to loop-player
+			if {sg.playing.%loop-player's name%} is true:
+				bac(loop-player, 3, "Survived 1 place")	
+		if sgover() is true:
+			sgendgame()
+					
+
+
+every second:
+	if {sg.time} is equal to 0:
+		exit trigger
+	add 1 to {sg.time}
+	if {sg.time} is less than 20:
+		set {sg.event} to "PVP on"
+		set {sg.tim} to 20
+	else if {sg.time} is less than 60:
+		set {sg.event} to "Mini feast 1"
+		set {sg.tim} to 60
+	else if {sg.time} is less than 120:
+		set {sg.event} to "Mini feast 2"
+		set {sg.tim} to 120 
+	else if {sg.time} is less than 180:
+		set {sg.event} to "Border shrinking"
+		set {sg.tim} to 180 
+	else if {sg.time} is less than 210:
+		set {sg.event} to "Feast"
+		set {sg.tim} to 210 
+	else if {sg.time} is less than 420:
+		set {sg.event} to "Game end"
+		set {sg.tim} to 420 
+	set {sg.playersleft} to 0
+	loop all players:
+		if {sg.playing.%loop-player's name%} is true:
+			add 1 to {sg.playersleft}	
+		if {sg.ctimer.%loop-player's name%} is greater than 0:
+			subtract 1 from {sg.ctimer.%loop-player's name%}
+		else:
+			delete {sg.hitby.%loop-player's name%}
+	if mod({sg.time},60) is equal to 0:
+		loop all players:
+			if {sg.playing.%loop-player's name%} is true:
+				if {sgmapset} isn't true:
+					bac(loop-player, 3, "Survived 1 minute")
+	if {sg.time} is equal to 10: 	
+		sgb("<pink>Grace period ends in 10 seconds.")
+	else if {sg.time} is equal to 15: 	
+		sgb("<pink>Grace period ends in 5 seconds.")
+	else if {sg.time} is equal to 16: 	
+		sgb("<pink>Grace period ends in 4 seconds.")
+	else if {sg.time} is equal to 17: 	
+		sgb("<pink>Grace period ends in 3 seconds.")
+	else if {sg.time} is equal to 18: 	
+		sgb("<pink>Grace period ends in 2 seconds.")
+	else if {sg.time} is equal to 19: 	
+		sgb("<pink>Grace period ends in 1 second.")
+	else if {sg.time} is equal to 20: 	
+		sgb("<pink>Grace period is over. PVP is enabled!")
+	else if {sg.time} is equal to 60: 	
+		if {hgmapset} isn't true:
+			set {_x} to a random integer between -95.5 and 95.5
+			set {_z} to a random integer between -95.5 and 95.5
+			set {_y} to 62
+			set {sg.minifeastloc} to the location {_x}+0.5, {_y}+0.5, {_z}+0.5 of {sgworld}
+			while the block at {sg.minifeastloc} is not air:
+				add 1 to {_y} 
+				set {sg.minifeastloc} to the location {_x}+0.5, {_y}+0.5, {_z}+0.5 of {sgworld}
+			execute console command "/schempaste minifeast %{sgworld}% %{_x}% %{_y}+1% %{_z}%"
+			wait 1 second
+			delete {lootchests::*}
+			loop blocks in radius 2 of {sg.minifeastloc}:
+				if loop-block is a chest:
+					add loop-block to {lootchests::*}	
+			execute console command "/fillchests minifeast"	
+			sgb("<pink>A mini feast has spawned between x: (%round({_x}/100-0.5)*100% and %round({_x}/100-0.5)*100+100%) and z: (%round({_z}/100-0.5)*100% and %round({_z}/100-0.5)*100+100%)")
+	else if {sg.time} is equal to 120: 	
+		if {hgmapset} isn't true:
+			set {_x} to a random integer between -95.5 and 95.5
+			set {_z} to a random integer between -95.5 and 95.5
+			set {_y} to 62
+			set {sg.minifeastloc} to the location {_x}+0.5, {_y}+0.5, {_z}+0.5 of {sgworld}
+			while the block at {sg.minifeastloc} is not air:
+				add 1 to {_y} 
+				set {sg.minifeastloc} to the location {_x}+0.5, {_y}+0.5, {_z}+0.5 of {sgworld}
+			execute console command "/schempaste minifeast %{sgworld}% %{_x}% %{_y}+1% %{_z}%"
+			wait 1 second
+			delete {lootchests::*}
+			loop blocks in radius 2 of {sg.minifeastloc}:
+				if loop-block is a chest:
+					add loop-block to {lootchests::*}	
+			execute console command "/fillchests minifeast"	
+			sgb("<pink>A mini feast has spawned between x: (%round({_x}/100-0.5)*100% and %round({_x}/100-0.5)*100+100%) and z: (%round({_z}/100-0.5)*100% and %round({_z}/100-0.5)*100+100%)")
+	else if {sg.time} is equal to 150: 	
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 1 minute.")
+		else:
+			sgb("<pink>Supply drops arriving in 1 minute.")
+		sgb("<pink>The border is shrinking in 30 seconds!")
+		set {sg.worldborderx} to a random integer between -95.5 and 95.5
+		set {sg.worldborderz} to a random integer between -95.5 and 95.5
+		send title "<red>Warning!" with subtitle "Check the chat" to all players
+		sgb("----------------------------------------------------------------------------------------------------------------------------------")
+		sgb("                                                                                                                                  ")
+		sgb("<pink>The center of the border will <bold>Instantly<reset><pink> move to (%{sg.worldborderx}%, %{sg.worldborderz}%) in 30 seconds.")
+		sgb("                                                                                                                                  ")
+		sgb("----------------------------------------------------------------------------------------------------------------------------------")
+	else if {sg.time} is equal to 180: 	
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 30 seconds.")
+		else:
+			sgb("<pink>Supply drops arriving in 30 seconds.")
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				send title "" with subtitle "<pink>Border shrinking" to loop-player for 5 seconds
+		set {_good} to false
+		
+		set border center of world border of world "survivalgames" to location({sg.worldborderx},0,{sg.worldborderz})
+		set border center of world border of world "survivalgames2" to location({sg.worldborderx},0,{sg.worldborderz})
+		shrink world border of world "survivalgames" to 25 in 200 seconds
+		shrink world border of world "survivalgames2" to 25 in 200 seconds
+			
+	else if {sg.time} is equal to 195: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 15 seconds.")
+		else:
+			sgb("<pink>Supply drops arriving in 15 seconds.")
+	else if {sg.time} is equal to 200: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 10 seconds.")
+		else:
+			sgb("<pink>Supply drops arriving in 10 seconds.")
+	else if {sg.time} is equal to 205: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 5 seconds.")
+		else:
+			sgb("<pink>Supply drops arriving in 5 seconds.")
+	else if {sg.time} is equal to 206: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 4 seconds.")
+		else:
+			sgb("<pink>Supply drops arriving in 4 seconds.")
+	else if {sg.time} is equal to 207: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 3 seconds.")
+		else:
+			sgb("<pink>Supply drops arriving in 3 seconds.")
+	else if {sg.time} is equal to 208: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 2 seconds.")
+		else:
+			sgb("<pink>Supply drops arriving in 2 seconds.")
+	else if {sg.time} is equal to 209: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 1 second.")
+		else:
+			sgb("<pink>Supply drops arriving in 1 second.")
+	else if {sg.time} is equal to 210: 
+		if {hgmapset} isn't true:
+			sgb("<pink>The Feast has begun!")
+			loop blocks in radius 20 of the location 0.5, {sg.ycord}+0.5, 0.5 of world {sgworld}:
+				if y-coordinate of loop-block is greater than {sg.ycord}+2:
+					set loop-block to air
+			set block at the location 0.5, {sg.ycord}+2, 0.5 of {sgworld} to minecraft:enchanting_table
+			set block at the location 1.5, {sg.ycord}+2, 1.5 of {sgworld} to a chest 
+			set block at the location -0.5, {sg.ycord}+2, -0.5 of {sgworld} to a chest 
+			set block at the location 1.5, {sg.ycord}+2, -0.5 of {sgworld} to a chest 
+			set block at the location -0.5, {sg.ycord}+2, 1.5 of {sgworld} to a chest 
+			set block at the location -1.5, {sg.ycord}+2, -1.5 of {sgworld} to a chest 
+			set block at the location -1.5, {sg.ycord}+2, 2.5 of {sgworld} to a chest 
+			set block at the location 2.5, {sg.ycord}+2, 2.5 of {sgworld} to a chest 
+			set block at the location 2.5, {sg.ycord}+2, -1.5 of {sgworld} to a chest 
+			set block at the location 0.5, {sg.ycord}+2, -1.5 of {sgworld} to a chest 
+			set block at the location 0.5, {sg.ycord}+2, 2.5 of {sgworld} to a chest 
+			set block at the location -1.5, {sg.ycord}+2, 0.5 of {sgworld} to a chest 
+			set block at the location 2.5, {sg.ycord}+2, 0.5 of {sgworld} to a chest 
+			delete {lootchests::*}
+			loop blocks in radius 10 of the location 0.5, {sg.ycord}+0.5, 0.5 of world {sgworld}:
+				if loop-block is a chest:
+					add loop-block to {lootchests::*}
+			execute console command "/fillchests sg_feast"
+		else:
+			sgb("<pink>Supply drops have arrived!")
+			sgspawnsupplydrops({sgworld})
+	else if {sg.time} is more than 390:
+		send title "<red>Sudden Death!" with subtitle "<pink>Players' health will slowly be drained" to all players for 2 seconds
+	else if {sg.time} is more than 390:
+		if mod({sg.time},5) is 0:
+			loop all players:
+				damage loop-player by 1 heart
+	else if {sg.time} is equal to 420:
+		sgendgame()	
+
+function sgspawnsupplydrops(world:world):
+	loop {sgsupplydroplocs::*}:
+		set loop-value's world to {_world}
+	loop {sgsupplydroplocs::*}:
+		spawn falling gold block 20 blocks above loop-value
+		spawn falling chest at the location 1 block north of the location 20 blocks above loop-value
+		spawn falling chest at the location 1 block south of the location 20 blocks above loop-value
+	wait 2 seconds
+	delete {lootchests::*}
+	loop {sgsupplydroplocs::*}:
+		set facing of the block 1 block south of loop-value to south
+		loop blocks in radius 2 of loop-value:
+			if loop-block is a chest:
+				add loop-block to {lootchests::*}
+	execute console command "/fillchests sg_wild"
+
+on inventory click:
+	world is {sgworld}
+	if event-item is {hg.customitems::speedfeather} or air:
+		wait a tick
+		if player's inventory contains {hg.customitems::speedfeather}:
+			set glowing of player to true
+			apply swiftness of tier 2 to player for 999 days
+		else:
+			remove speed from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::trident} or air:
+		wait a tick
+		if player's inventory contains {hg.customitems::trident}:
+			set glowing of player to true
+		else:
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::frogaxe} or air:
+		wait a tick
+		if player's inventory contains {hg.customitems::frogaxe}:
+			set glowing of player to true
+			apply jump boost of tier 1 to player for 999 days
+		else:
+			remove jump boost from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::shulker} or air:
+		wait a tick
+		if player's inventory contains {hg.customitems::shulker}:
+			set glowing of player to true
+			apply resistance of tier 1 to player for 999 days
+		else:
+			remove resistance from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+		
+
+
+on pick up:
+	world is {sgworld}
+	if event-item is {hg.customitems::speedfeather}:
+		wait a tick
+		if player's inventory contains {hg.customitems::speedfeather}:
+			set glowing of player to true
+			apply swiftness of tier 2 to player for 999 days
+		else:
+			remove speed from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::trident}:
+		wait a tick
+		if player's inventory contains {hg.customitems::trident}:
+			set glowing of player to true
+		else:
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::frogaxe}:
+		wait a tick
+		if player's inventory contains {hg.customitems::frogaxe}:
+			set glowing of player to true
+			apply jump boost of tier 1 to player for 999 days
+		else:
+			remove jump boost from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::shulker}:
+		wait a tick
+		if player's inventory contains {hg.customitems::shulker}:
+			set glowing of player to true
+			apply resistance of tier 1 to player for 999 days
+		else:
+			remove resistance from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	
+on drop:
+	world is {sgworld}
+	if event-item is {hg.customitems::speedfeather}:
+		wait a tick
+		if player's inventory contains {hg.customitems::speedfeather}:
+			set glowing of player to true
+			apply swiftness of tier 2 to player for 999 days
+		else:
+			remove speed from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::trident}:
+		wait a tick
+		if player's inventory contains {hg.customitems::trident}:
+			set glowing of player to true
+		else:
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::frogaxe}:
+		wait a tick
+		if player's inventory contains {hg.customitems::frogaxe}:
+			set glowing of player to true
+			apply jump boost of tier 1 to player for 999 days
+		else:
+			remove jump boost from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	if event-item is {hg.customitems::shulker}:
+		wait a tick
+		if player's inventory contains {hg.customitems::shulker}:
+			set glowing of player to true
+			apply resistance of tier 1 to player for 999 days
+		else:
+			remove resistance from player
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+
+
+on projectile hit:
+	world is {sgworld}
+	if event-projectile is a trident:
+		apply resistance of tier 1 to victim for 0.05 seconds
+
+command /mcchungergames:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		set {mcc.sg.stage} to 0
+		execute console command "/mccnewgame"
+		set {sg.time} to 0
+		set {sg.event} to "PVP on"
+		set {sg.tim} to 20
+		set {mcc.sg.timeleft} to 80
+		set {mcc.currentevent} to "survivalgames"
+		loop all worlds:
+			if "%loop-world%" is equal to "survivalgames":
+				set {sgworld} to loop-world
+		set {sg.ycord} to {sg.ycoords.1}
+		set {mcc.sg.round} to 1 
+		#set time in {sgworld} to 15:00
+		set {_good} to false
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {hgmapset} isn't true:
+					hungergamestp1({mcc.team.%loop-player's name%}, loop-player)
+				else:
+					hgrandomtp(world "survivalgames")
+				set {immune.%loop-player's name%} to false
+				wait a tick
+				set loop-player's game mode to survival
+				clear the loop-player's inventory		
+				set the loop-player's level to 1
+				set the loop-player's level progress to 0
+				set loop-player's health to 10
+				set loop-player's level to 0
+				set loop-player's level progress to 0	
+				set loop-player's hunger to 10
+				clear loop-player's potion effects
+				set glowing of loop-player to false
+				set {sg.playing.%loop-player's name%} to true
+				mccsgtutorial(loop-player)
+		set border center of world border of world "survivalgames2" to location(0,0,0)
+		set border center of world border of world "survivalgames1" to location(0,0,0)
+		expand world border of world "survivalgames2" to 275 in 1 second
+		expand world border of world "survivalgames" to 275 in 1 second
+		while {mcc.sg.round} is equal to 1:
+			wait 1 second
+		set {mcc.sg.stage} to 0
+		set {sg.time} to 0
+		set {sg.event} to "PVP on"
+		set {sg.tim} to 20
+		set {mcc.sg.timeleft} to 15 
+		loop all worlds:
+			if "%loop-world%" is equal to "survivalgames2":
+				set {sgworld} to loop-world
+		set {sg.ycord} to {sg.ycoords.2}
+		#set time in {sgworld} to 15:00
+		set {_good} to false
+
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {hgmapset} isn't true:
+					hungergamestp2({mcc.team.%loop-player's name%}, loop-player)
+				else:
+					hgrandomtp(world "survivalgames2")
+				set {immune.%loop-player's name%} to false
+				wait a tick
+				set loop-player's game mode to survival
+				clear the loop-player's inventory		
+				set the loop-player's level to 1
+				set the loop-player's level progress to 0
+				set loop-player's health to 10
+				set loop-player's level to 0
+				set loop-player's level progress to 0	
+				set loop-player's hunger to 10
+				clear loop-player's potion effects
+				set glowing of loop-player to false
+				set {sg.playing.%loop-player's name%} to true
+		set border center of world border of world "survivalgames2" to location(0,0,0)
+		set border center of world border of world "survivalgames1" to location(0,0,0)
+		expand world border of world "survivalgames2" to 275 in 1 second
+		expand world border of world "survivalgames" to 275 in 1 second
+
+function hgrandomtp(world:world):
+	set {_locations::*} to {mcc.hg.startinglocs::*}
+	set {_locations::*} to shuffled {_locations::*}
+	set {_count} to 1
+	loop {_locations::*}:
+		set {_loc} to loop-value
+		set {_loc}'s world to {_world}
+		#broadcast {_loc}
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to {_count}:
+				teleport loop-player to {_loc}
+		loop blocks in radius 3 around {_loc}:
+			if loop-block is stone or concrete:
+				if {_count} is equal to 0:
+					set loop-block to white concrete
+				else if {_count} is equal to 1:
+					set loop-block to red concrete
+				else if {_count} is equal to 2:
+					set loop-block to orange concrete
+				else if {_count} is equal to 3:
+					set loop-block to yellow concrete
+				else if {_count} is equal to 4:
+					set loop-block to lime concrete
+				else if {_count} is equal to 5:
+					set loop-block to green concrete
+				else if {_count} is equal to 6:
+					set loop-block to cyan concrete
+				else if {_count} is equal to 7:
+					set loop-block to light blue concrete
+				else if {_count} is equal to 8:
+					set loop-block to blue concrete
+				else if {_count} is equal to 9:
+					set loop-block to purple concrete
+				else if {_count} is equal to 10:
+					set loop-block to magenta concrete
+		add 1 to {_count}
+
+on break:
+	world is "survivalgames" or "survivalgames2"
+	{sgmapset} is true
+	if event-block isn't leaves or glass or cobweb or gold block:
+		cancel event
+	else if event-block is gold block:
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to {mcc.team.%player%}:
+				ac(loop-player, 45, "Collected a Coin Crate!", false)
+		clear drops
+	else:
+		clear drops
+
+on place:
+	world is "survivalgames" or "survivalgames2"
+	{sgmapset} is true
+	event-block isn't cobweb
+	cancel event
+
+
+
+function hungergamestp1(n:number,p:player):
+	if {_n} is 1:
+		teleport {_p} to location at 27.5, {sg.ycord} + 2, 0.5 of the world "survivalgames"
+	if {_n} is 2:
+		teleport {_p} to location at 21.5, {sg.ycord} + 2, 16.5 of the world "survivalgames"
+	if {_n} is 3:
+		teleport {_p} to location at 9.5, {sg.ycord} + 2, 25.5 of the world "survivalgames"
+	if {_n} is 4:
+		teleport {_p} to location at -8.5, {sg.ycord} + 2, 25.5 of the world "survivalgames"
+	if {_n} is 5:
+		teleport {_p} to location at -20.5, {sg.ycord} + 2, 16.5 of the world "survivalgames"
+	if {_n} is 6:
+		teleport {_p} to location at -26.5, {sg.ycord} + 2, 0.5 of the world "survivalgames"
+	if {_n} is 7:
+		teleport {_p} to location at -20.5, {sg.ycord} + 2, -15.5 of the world "survivalgames"
+	if {_n} is 8:
+		teleport {_p} to location at -8.5, {sg.ycord} + 2, -24.5 of the world "survivalgames"
+	if {_n} is 9:
+		teleport {_p} to location at 9.5, {sg.ycord} + 2, -24.5 of the world "survivalgames"
+	if {_n} is 10:
+		teleport {_p} to location at 21.5, {sg.ycord} + 2, -15.5 of the world "survivalgames"
+	
+function hungergamestp2(n:number,p:player):
+	if {_n} is 1:
+		teleport {_p} to location at 27.5, {sg.ycord} + 2, 0.5 of the world "survivalgames2"
+	if {_n} is 2:
+		teleport {_p} to location at 21.5, {sg.ycord} + 2, 16.5 of the world "survivalgames2"
+	if {_n} is 3:
+		teleport {_p} to location at 9.5, {sg.ycord} + 2, 25.5 of the world "survivalgames2"
+	if {_n} is 4:
+		teleport {_p} to location at -8.5, {sg.ycord} + 2, 25.5 of the world "survivalgames2"
+	if {_n} is 5:
+		teleport {_p} to location at -20.5, {sg.ycord} + 2, 16.5 of the world "survivalgames2"
+	if {_n} is 6:
+		teleport {_p} to location at -26.5, {sg.ycord} + 2, 0.5 of the world "survivalgames2"
+	if {_n} is 7:
+		teleport {_p} to location at -20.5, {sg.ycord} + 2, -15.5 of the world "survivalgames2"
+	if {_n} is 8:
+		teleport {_p} to location at -8.5, {sg.ycord} + 2, -24.5 of the world "survivalgames2"
+	if {_n} is 9:
+		teleport {_p} to location at 9.5, {sg.ycord} + 2, -24.5 of the world "survivalgames2"
+	if {_n} is 10:
+		teleport {_p} to location at 21.5, {sg.ycord} + 2, -15.5 of the world "survivalgames2"
+
+command /setsgstartingpos <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {sglocations2.%arg%} to player's location
+			broadcast player's location
+
+every second:
+	if {mcc.sg.timeleft} is greater than 0:
+		if {mcc.paused} is true:
+			exit trigger
+		subtract 1 from {mcc.sg.timeleft}
+		if {mcc.sg.timeleft} is equal to 3:
+			if {mcc.sg.stage} is equal to 0:
+				set {mcc.sg.stage} to 1
+				sgstartgame()
+		if {mcc.sg.timeleft} is equal to 0:
+			if {mcc.sg.stage} is equal to 2:
+				execute console command "/mccbreak"
+
+function mccsgtutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Hunger Games" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Hunger Games!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>The goal of Hunger Games is simple: be the last team standing!" to {_p}
+	send "" to {_p}
+	send "Kill other players to narrow the competition, and beware of the shrinking border!" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>At the start of the game, there is a 20-second grace period." to {_p}
+	send "" to {_p}
+	send "Use this time to grab gear from the cornucopia, or put distance between yourself and opponents!" to {_p}
+	send "" to {_p}
+	if {sgmapset} isn't true:
+		send "The cornucopia has significantly better gear than the chests in the wild." to {_p}
+	else:
+		send "Coins from kills start high, but slowly decrease as time goes by." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	if {sgmapset} isn't true:
+		send "<bold>There are also supply drops in the forms of 'feasts' which have powerful gear." to {_p}
+	else:
+		send "There are also supply drops, These always contain a coin crate(gold block), which can be broken open for coins." to {_p}
+	send "" to {_p}
+	if {sgmapset} isn't true:
+		send "- <gold>Mini feasts<white> drop 1 and 2 minutes into the game. Their x and z coordinates are announced to the nearest 100." to {_p}
+	else:
+		send "- <gold>Supply Drops<white> drop halfway into the game. There are 4 drop zones." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 8 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	if {sgmapset} isn't true:
+		send "- <gold>The Feast<white> spawns 3 minutes, 30 seconds into the game, and contains powerful gear. Don't miss it!" to {_p}
+	else:
+		send "- There are 4 <magenta>Relics<reset> scattered around the map, they offer powerful effects, but make you glow!" to {_p}
+	send "" to {_p}
+	send "- After 3 minutes, the border will begin to shrink, forcing the round to a close at around 6 minutes." to {_p}
+	send "<pink> Be careful not to get caught outside the border!" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Extra tips:" to {_p}
+	send "" to {_p}
+	send "- Use your tracking compass to find enemy players." to {_p}
+	send "- Chests are found on top of terrain-- try checking above the trees!" to {_p}
+	if {sgmapset} isn't true:
+		send "- Every chest is guaranteed to have a weapon." to {_p}
+	else:
+		send "- Relics are powerful, don't underestimate a glowing player." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+	wait 10 seconds

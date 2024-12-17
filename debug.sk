@@ -1,0 +1,96 @@
+
+
+on script load:
+	locally suppress conflict warnings	
+
+command /getval <string>:
+	permission: op
+	trigger:
+		message "Value of variable %arg 1% is %{%arg 1%}%"
+
+
+
+command /setvalnum <string> <number>:
+	permission: op
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to do this!"
+			exit trigger
+#		else if {%arg 1%} is not a number:
+#			message "%arg 1% is not a number!"
+		else: 
+			set {%arg 1%} to arg 2
+			message "Set value of variable %arg 1% to %arg 2%"
+
+command /setvalstr <string> <string>:
+	permission: op
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to do this!"
+			exit trigger
+#		else if {%arg 1%} is not a string:
+#			message "%arg 1% is not a string!"
+		else:
+			set {%arg 1%} to arg 2
+			message "Set value of variable %arg 1% to %arg 2%"
+
+
+command /setvalbool <string> <boolean>:
+	permission: op
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to do this!"
+			exit trigger
+#		else if {%arg 1%} is not a boolean:
+#			message "%arg 1% is not a boolean!"
+		else:
+			set {%arg 1%} to arg 2
+			message "Set value of variable %arg 1% to %arg 2%"
+
+command /setvalloc <string>:
+	permission: op
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to do this!"
+			exit trigger
+		else if {%arg 1%} is set:
+			if {%arg 1%} is not a location:
+				message "%arg 1% is not a location!"
+				exit trigger
+		set {%arg 1%} to player's location
+		message "Set value of variable %arg 1% to %{%arg 1%}% in world %player's world%"	
+
+
+
+command /setval <string> <string>:
+	permission: op
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to do this!"
+			exit trigger
+		if arg 2 is "true" or "false":
+			if {%arg 1%} is set:
+				if {%arg 1%} is not a boolean:
+					message "Error: variable %arg 1% is not a boolean"
+					exit trigger
+			set {%arg 1%} to arg 2 
+		set {_bla} to arg 2 parsed as number 
+		if parse error is set:
+			broadcast "test1"
+			if {%arg 1%} is set:
+				if {%arg 1%} is not a string:
+					message "Error: variable %arg 1% is not a boolean"
+					exit trigger
+			set {%arg 1%} to arg 2
+		else:	
+			broadcast "test2"
+			if {%arg 1%} is set:
+				if {%arg 1%} is not a number:
+					message "Error: variable %arg 1% is not a number"
+					exit trigger
+			set {%arg 1%} to {_bla} 
+		message "Set value of variable %arg 1% to %arg 2%"
+
+on tab complete of "/sk reload":
+	set tab completions for position 1 to all scripts
+		

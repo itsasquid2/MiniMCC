@@ -1,0 +1,263 @@
+variables:
+	{bingottt.playing.%player%} = false
+	{bingottt.team.%player%} = "none"
+	{bingottt.inprogress} = false
+	{bingottt.ready.%player%} = false
+
+function bingotttallready() :: boolean:
+        set {_good1} to false
+        set {_good2} to false
+        loop all players:
+                if {bingottt.playing.%loop-player%} is true:
+                        if {bingottt.ready.%loop-player%} is false:
+                                return false
+                        else:
+                                if {bingottt.team.%loop-player%} is equal to "pete":
+                                        set {_good1} to true
+                                else:
+                                        set {_good2} to true
+        if {_good1} is false:
+                return false
+        if {_good2} is false:
+                return false
+        return true
+
+function bingotttstartgame():
+	broadcast "boop boop boop beep"
+
+function ishard(r:number, c:number) :: boolean:
+	if {_r} is equal to {_c}:
+		return true
+	if {_r} is equal to 5-{_c}:
+		return true
+	return false
+
+function pickobj(r:number, c:number) :: boolean:
+	set {_netherbad} to false
+	set {_stbad} to false
+	set {_nc} to 0
+	set {_sc} to 0
+	loop 4 times:
+		if loop-value is not equal to {_r}:
+			if {bingottt.board.%loop-value%.%{_c}%} is set:
+				if {bingo.nether::%{bingottt.board.%loop-value%.%{_c}%}%} is true:
+					add 1 to {_nc}
+				if {bingo.silktouch::%{bingottt.board.%loop-value%.%{_c}%}%} is true:
+					add 1 to {_sc}
+	if {_nc} is greater than or equal to 2:
+		set {_netherbad} to true
+	if {_sc} is greater than or equal to 1:
+		set {_stbad} to true 
+	set {_nc} to 0
+	set {_sc} to 0
+	loop 4 times:
+		if loop-value is not equal to {_c}:
+			if {bingottt.board.%{_r}%.%loop-value%} is set:
+				if {bingo.nether::%{bingottt.board.%{_r}%.%loop-value%}%} is true:
+					add 1 to {_nc}
+				if {bingo.silktouch::%{bingottt.board.%{_r}%.%loop-value%}%} is true:
+					add 1 to {_sc}
+	if {_nc} is greater than or equal to 2:
+		set {_netherbad} to true
+	if {_sc} is greater than or equal to 1:
+		set {_stbad} to true 
+	set {_weightsum} to 0
+	loop size of {bingo.objectives::*} times:
+		set {_wt} to {bingo.weights::%loop-value%}
+		loop 4 times:
+			loop 4 times:
+				if {bingottt.board.%loop-value-2%.%loop-value-3%} is set:
+					if loop-value-1 is equal to {bingottt.board.%loop-value-2%.%loop-value-3%}:
+						set {_wt} to {_wt}*0
+		if {_netherbad} is true:
+			if {bingo.nether::%loop-value%} is true:
+				set {_wt} to {_wt}*0 
+		if {_stbad} is true:
+			if {bingo.silktouch::%loop-value%} is true:
+				set {_wt} to {_wt}*0 
+		if ishard({_r},{_c}) is true:
+			if {bingo.difficulties::%loop-value%} is equal to 5:
+				set {_wt} to {_wt}*0.1
+			else if {bingo.difficulties::%loop-value%} is equal to 4:
+				set {_wt} to {_wt}*0.2
+			else if {bingo.difficulties::%loop-value%} is less than 3:
+				set {_wt} to {_wt}*0
+		else:
+			if {bingo.difficulties::%loop-value%} is equal to 4:
+				set {_wt} to {_wt}*0.1
+			else if {bingo.difficulties::%loop-value%} is equal to 5:
+				set {_wt} to {_wt}*0
+			else if {bingo.difficulties::%loop-value%} is equal to 1:
+				set {_wt} to {_wt}*0
+		add {_wt} to {_weightsum}
+	set {_rand} to a random number between 0 and {_weightsum}
+	set {_weightsum} to 0
+	loop size of {bingo.objectives::*} times:
+		set {_wt} to {bingo.weights::%loop-value%}
+		loop 4 times:
+			loop 4 times:
+				if {bingottt.board.%loop-value-2%.%loop-value-3%} is set:
+					if loop-value-1 is equal to {bingottt.board.%loop-value-2%.%loop-value-3%}:
+						set {_wt} to {_wt}*0
+		if {_netherbad} is true:
+			if {bingo.nether::%loop-value%} is true:
+				set {_wt} to {_wt}*0 
+		if {_stbad} is true:
+			if {bingo.silktouch::%loop-value%} is true:
+				set {_wt} to {_wt}*0
+		if ishard({_r},{_c}) is true:
+			if {bingo.difficulties::%loop-value%} is equal to 5:
+				set {_wt} to {_wt}*0.1
+			else if {bingo.difficulties::%loop-value%} is equal to 3:
+				set {_wt} to {_wt}*0.2
+			else if {bingo.difficulties::%loop-value%} is less than 3:
+				set {_wt} to {_wt}*0
+		else:
+			if {bingo.difficulties::%loop-value%} is equal to 4:
+				set {_wt} to {_wt}*0.1
+			else if {bingo.difficulties::%loop-value%} is equal to 5:
+				set {_wt} to {_wt}*0
+			else if {bingo.difficulties::%loop-value%} is equal to 1:
+				set {_wt} to {_wt}*0
+
+		add {_wt} to {_weightsum}
+		if {_weightsum} is greater than or equal to {_rand}:
+			set {bingottt.board.%{_r}%.%{_c}%} to loop-value
+			return true
+	return false
+
+command /replaceobj <number> <number>:
+	permission: op
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<pink>You do not have permission to do this!"
+			exit trigger
+		if arg 1 is less than 1:
+			message "<pink>Error: both arguments must be integers between 1 and 4 inclusive"
+			exit trigger
+		if arg 1 is greater than 4:
+			message "<pink>Error: both arguments must be integers between 1 and 4 inclusive"
+			exit trigger
+		if arg 2 is less than 1:
+			message "<pink>Error: both arguments must be integers between 1 and 4 inclusive"
+			exit trigger
+		if arg 2 is greater than 4:
+			message "<pink>Error: both arguments must be integers between 1 and 4 inclusive"
+			exit trigger
+		set {_past} to {bingottt.board.%arg 1%.%arg 2%}
+		#pickobj(arg 1, arg 2)
+		
+		broadcast "<lime>Replaced %{bingo.objectives::%{_past}%}% <lime>with %{bingo.objectives::%{bingottt.board.%arg 1%.%arg 2%}%}%<lime> in position %arg 1%<lime>,%arg 2%<lime>" 
+
+
+function generateboard():
+	loop 4 times:
+		loop 4 times:
+			delete {bingottt.board.%loop-value-1%.%loop-value-2%}
+	loop 16 times:
+		add loop-value to {_bla::*}
+	set {_bla::*} to shuffled {_bla::*}
+	loop 16 times:
+		set {_r} to ceiling({_bla::%loop-value%}/4)
+		set {_c} to mod({_bla::%loop-value%},4)
+		if {_c} is equal to 0:
+			set {_c} to 4
+		pickobj({_r},{_c})
+
+command /genboard:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		generateboard()
+		message "generated board"
+		give a paper of curse of vanishing named "<gold>Bingo Card" to player
+
+on walking on purple glazed terracotta:
+	"%player's world%" is equal to "world"
+	player's x-coordinate is between -38 and -37
+	player's y-coordinate is between 74 and 76
+	player's z-coordinate is between -172 and -175
+	if {bingottt.inprogress} is true:
+		message "<pink>Bingo tic tac toe is already in progress! Please wait for the next game." 
+		exit trigger
+	if {bingottt.playing.%player%} is true:
+		message "<pink>You are already playing!"
+		exit trigger
+	teleport player to the location at -164, 4, 208 of world "lobbyworld"
+	wait 0.5 seconds
+	if "%player's world%" is not equal to "lobbyworld":
+		message "<red>Something has gone wrong. Please contact the server admins for assistance."
+		exit trigger
+	broadcast "<lime>[Bingo] <purple>%player% <white>has joined team <purple>Purple PeteZahHutts!"
+	set {bingottt.team.%player%} to "pete"
+	set {bingottt.playing.%player%} to true
+	clear the player's inventory
+	set slot 4 of player's inventory to gunpowder named "<lime>Ready"
+	set slot 8 of player's inventory to red dye named "<pink>Leave"
+
+on walking on magenta glazed terracotta:
+	"%player's world%" is equal to "world"
+	player's x-coordinate is between -38 and -37
+	player's y-coordinate is between 74 and 76
+	player's z-coordinate is between -163 and -160
+	if {bingottt.inprogress} is true:
+		message "<pink>Bingo tic tac toe is already in progress! Please wait for the next game." 
+		exit trigger
+	if {bingottt.playing.%player%} is true:
+		message "<pink>You are already playing!"
+		exit trigger
+	teleport player to the location at -164, 4, 208 of world "lobbyworld"
+	wait 0.5 seconds
+	if "%player's world%" is not equal to "lobbyworld":
+		message "<red>Something has gone wrong. Please contact the server admins for assistance."
+		exit trigger
+	broadcast "<lime>[Bingo] <magenta>%player% <white>has joined team <magenta>Fuchsia Fruitberries!"
+	set {bingottt.team.%player%} to "fruit"
+	set {bingottt.playing.%player%} to true
+	clear the player's inventory
+	set slot 4 of player's inventory to gunpowder named "<lime>Ready"
+	set slot 8 of player's inventory to red dye named "<pink>Leave"
+
+on rightclick:
+        if {bingottt.playing.%player%} is true:
+                if player's tool is red dye named "<pink>Leave":
+                        set {bingottt.playing.%player%} to false
+                        set {bingottt.ready.%player%} to false
+                        set {bingottt.team.%player%} to "none"
+                        execute console command "/mv tp %player% world"
+                else if player's tool is gunpowder named "<lime>Ready":
+                        set {bingottt.ready.%player%} to true
+                        if bingotttallready() is true:
+                                bingotttstartgame()
+                        else:
+                                set player's tool to lime dye named "<gray>Unready"
+                else if player's tool is lime dye named "<gray>Unready":
+                        set {bingottt.ready.%player%} to false
+                        set player's tool to gunpowder named "<lime>Ready"
+
+
+
+
+
+
+command /bingottt:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		loop 4 times:
+			loop 4 times:
+				loop 10 times:
+					set {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%loop-number-3%} to false
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				execute console command "/mv tp %loop-player% bingo_ttt"
+				set {immune.%loop-player%} to false
+				set loop-player's game mode to survival
+				clear the loop-player's inventory
+				set slot 8 of loop-player's inventory to paper of curse of vanishing named "<gold>Bingo Card"
+				set slot 7 of loop-player's inventory to compass of curse of vanishing named "<gold>Tracking Compass"
+				set loop-player's level to 0
+				set loop-player's level progress to 0
+				

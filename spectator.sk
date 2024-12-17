@@ -1,0 +1,18 @@
+on teleport:
+    player's game mode is spectator
+    teleport cause is spectate
+    if {mcc.team.%player%} is 0:
+        exit trigger
+    player's name is not "itsasquid2" or "teamlyle" or "minimcc"
+    world of future event-location is not world of past event-location
+    message "<pink>Teleporting to other worlds has been disabled, sorry!"
+    cancel event
+
+command /spectatorsetgamemode:
+    permission: op
+    trigger:
+        loop all players:
+            if {mcc.team.%loop-player's name%} is 0:
+                set loop-player's gamemode to spectator
+                show loop-player to all players
+                reveal all players to loop-player

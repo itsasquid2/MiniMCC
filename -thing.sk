@@ -1,0 +1,101 @@
+on teleport:
+    event-world is "foodmart"
+    if distance between event-location and the location at 0.5, 77, -2.5 of world "foodmart" is less than 2:
+        give event-player netherite axe with nbt compound from "{Enchantments:[{id:efficiency,lvl:5},{id:sharpness,lvl:5}],CanDestroy:[melon,pumpkin,wheat,beetroots,potatoes,carrots,chorus_plant,cocoa,kelp_plant,kelp,sugar_cane]}"
+        if event-player's inventory does not contain bucket:
+            give event-player bucket
+
+on break:
+    world is "foodmart"
+    event-player's gamemode is adventure
+    cancel event
+    
+    item cooldown of player's tool is 0 seconds
+    
+    drop drops of block using player's tool
+    set item cooldown of player's tool to 5 seconds
+
+on death of player:
+    world is "foodmart"
+    cancel event
+    remove netherite axe with nbt compound from "{Enchantments:[{id:efficiency,lvl:5},{id:sharpness,lvl:5}],CanDestroy:[melon,pumpkin,wheat,beetroots,potatoes,carrots,chorus_plant,cocoa,kelp_plant,kelp,sugar_cane]}" from victim
+    set victim's health to 10
+    teleport victim to {mcc.foodmart.spawnlocs.%{mcc.team.%victim%}%}
+
+on block trample:
+    world is "foodmart"
+    event-block is farmland
+    event-entity is a player
+    cancel event
+
+on death:
+    world is "foodmart"
+    victim is not a player
+    damage cause is not void
+    cancel event
+    item cooldown of attacker's tool for attacker is 0 seconds
+    
+    drop drops at event-location
+    set item cooldown of attacker's tool for attacker to 5 seconds
+
+on spawn of chicken:
+    world is "foodmart"
+    spawn reason is not spawn egg
+    cancel event
+
+on rightclick on button:
+    world is "foodmart"
+    loop 10 times:
+        if {mcc.foodmart.buttons.%loop-number%} is event-block:
+            delete {_order::*}
+            loop items in {mcc.foodmart.order.%loop-value%}'s inventory:
+                if {_order::*} does not contain loop-item:
+                    add 1 of loop-item to {_order::*}
+            loop {_order::*}:
+                if amount of loop-value-2 in {mcc.foodmart.order.%loop-number%}'s inventory is not equal to amount of loop-value-2 in {mcc.foodmart.chest.%loop-number%}'s inventory:
+                    exit trigger
+            add 50 to {mcc.foodmart.points.%loop-number%}
+            broadcast {mcc.foodmart.points.%loop-number%}
+
+command /foodmartgenfirstorder:
+    permission: op
+    trigger:
+        delete {_order::*}
+        loop 3 times:
+            add random element of {mcc.foodmart.foods.1::*} to {_order::*}
+        loop 10 times:
+            set {mcc.foodmart.order.%loop-number%}'s inventory to {_order::*}
+            loop item frames in radius 3 around {mcc.foodmart.chest.%loop-number%}:
+                set loop-entity's item to {_order::%loop-number%}
+
+command /foodmartsetfoods <number>:
+    permission: op
+    trigger:
+        delete {mcc.foodmart.foods.%arg%::*}
+        loop items in player's inventory:
+            add loop-item to {mcc.foodmart.foods.%arg%::*}
+
+        message {mcc.foodmart.foods.%arg%::*}
+
+command /foodmartsetorderchest <number>:
+    permission: op
+    trigger:
+        
+        set {mcc.foodmart.order.%arg%} to player's target block
+        message {mcc.foodmart.order.%arg%}
+
+command /foodmartsetbutton <number>:
+    permission: op
+    trigger:
+        
+        set {mcc.foodmart.buttons.%arg%} to player's target block
+        message {mcc.foodmart.buttons.%arg%}
+
+command /foodmartsetchest <number>:
+    permission: op
+    trigger:
+        
+        set {mcc.foodmart.chest.%arg%} to player's target block
+        message {mcc.foodmart.chest.%arg%}
+        
+

@@ -1,0 +1,433 @@
+
+
+command /setstuff:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			set {mcc.decisiondome.votingtime} to 30
+			set {mcc.decisiondome.breaktime} to 120
+			set {mcc.decisiondome.green} to 8
+			set {mcc.decisiondome.red.1} to false
+			set {mcc.decisiondome.red.2} to false
+			set {mcc.decisiondome.red.3} to false
+			set {mcc.decisiondome.red.4} to false
+			set {mcc.decisiondome.red.5} to false
+			set {mcc.decisiondome.red.6} to false
+			set {mcc.decisiondome.red.7} to false
+			set {mcc.decisiondome.red.8} to false
+			set {mcc.decisiondome.game.1} to "Bingo But Fast"
+			set {mcc.decisiondome.game.2} to "Grid Runners" 
+			set {mcc.decisiondome.game.3} to "Railroad Rush" 
+			set {mcc.decisiondome.game.4} to "Ace Race" 
+			set {mcc.decisiondome.game.5} to "Rocket Spleef Rush" 
+			set {mcc.decisiondome.game.6} to "Sky Battle" 
+			set {mcc.decisiondome.game.7} to "Parkour Warrior" 
+			set {mcc.decisiondome.game.8} to "TGTTOSAWAF" 
+			#set {mcc.decisiondome.game.1} to "X1.0"
+			#set {mcc.decisiondome.game.2} to "X1.5" 
+			#set {mcc.decisiondome.game.3} to "X2.0" 
+			#set {mcc.decisiondome.game.4} to "X2.5" 
+			#set {mcc.decisiondome.game.5} to "X3.0" 
+			#set {mcc.decisiondome.game.6} to "X3.5" 
+			#set {mcc.decisiondome.game.7} to "X4.0" 
+			#set {mcc.decisiondome.game.8} to "X0.5" 
+			set {mcc.decisiondome.chosenslice} to 0
+			set {mcc.chickendropsgone} to false
+
+function ddnextgreen():
+	set {_past} to {mcc.decisiondome.green}
+	add 1 to {mcc.decisiondome.green}
+	if {mcc.decisiondome.green} is greater than or equal to 9:
+		set {mcc.decisiondome.green} to mod({mcc.decisiondome.green}, 8) 
+	while {mcc.decisiondome.red.%{mcc.decisiondome.green}%} is true:
+		add 1 to {mcc.decisiondome.green}
+		if {mcc.decisiondome.green} is greater than or equal to 9:
+			set {mcc.decisiondome.green} to mod({mcc.decisiondome.green}, 8) 
+	loop {mcc.decisiondome.slices.%{_past}%::*}:
+		set block at loop-value to white wool
+	loop {mcc.decisiondome.slices.%{mcc.decisiondome.green}%::*}:
+		set block at loop-value to lime wool
+	
+function decideslice() :: number:
+	set {_best} to 0
+	loop 8 times:
+		if {mcc.decisiondome.red.%loop-number%} is false:
+			set {_bla} to countchickens(loop-number)
+			if {_bla} is greater than {_best}:
+				set {_best} to {_bla}
+				delete {_tied::*}
+				add loop-number to {_tied::*}
+			else if {_bla} is equal to {_best}:
+				add loop-number to {_tied::*}
+	if size of {_tied::*} is not equal to 1:
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				send title "<lime>Vote tied!" with subtitle "<gray>Picking a game from the ones you voted for..." to loop-player for 3 seconds
+	set {_ba} to a random element of {_tied::*}
+	return {_ba}
+
+
+
+function countchickens(n:number) :: number:
+	set {_count} to 0
+	if {mcc.decisiondome.rigged} is equal to {_n}:
+		set {_count} to 1000
+	loop all entities in radius 10 of the location -98.5, 63.5, -24.5 of world "mini_mcc_town":
+		if loop-entity is a chicken:
+			set {_bla} to block below loop-entity
+			if {mcc.decisiondome.slices.%{_n}%::*} contains location of {_bla}:
+				add 1 to {_count}
+		if name of loop-entity is equal to "Mega Chicken":
+			set {_bla} to location of block below loop-entity
+			if {mcc.decisiondome.slices.%{_n}%::*} contains location of {_bla}:
+				add 3 to {_count}
+	return {_count}
+
+command /ddsetslice <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			loop blocks in radius 12 around player:
+				if loop-block is black concrete:
+					add location of loop-block to {mcc.decisiondome.slices.%arg 1%::*}
+					add 1 to {_count}
+			message {_count}
+
+command /ddresetslice:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			loop 8 times:
+				delete {mcc.decisiondome.slices.%loop-number%::*}
+
+command /mccvote <number>:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		
+		loop 8 times:
+			if {mcc.decisiondome.red.%loop-number%} is true:
+				loop {mcc.decisiondome.slices.%loop-number%::*}:
+					set block at loop-value-2 to red wool
+		execute console command "/playmusic none"
+		execute console command "/playmusic decisiondome"
+		if {mcc.gamenum} is equal to 1:
+			execute console command "/mcccoinmultiplier 1.5"	
+		else if {mcc.gamenum} is equal to 2:
+			execute console command "/mcccoinmultiplier 2"	
+		else if {mcc.gamenum} is equal to 4:
+			execute console command "/mcccoinmultiplier 2.5"	
+		else if {mcc.gamenum} is equal to 5:
+			execute console command "/mcccoinmultiplier 3"	
+		set {mcc.decisiondome.votingtime} to 55+arg 1
+		set {mcc.currentevent} to "decisiondome"
+		set {mcc.decisiondome.rigged} to 0
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				clear the loop-player's scoreboard
+				clear loop-player's inventory
+				
+
+command /ddup:
+        trigger:
+                if command sender is not the console:
+                        if {mmcc.hoster.%command sender%} isn't true:
+                                message "<pink>You do not have permission to run this command!"
+                                exit trigger
+                if {decisiondomeup} is true:
+                        message "<pink>The Decision Dome is already up!"
+                        exit trigger
+                set {decisiondomeup} to true
+                loop numbers from -88.5 to -108.5:
+                        loop numbers from -15.5 to -35.5:
+                                if the block at location loop-value-1, 60.5, loop-value-2 of world "mini_mcc_town" is lever:
+                                        toggle the block at location loop-value-1, 60.5, loop-value-2 of world "mini_mcc_town"
+
+
+command /dddown:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		if {decisiondomeup} is false:
+			message "<pink>The Decision Dome is already down!"
+			exit trigger
+		set {decisiondomeup} to false
+		loop numbers from -88.5 to -108.5:
+			loop numbers from -15.5 to -35.5:
+				if the block at location loop-value-1, 60.5, loop-value-2 of world "mini_mcc_town" is lever:
+					toggle the block at location loop-value-1, 60.5, loop-value-2 of world "mini_mcc_town"
+		wait 0.1 seconds
+		loop numbers from -88.5 to -108.5:
+			loop numbers from -15.5 to -35.5:
+				if the block at location loop-value-1, 64.5, loop-value-2 of world "mini_mcc_town" is polished deepslate slab:
+					set the block at location loop-value-1, 64.5, loop-value-2 of world "mini_mcc_town" to air
+					set the block at location loop-value-1, 63.5, loop-value-2 of world "mini_mcc_town" to polished deepslate slab
+		set {mcc.chickendropsgone} to true
+		loop all entities in radius 30 of the location -99, 64, -25 of world "mini_mcc_town":
+			if loop-entity is a chicken:
+				kill the loop-entity
+			else if "%loop-entity%" is equal to "Mega Chicken":
+				teleport loop-entity to the location -54.5, 45, -24 of world "mini_mcc_town"
+		set {mcc.chickendropsgone} to false 
+
+command /ddredden <number>:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		if {mcc.decisiondome.red.%arg 1%} is false:
+			set {mcc.decisiondome.red.%arg 1%} to true
+			loop {mcc.decisiondome.slices.%arg 1%::*}:
+				set block at loop-value to red wool
+		else:
+			set {mcc.decisiondome.red.%arg 1%} to false 
+			loop {mcc.decisiondome.slices.%arg 1%::*}:
+				set block at loop-value to white wool
+
+
+on death of chicken:
+	"%event-world%" is "mini_mcc_town"
+	if {mcc.chickendropsgone} is true:
+		clear drops
+
+on shoot:
+	event-projectile is an egg
+	if {mcc.decisiondome.votingtime} is greater than or equal to 25:
+		if {mcc.decisiondome.votingtime} is less than or equal to 55:
+			add "mcc" to the scoreboard tags of the event-projectile
+
+on shoot:
+	event-projectile is an egg
+	shooter is a player
+	shooter's tool is an egg of unbreaking 1 named "<pink><bold>Mega Egg" 
+	if {mcc.decisiondome.votingtime} is greater than or equal to 25:
+		if {mcc.decisiondome.votingtime} is less than or equal to 55:
+			add "mccmega" to the scoreboard tags of the event-projectile
+
+
+on projectile hit:
+	if the event-projectile has the scoreboard tags "mccmega":
+		broadcast formatted "[<gold><bold>Decision Dome<white>]<%mcccolor({mcc.team.%shooter%})%> %shooter%<white> has spawned a Mega Chicken!"
+		spawn a chicken at event-location with nbt from "{active_effects:[{id:glowing,duration:99999999999,show_particles:0b}]}"
+		set name of last spawned mob to "Mega Chicken"
+#		loop entities in radius 30 of event-location:
+#			if "%loop-entity%" is equal to "Mega Chicken":
+#				teleport loop-entity to event-location
+		kill event-projectile	
+		cancel event
+		
+	else if the event-projectile has the scoreboard tags "mcc":
+		spawn a chicken
+		kill event-projectile	
+		cancel event
+every second:
+	if {mcc.paused} is true:
+		exit trigger
+	if {mcc.decisiondome.breaktime} is greater than 0:
+		subtract 1 from {mcc.decisiondome.breaktime}
+	if {mcc.decisiondome.votingtime} is greater than 0:
+		subtract 1 from {mcc.decisiondome.votingtime}
+		if {mcc.decisiondome.votingtime} is equal to 55:
+			loop all players:
+				if {mcc.team.%loop-player%} is not equal to 0:
+					reset the title of the loop-player
+					send title "<light blue>Vote!" to loop-player for 3 seconds
+					give an egg to the loop-player
+			execute console command "/randomlygivemegachicken"
+			loop 8 times:
+				if {mcc.decisiondome.red.%loop-number%} is true:
+					loop {mcc.decisiondome.slices.%loop-number%::*}:
+						set block at loop-value-2 to red wool
+						
+		if {mcc.decisiondome.votingtime} is greater than or equal to 40:
+			if {mcc.decisiondome.votingtime} is less than or equal to 55:
+				ddnextgreen()
+				wait 0.5 seconds
+				ddnextgreen()
+				wait 0.5 seconds
+		else if {mcc.decisiondome.votingtime} is greater than or equal to 35:
+			if {mcc.decisiondome.votingtime} is equal to 25:
+			ddnextgreen()
+			wait 0.25 seconds
+			ddnextgreen()
+			wait 0.25 seconds
+			ddnextgreen()
+			wait 0.25 seconds
+			ddnextgreen()
+			wait 0.25 seconds
+		else if {mcc.decisiondome.votingtime} is greater than or equal to 10:
+			if {mcc.decisiondome.votingtime} is equal to 21:
+				broadcast "[<gold><bold>Decision Dome<reset>] Counting chickens..."	
+				execute console command "/ddup"
+			else if {mcc.decisiondome.votingtime} is equal to 19:
+				broadcast "[<gold><bold>Decision Dome<reset>] And the chosen game is..."	
+			else if {mcc.decisiondome.votingtime} is equal to 15:
+				set {mcc.decisiondome.chosenslice} to decideslice()
+			ddnextgreen()
+			wait 0.2 seconds
+			ddnextgreen()
+			wait 0.2 seconds
+			ddnextgreen()
+			wait 0.2 seconds
+			ddnextgreen()
+			wait 0.2 seconds
+			ddnextgreen()
+			wait 0.2 seconds
+		else:
+			if {mcc.decisiondome.votingtime} is equal to 9:
+				if {mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%} is equal to "TGTTOSAWAF":
+					broadcast "[<gold><bold>Decision Dome<reset>] To Get To The Other Side And Whack A Fan!"	
+				else:
+					broadcast "[<gold><bold>Decision Dome<reset>] %{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%!"	
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						send title "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" with subtitle "<gold>Teleporting soon..." to loop-player for 9 seconds 
+			loop {mcc.decisiondome.slices.%{mcc.decisiondome.green}%::*}:
+				set block at loop-value to white wool
+			loop {mcc.decisiondome.slices.%{mcc.decisiondome.chosenslice}%::*}:	
+				set block at loop-value to lime wool
+			wait 0.5 seconds
+			loop {mcc.decisiondome.slices.%{mcc.decisiondome.chosenslice}%::*}:	
+				set block at loop-value to white wool
+			wait 0.5 seconds
+			if {mcc.decisiondome.votingtime} is equal to 1:
+				execute console command "/dddown"
+			if {mcc.decisiondome.votingtime} is equal to 0:
+				set {mcc.currentevent} to "none"
+				loop all players:
+					stop sound "custom:decisiondome" for loop-player
+				set {mcc.decisiondome.votingtime} to -1
+				if {mcc.gamenum} is below 6:
+					
+					execute console command "/ddredden %{mcc.decisiondome.chosenslice}%"
+					wait 1 second
+					if {mcc.automatic} is true:
+						if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "Hunger Games":
+							
+							execute console command "/mcchungergames"
+							
+						else if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "Ace Race":
+							
+							execute console command "/mccacerace"
+							
+						else if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "Grid Runners":
+							
+							execute console command "/mccgridrunners"
+							
+						else if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "Meltdown":
+							
+							execute console command "/mccmeltdown"
+							
+						else if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "Rocket Spleef Rush":
+							
+							execute console command "/mccrocketspleefrush"
+							
+						else if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "Sky Battle":
+							
+							execute console command "/mccskybattle"
+							
+						else if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "Parkour Warrior":
+							
+							execute console command "/mccpkwnew"
+							
+						else if "%{mcc.decisiondome.game.%{mcc.decisiondome.chosenslice}%}%" is "TGTTOSAWAF":
+							
+							execute console command "/mcctgttosawaf"
+					loop 8 times:
+						if {mcc.decisiondome.red.%loop-number%} is true:
+							loop {mcc.decisiondome.slices.%loop-number%::*}:
+								set block at loop-value-2 to red wool
+				
+					
+					
+							
+				
+command /setautomatic:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			if {mcc.automatic} is true:
+				set {mcc.automatic} to false
+				message "automatic turned off"
+			else:
+				set {mcc.automatic} to true
+				message "automatic turned on"
+		if command sender is "MiniMCC":
+			if {mcc.automatic} is true:
+				set {mcc.automatic} to false
+				message "automatic turned off"
+			else:
+				set {mcc.automatic} to true
+				message "automatic turned on"
+	
+
+command /dodgebolttest:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		delete {_already::*}
+		set {_numteams} to 0
+		loop 10 times:
+			add {mcc.teamcoins.%loop-number%} to {_teamcoins::*}
+			add loop-number to {_already::*}
+			if {mcc.teamcoins.%loop-number%} is not equal to 0:
+				add 1 to {_numteams}
+			else:
+				execute console command "/npc despawn %111+loop-number%"
+		set {_teamcoins::*} to sorted {_teamcoins::*}
+		set {_teamcoins::*} to reversed {_teamcoins::*}
+		loop numbers from 10 to 1:
+			if {_teamcoins::%loop-number%} is not equal to 0:
+				set {_good} to false
+				loop 10 times:
+					if {_good} is false:
+						if {_already::*} contains loop-number-2:
+							if {mcc.teamcoins.%loop-number-2%} is equal to {_teamcoins::%loop-number-1%}:
+								set {_team} to loop-number-2
+								set {_good} to true
+								remove loop-number-2 from {_already::*}
+				broadcast {_team}
+				broadcast loop-number
+				if loop-number is 2:
+					set {_team2} to {_team}
+				if loop-number is 1:
+					set {_team1} to {_team}
+				broadcast {_team1}
+				broadcast {_team2}
+				execute console command "/mccdodgebolt %{_team1}% %{_team2}% 60"
+				#broadcast "%11-(loop-number)%. %{mcc.teams::%{_team}%}% %{_ba}% <yellow>%ceil({mcc.teamcoins.%{_team}%})%"
+
+on damage:
+	attacker is a player
+	victim is a player
+	"%attacker's world%" is equal to "world"
+	victim's x-coordinate is between -80 and -33
+	victim's y-coordinate is between 66 and 94
+	victim's z-coordinate is between -48 and -3
+	send "<pink><bold>Hey! <gray>Sorry, but you can't PvP here." to attacker
+	cancel event	
+
+command /gvc:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		loop 8 times:
+			message "Game %{mcc.decisiondome.game.%loop-number%}% has %countchickens(loop-number)% votes"
+
+command /secret <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<pink>You do not have permission to run the secret command!"
+			exit trigger
+		set {mcc.decisiondome.rigged} to arg 1
+		message "Rigged the decision dome in favor of %{mcc.decisiondome.game.%arg 1%}%"	
+
+
+on damage of item frame:
+	event-world is "mini_mcc_town" or "world"
+	cancel event
+

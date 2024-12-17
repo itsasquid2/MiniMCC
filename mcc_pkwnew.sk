@@ -1,0 +1,348 @@
+
+# {mcc.pkwnew.stage}: 0 for tutorial, 1 for ingame, 2 for overtime, 3 for recap 
+
+# {mcc.pkwnew.multiplier.teamnum}: team multiplier for team teamnum
+# {mcc.pkwnew.challenges.teamnum}: number of chalenges completed by team teamnum
+# {mcc.pkwnew.medalcoins.%player's name%}: number of medal coins earned by player, unmultiplied
+
+# {mcc.pkwnew.mainchallengesleft.%player's name%}: number of main challenges left
+
+# Each stage has: id
+# {mcc.pkwnew.id.name}: name of level 
+# {mcc.pkwnew.id.length}: length in blocks
+# {mcc.pkwnew.id.height}: height off the ground, default is 0
+# ID number hundreds place determines difficulty: 0 = main path, 1 = easy, 2 = medium, 3 = hard 
+
+
+
+# {mcc.pkwnew.idof.(stage)}: ID of stage: Mx-y for main stage x-y, Bx-y for bonus stage x-y, D--x for ending
+# of difficulty D, substage x
+
+# {mcc.pkwnew.respawnloc.(region)}: respawn location if a player last visited region (region) 
+
+# {mcc.pkwnew.lastregion.%player's name%}: the last region the player entered (if they enter a "lesser" region, this is not updated)
+# {mcc.pkwnew.lastdojo.%player's name%}: last dojo number of player (a number between 0 and 5). The final fork is counted as dojo number 5 
+# {mcc.pkwnew.dojospawn.%number%}: where a player should go after using a teleportation scroll or earning a gold medal in dojo #(number)
+
+# {mcc.pkwnew.stagesdone.%player's name%::*}: list of substages completed by player, in string format
+
+# Region Mx-y is the ending of main stage x, substage y
+# Region Bx-y is the ending of bonus stage x, substage y
+# Region D--x is the ending of the difficulty D ending, substage x
+# (difficulties: 1 easy, 2 medium, 3 hard)
+
+command /pkwnewrenamestage <number> <text>:
+	permission: op
+	usage: "/pkwnewrenamestage <id> <name>"
+	trigger:
+		set {mcc.pkwnew.%arg 1%.name} to arg 2
+		set {mcc.pkwnew.idof.%arg 2%} to arg 1
+
+
+function mccpkwnewtutorial(p: player):
+	send title "<yellow>Parkour Warrior" to {_p} for 5 seconds
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Parkour Warrior!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Ever wanted to be on Ninja Warrior? Now's your chance!" to {_p}
+	send "" to {_p}
+	send "By completing obstacles within the time limit, you will earn medals that are traded for coins at the end of the game." to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>There are three obstacles per course selection." to {_p}
+	send "" to {_p}
+	send "These obstacles are considered the 'Main path' and will reward a <gray>stone medal<white> for the completion of each." to {_p}
+	send "" to {_p}
+	send "<light gray>You will also checkpoint after each obstacle." to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Each section has an optional side path." to {_p}
+	send "" to {_p}
+	send "Side paths are also made of three obstacles, and each obstacle rewards better medals: Bronze, Silver, and Gold." to {_p}
+	send "" to {_p}
+	send "<light gray>The better the medal, the mroe coins it's worth." to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>The end of the course has three challenges." to {_p}
+	send "An easy, medium, and hard difficulty challenge." to {_p}
+	send "" to {_p}
+	send "Each of these will reward a rising multiplier added to your team's final score. However, you MUST complete the course within the time limit to gain it." to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 15 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Extra Tips:" to {_p}
+	send "" to {_p}
+	send "- You can use your teleportation scroll to return to a previous checkpoint if you get stuck." to {_p}
+	send "" to {_p}
+	send "- Play it risky to gain more reward, but always keep an eye on the timer to ensure you can still finish." to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+function mccpkwnewgetscores(n: number):
+	delete {_members::*}
+	loop all players:
+		if {mcc.team.%loop-player's name%} is equal to {_n}:
+			add loop-player to {_members::*}
+	loop {_members::*}:
+		wait 3 seconds
+		set {_st} to number of stone buttons in loop-value's inventory
+		set {_br} to number of copper ingots in loop-value's inventory
+		set {_si} to number of iron ingots in loop-value's inventory
+		set {_go} to number of gold ingots in loop-value's inventory
+		loop {_members::*}:
+			send "<lime>--------------------------------------------------" to loop-value-2
+			send formatted "<%mcccolor({_n})%>%loop-value-1%'s performance:" to loop-value-2
+			send "<gray>Stone medal coins: <yellow>%{_st} * 2% <white>(%{_st}%)" to loop-value-2
+			send "<pink>Bronze medal coins: <yellow>%{_br} * 5% <white>(%{_br}%)" to loop-value-2
+			send "<light gray>Silver medal coins: <yellow>%{_si} * 15% <white>(%{_si}%)" to loop-value-2
+			send "<gold>Gold medal coins: <yellow>%{_go} * 35% <white>(%{_go}%)" to loop-value-2
+			send "<lime>--------------------------------------------------" to loop-value-2
+	wait 3 seconds
+	loop {_members::*}:
+		send "<lime>--------------------------------------------------" to loop-value
+		loop {_members::*}:
+			if loop-value-2 has leather horse armor:
+				send formatted "<%mcccolor({_n})%>%loop-value-2% <white>completed the <lime>easy tower: <light blue>+0.15x" to loop-value-1
+			else if loop-value-2 has iron horse armor:
+				send formatted "<%mcccolor({_n})%>%loop-value-2% <white>completed the <yellow>medium tower: <light blue>+0.4x" to loop-value-1
+			else if loop-value-2 has gold horse armor:
+				send formatted "<%mcccolor({_n})%>%loop-value-2% <white>completed the <red>hard tower: <light blue>+1.0x" to loop-value-1
+			else:
+				send formatted "<%mcccolor({_n})%>%loop-value-2% <white> did not complete the course" to loop-value-1
+		send "Total multiplier: <light blue>%{mcc.pkwnew.multiplier.%{_n}%}%" to loop-value
+		send "<lime>--------------------------------------------------" to loop-value
+		
+		ac(loop-value, ({mcc.pkwnew.multiplier.%{_n}%}-1) * {mcc.pkwnew.medalcoins.%loop-value%}, "Extra coins earned", false)
+
+
+				
+command /mccpkwnew:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				if command sender is not "notcbop":
+					message "<pink>You do not have permission to run this command!"
+					exit trigger
+		execute console command "/mccnewgame"
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				execute console command "/mv tp %loop-player% parkourwarriornew"
+				clear the loop-player's inventory
+				set loop-player's boots to leather boots
+				dye loop-player's boots mcccolor({mcc.team.%loop-player's name%})
+				set slot 8 of loop-player's inventory to paper of unbreaking 10 named "<green>Teleportation scroll"
+				delete {mcc.pkwnew.lastregion.%loop-player's name%}
+				set {mcc.pkwnew.lastdojo.%loop-player's name%} to 0
+				set {mcc.pkwnew.medalcoins.%loop-player's name%} to 0
+				set {mcc.pkwnew.mainchallengesleft.%loop-player's name%} to 15
+				delete {mcc.pkwnew.stagesdone.%loop-player's name%::*}
+				delete {mcc.pkwnew.titlesdone.%loop-player's name%::*}
+				mccpkwnewtutorial(loop-player)
+				loop all players:
+					if {mcc.team.%loop-player-2%} is not equal to 0:
+						hide loop-player-1 from loop-player-2
+		loop 10 times:
+			set {mcc.pkwnew.multiplier.%loop-number%} to 1.0
+		set {mcc.currentevent} to "pkwnew"
+		set {mcc.pkwnew.stage} to 0
+		set {mcc.pkwnew.timeleft} to 60
+		loop {mcc.pkwnew.barriers::*}:
+			set block at loop-value to barrier
+			
+
+command /pkwsetbarriers:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			loop blocks in radius 25 of player:
+				if loop-block is minecraft:barrier:
+					add loop-block to {mcc.pkwnew.barriers::*}
+				
+
+every second:
+	if {mcc.currentevent} is equal to "pkwnew":
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				if loop-player's y-coordinate is less than -64:
+					if {mcc.pkwnew.lastregion.%loop-player's name%} is not set:
+						execute console command "/mv tp %loop-player% parkourwarriornew"
+					teleport loop-player to {mcc.pkwnew.respawnloc.%{mcc.pkwnew.lastregion.%loop-player's name%}%}
+					if {mcc.pkwnew.stage} is equal to 2:
+						set loop-player's game mode to spectator
+						send "<gray>rip" to loop-player
+					else:
+						send "<gray>You fell! Returning to last checkpoint..." to loop-player
+		if {mcc.paused} is true:
+			exit trigger
+		subtract 1 from {mcc.pkwnew.timeleft}
+		if {mcc.pkwnew.timeleft} is equal to 599 or 341 or 83:
+			execute console command "/playmusic parkourwarrior"
+		if {mcc.pkwnew.timeleft} is equal to 3:
+			if {mcc.pkwnew.stage} is equal to 0:
+				loop all players:
+					if {mcc.team.%loop-player's name%} is not equal to 0:
+						execute console command "/boopboopboopbeep %loop-player%"
+		else if {mcc.pkwnew.timeleft} is equal to 0:
+			if {mcc.pkwnew.stage} is equal to 0:
+				set {mcc.pkwnew.stage} to 1
+				set {mcc.pkwnew.timeleft} to 600
+				loop {mcc.pkwnew.barriers::*}:
+					set block at loop-value to air
+			else if {mcc.pkwnew.stage} is equal to 1:
+				set {mcc.pkwnew.stage} to 2
+				set {mcc.pkwnew.timeleft} to 30
+				loop all players:
+					if loop-player's game mode is adventure:
+						send title "<pink>OVERTIME" with subtitle "Don't fall!" to loop-player for 3 seconds
+				broadcast "Overtime has started. Remaining players get <pink><bold>one more attempt <white> to complete the course. If they fall, they're out."
+			else if {mcc.pkwnew.stage} is equal to 2:
+				set {mcc.pkwnew.stage} to 3
+				set {mcc.pkwnew.timeleft} to 60
+				loop all players:
+					if {mcc.team.%loop-player's name%} is not equal to 0:
+						send title "<pink>Game over!" to loop-player for 3 seconds
+						loop all players:
+							reveal loop-player-1 to loop-player-2
+				loop 10 times:
+					mccpkwnewgetscores(loop-number)
+				wait 20 seconds
+				execute console command "/mccstandings"	
+			else:
+				execute console command "/mccbreak 120"
+				loop all players:
+					loop all players:
+						reveal loop-player-1 to loop-player-2
+				
+		
+						
+		
+  		
+on region enter:
+	{mcc.pkwnew.stage} is equal to 1 or 2
+	player's game mode is adventure
+	player's world is "parkourwarriornew"
+	set {_bla} to the first 4 characters of "%region%"
+	set {_title1} to "%the last character of {_bla} parsed as an integer + 1%"
+	set {_title2} to the first 3 characters of {_bla}
+	set {_title} to "%{_title2}%%{_title1}%"
+	if last character of "%{_title}%" is not "4":
+		if {mcc.pkwnew.titlesdone.%player's name%::*} does not contain "%{_title}%":
+			send title "<yellow>%{_title}%" to event-player
+			if {mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name} is set:
+				send subtitle "<white>%{mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name}%" to event-player
+			add "%{_title}%" to {mcc.pkwnew.titlesdone.%player's name%::*}
+			
+	if {mcc.pkwnew.stagesdone.%player's name%::*} does not contain {_bla}:
+		add {_bla} to {mcc.pkwnew.stagesdone.%player's name%::*}
+		set {mcc.pkwnew.lastregion.%player's name%} to {_bla}
+		if the last 1 characters of {_bla} is "0":
+			exit trigger
+
+		add 1 to {mcc.pkwnew.challenges.%{mcc.team.%player's name%}%}
+
+		if the first 1 characters of {_bla} is "M":
+			set {_text} to formatted "<gray>stone medal"
+			set {_item} to stone button of unbreaking 10 named "<gray>Stone Medal"
+			subtract 1 from {mcc.pkwnew.mainchallengesleft.%player's name%}
+			# stone medal	
+			if the last 1 characters of {_bla} is "3":
+				add 1 to {mcc.pkwnew.lastdojo.%player's name%}
+			ac(player, 2, "You completed %{mcc.pkwnew.%{mcc.pkwnew.idof.%{_bla}%}%.name}% and earned a %{_text}%!", false) 
+			add 2 to {mcc.pkwnew.medalcoins.%player's name%}
+			give {_item} to the player
+		else if the first 1 characters of {_bla} is "B":
+			if the last 1 characters of {_bla} is "1":
+				set {_text} to formatted "<##cd7f32>bronze medal"
+				set {_item} to copper ingot of unbreaking 10 named "<pink>Bronze Medal"
+				set {_special} to false
+				set {_coins} to 5
+				# bronze medal 
+			else if the last 1 characters of {_bla} is "2":
+				# silver medal 
+				set {_text} to formatted "<##9aa6a6>silver medal"
+				set {_item} to iron ingot of unbreaking 10 named "<light gray>Silver Medal"
+				set {_coins} to 15
+				set {_special} to false
+			else:
+				# gold medal
+				set {_text} to formatted "<gold>gold medal"
+				set {_item} to gold ingot of unbreaking 10 named "<gold>Gold Medal"
+				set {_coins} to 35
+				set {_special} to true 
+				# Also, teleport the player back to the last dojo
+				teleport player to {mcc.pkwnew.dojospawn.%{mcc.pkwnew.lastdojo.%player's name%}%}
+			ac(player, {_coins}, "You completed %{mcc.pkwnew.%{mcc.pkwnew.idof.%{_bla}%}%.name}% and earned a %{_text}%!", {_special}) 
+			add {_coins} to {mcc.pkwnew.medalcoins.%player's name%}
+			give {_item} to the player
+		else if the last 1 characters of {_bla} is "3":
+			broadcast "%mccname(player)% <magenta>has completed the entire course!"
+			set player's game mode to spectator
+			if the first 1 characters of {_bla} is "1":
+				give a leather horse armor to the player
+				add 0.15 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+			else if the first 1 characters of {_bla} is "2":
+				give a iron horse armor to the player
+				add 0.4 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+			else if the first 1 characters of {_bla} is "3":
+				give a gold horse armor to the player
+				add 1 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+			set {_teamdone} to true
+			loop all players:
+				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:
+					if loop-player's game mode is adventure:
+						set {_teamdone} to false
+			if {_teamdone} is true:
+				broadcast "%{mcc.teams::%{mcc.team.%player's name%}%}% <magenta>have all finished the course!"
+				
+on hunger bar change:
+	if player's world is "parkourwarriornew":
+		cancel event
+
+on damage of player:
+	event-world is "parkourwarriornew"
+	cancel event
+
+on inventory click:
+	event-world is "parkourwarriornew"
+	player's game mode is adventure
+	cancel event
+
+on drop:
+	event-world is "parkourwarriornew"
+	player's game mode is adventure
+	message "<pink>You might want to keep that!" to event-player
+	cancel event
+
+on rightclick:	
+	player's tool is paper
+	event-world is "parkourwarriornew"
+	{mcc.pkwnew.stage} is equal to 1 or 2
+	{mcc.pkwnew.timeleft} is less than 590
+	teleport player to {mcc.pkwnew.dojospawn.%{mcc.pkwnew.lastdojo.%player's name%}%}
+	message "<lime>Used teleportation scroll!" to event-player
+

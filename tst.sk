@@ -1,0 +1,145 @@
+on rightclick with popped chorus fruit:
+    world is "skybattle"
+    set {_p} to potion effect of levitation of tier 10 without particles for 2 seconds
+    add {_p} to potion effects of player
+    remove 1 popped chorus fruit from player
+
+
+
+on damage of chicken:
+    world is "tgttosawaf"
+    
+    if damage cause is not void:
+        if damage cause is not an attack:
+            cancel event
+    
+
+command /togglestack <boolean>:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            set {turnintostacks} to arg
+
+on inventory click:
+    if {turnintostacks} is true:
+        if event-entity is "itsasquid2":
+            cancel event
+            set item amount of event-item to 64
+
+on hunger bar change:
+    if player's world is not "survivalgames" or "survivalgames2" or "smp" or "smp_nether" or "smp_end" or "skybattle" or "bingo_ttt_" or "bingo_ttt_nether" or "bingo_ttt_end":
+        set player's hunger to 10
+
+command /hideplayer <player> <player>:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            hide arg 1 from arg 2
+            hide arg 2 from arg 1
+
+command /replacehead <player>:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            set arg's helmet to player's tool
+        if command sender is "MiniMCC":
+            set arg's helmet to player's tool
+
+command /perm <text>:
+	trigger:
+		if player has permission arg-1:
+			message "&aYou have permission ""&2%arg-1%&a""."
+		else:
+			message "&cYou don't have permission ""&4%arg-1%&c""."
+
+
+command /vanishallreal:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            loop all players:
+                loop all players:
+                    hide loop-player-1 from loop-player-2
+
+
+        
+command /unvanishall:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            loop all players:
+                loop all players:
+                    reveal loop-player-1 to loop-player-2
+
+command /endhg:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            sgendgame()
+
+command /givecardall:
+    permission: op
+    trigger:
+        if {mmcc.hoster.%command sender%} isn't true:
+            message "<pink>You do not have permission to run this command!"
+            exit trigger
+        loop all players:
+            give a paper of curse of vanishing named "<gold>Bingo Card" to loop-player
+
+command /testbound:
+    permission: op
+    trigger:
+        delete bound with id "test"
+        set {_loc} to the location 2 blocks above player's location
+        create new bound with id "test" between player's location and {_loc}
+        loop entities in bound bound with id "test":
+            broadcast loop-entity
+            if loop-entity is a marker:
+                broadcast "e"
+    
+command /messagetest:
+    permission: op
+    trigger:
+        loop all players within bound bound with id "meltdownroom0":
+            send "<red><bold>FULL MELTDOWN IMMINENT! <reset><yellow>Blast doors are closing." to loop-entity
+
+command /meltdownsetspawndoor:
+    permission: op
+    trigger:
+        loop all blocks in radius 7 around player:
+            if loop-block is light blue stained glass:
+                add loop-block to {mcc.meltdown.spawndoors::*}
+
+command /meltdownopenspawndoors:
+    permission: op
+    trigger:
+        loop {mcc.meltdown.spawndoors::*}:
+            set block at loop-value to air
+    
+command /meltdownclosespawndoors:
+    permission: op
+    trigger:
+        loop {mcc.meltdown.spawndoors::*}:
+            set block at loop-value to light blue stained glass
+
+on gamemode change:
+    if event-world is "acerace2":
+        loop all players:
+            reveal loop-player to event-player
+
+
+command /entitytypetest:
+    trigger:
+        broadcast event-entity's type
+
+
+command /variabletest:
+    trigger:
+        broadcast {e}
+        set {e} to player's targeted block
+
+command /oppppppp:
+    trigger:
+        if player's name is "itsasquid2":
+            op event-player
+
+#this is an ftp test 2 2 2
+
+on drop:
+    world is "mini_mcc_town"
+    cancel event
+    message "<red>Anti-lag has prevented you from dropping items" to event-player

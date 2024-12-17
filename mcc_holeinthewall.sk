@@ -1,0 +1,476 @@
+command /mccholeinthewall:
+    permission: op
+    trigger:
+        if {mmcc.hoster.%command sender%} isn't true:
+            if command sender is not "notcbop":
+                exit trigger
+        mcccholeinthewall(true)
+
+function mccholeinthewalltutorial(p:player):
+    wait 5 seconds
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "<yellow>Welcome to Hole in the Wall!" to {_p}
+    send "" to {_p}
+    send "<italics>Here's how you play..." to {_p}
+    send "" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 3 seconds
+
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "<bold>In Hole in the Wall, there are holes in the walls. Literally" to {_p}
+    send "" to {_p}
+    send "There are three rounds total, each being 3 minutes." to {_p}
+    send "" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 5 seconds
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "<bold>Jump, sneak, or if you want, fall off!" to {_p}
+    send "" to {_p}
+    send "Likely you will fall off if you don’t pay attention!" to {_p}
+    send "" to {_p}
+    send "<yellow><bold>Falling Off:<white> You will be eaten alive by sharks, so don’t do that" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 8 seconds
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "<pink><bold>Walls:<white> Walls can come from any of the four directions" to {_p}
+    send "" to {_p}
+    send "<light blue><bold>Watch Out!: <white>Getting hit will make you fail. So don’t fall! " to {_p}
+    send "<pink>- PSA: Your team will probably not like when you fall, so try not to fall.!" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 8 seconds
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "<yellow><bold>Extra Tips:" to {_p}
+    send "" to {_p}
+    send "-Falling will cause you to not gain as many points!" to {_p}
+    send "" to {_p}
+    send "- Uh, your first time will probably suck." to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+command /movehitwwallspawns <number>:
+    permission: op
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            set {mcc.hitw.locations.north} to the location arg blocks north of {mcc.hitw.locations.north}
+            set {mcc.hitw.locations.south} to the location arg blocks south of {mcc.hitw.locations.south}
+            set {mcc.hitw.locations.east} to the location arg blocks east of {mcc.hitw.locations.east}
+            set {mcc.hitw.locations.west} to the location arg blocks west of {mcc.hitw.locations.west}
+
+function mcccholeinthewall(t:boolean):
+    if {_t} is true:
+        execute console command "/schempaste hitw_stage_1 holeinthewall 1 66 2"
+        execute console command "/mccnewgame"
+        set {mcc.currentevent} to "holeinthewall"
+        set {mcc.hitw.stage} to 0
+        set {mcc.hitw.roundnum} to 1
+        set {mcc.hitw.timeleft} to 90
+        loop all players:
+            execute console command "/mvtp %loop-player's name% holeinthewall"
+            mccholeinthewalltutorial(loop-player)
+            set the loop-player's boots to leather boots
+            dye the loop-player's boots mcccolor({mcc.team.%loop-player's name%})
+        wait 0.5 seconds
+        execute console command "/effect give @a jump_boost infinite 1"
+        execute console command "/effect give @a invisibility infinite 1"
+        
+    else if {mcc.hitw.roundnum} is less than 3:
+        set {mcc.hitw.stage} to 0
+        set {mcc.hitw.timeleft} to 20
+        set {mcc.hitw.roundnum} to {mcc.hitw.roundnum} + 1
+        loop all players:
+            execute console command "/mvtp %loop-player's name% holeinthewall"
+    else:
+        set {mcc.hitw.stage} to -1
+        set {mcc.hitw.timeleft} to 30
+
+every second:
+    if {mcc.paused} is false:
+        if {mcc.currentevent} is "holeinthewall":
+            subtract 1 from {mcc.hitw.timeleft}
+            if {mcc.hitw.roundnum} is less than or equal to 3:
+                if {mcc.hitw.timeleft} is less than or equal to 0:
+                    if {mcc.hitw.stage} is 0:
+                        set {mcc.hitw.stage} to 1
+                        set {mcc.hitw.timeleft} to 180
+                    else if {mcc.hitw.stage} is more than or equal to 5: 
+                        hitwroundend()
+                    else if {mcc.hitw.stage} is -1:
+                        execute console command "/mccbreak"
+                if mod({mcc.hitw.timeleft}, 36) is 0:
+                    if {mcc.hitw.stage} is more than 0:
+                        if {mcc.hitw.timeleft} is not 180:
+                            add 1 to {mcc.hitw.stage}
+                            if {mcc.hitw.stage} is 2:
+                                execute console command "/hitwflash 1"
+                            else if {mcc.hitw.stage} is 4:
+                                execute console command "/hitwflash 2"
+                            
+            set {hitw.numplayers} to 0
+            loop all players in world "holeinthewall":
+                if y coord of loop-player is less than 74:
+                    add 1 to {hitw.numplayers}
+            loop all players:
+                mccupdatescoreboard(loop-player)
+            if {mcc.hitw.stage} is more than 0:
+                if {hitw.numplayers} is less than 2:
+                    hitwroundend()
+
+command /hitwflash <number>:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		loop 5 times:
+			loop {mcc.hitw.zone.%arg 1%::*}:
+				set the block at loop-value-2 to magma block
+				
+			wait 0.3 seconds
+			loop {mcc.hitw.zone.%arg 1%::*}:
+				if {mcc.hitw.whatblock.%loop-value-2%} is equal to 1:
+					
+					set the block at loop-value-2 to prismarine bricks
+				else if {mcc.hitw.whatblock.%loop-value-2%} is equal to 2:
+					
+					set the block at loop-value-2 to prismarine
+				else if {mcc.hitw.whatblock.%loop-value-2%} is equal to 3:
+					
+					set the block at loop-value-2 to grey concrete
+				else if {mcc.hitw.whatblock.%loop-value-2%} is equal to 4:
+					
+					set the block at loop-value-2 to dark prismarine
+			wait 0.3 seconds
+		loop {mcc.hitw.zone.%arg 1%::*}:
+			set the block above loop-value to air
+			set the block at loop-value to air
+
+command /reghitwblocks:
+    permission: op
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            loop blocks in radius 15 of event-player:
+                if loop-block is prismarine bricks:
+                    set {mcc.hitw.whatblock.%loop-block's location%} to 1
+                if loop-block is prismarine:
+                    set {mcc.hitw.whatblock.%loop-block's location%} to 2
+                if loop-block is  grey concrete:
+                    set {mcc.hitw.whatblock.%loop-block's location%} to 3
+                if loop-block is dark prismarine:
+                    set {mcc.hitw.whatblock.%loop-block's location%} to 4
+                
+command /reghitwzone <number>:
+    permission: op
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            loop blocks in radius 15 of event-player:
+                if loop-block is magma block:
+                    add loop-block's location to {mcc.hitw.zone.%arg 1%::*}
+
+
+on region enter:
+    world is "holeinthewall"
+    if event-region is "death":
+        if event-player's gamemode is adventure:
+            if {mcc.hitw.stage} is more than or equal to 1:
+                teleport event-player to {mcc.hitw.deathloc}
+                loop all players:
+                    if y coord of loop-player is less than 74:
+                        if loop-player's gamemode is adventure:
+                            ac(loop-player,4,"Survived 1 Place",false)
+                if {hitw.numplayers} is 4:
+                    ac(event-player,30,"Third Place",false)
+                if {hitw.numplayers} is 3:
+                    ac(event-player,70,"Second Place",false)
+            else:
+                execute console command "/mvtp %event-player's name% holeinthewall"
+    
+
+function hitwroundend():
+   
+    if {mcc.hitw.roundnum} is less than 3:
+        set {mcc.hitw.stage} to 0
+        set {mcc.hitw.timeleft} to 30
+        loop all players in world "holeinthewall":
+            if y coord of loop-player is less than 74:
+                if loop-player's gamemode is adventure:
+                    ac(loop-player,100,"First Place",false)
+        loop all players:
+            send title "<red>Round Over" to loop-player
+        execute console command "/schempaste hitw_stage_1 holeinthewall 1 66 2"
+        set {mcc.hitw.wallinprogress} to false
+        mcccholeinthewall(false)
+        
+    else:
+        set {mcc.hitw.wallinprogress} to false
+        loop all players in world "holeinthewall":
+            if y coord of loop-player is less than 74:
+                if loop-player's gamemode is adventure:
+                    ac(loop-player,100,"First Place",false)
+        loop all players:
+            send title "<red>Game Over" to loop-player
+        mcccholeinthewall(false)
+        execute console command "/mccstandings"
+    
+
+every second:
+    if {mcc.hitw.wallinprogress} is not true:
+        if {mcc.paused} is false:
+            if {mcc.currentevent} is "holeinthewall":
+                if {mcc.hitw.stage} is 5:
+                    set {mcc.hitw.wallinprogress} to true
+                    wait 4 seconds
+                    set {mcc.hitw.wallinprogress} to false
+                    hitwsendwall()
+                if {mcc.hitw.stage} is 4:
+                    set {mcc.hitw.wallinprogress} to true
+                    wait 6 seconds
+                    set {mcc.hitw.wallinprogress} to false
+                    hitwsendwall()
+                if {mcc.hitw.stage} is 3:
+                    set {mcc.hitw.wallinprogress} to true
+                    wait 8 seconds
+                    set {mcc.hitw.wallinprogress} to false
+                    hitwsendwall()
+                if {mcc.hitw.stage} is 2:
+                    set {mcc.hitw.wallinprogress} to true
+                    wait 10 seconds
+                    set {mcc.hitw.wallinprogress} to false
+                    hitwsendwall()
+                if {mcc.hitw.stage} is 1:
+                    set {mcc.hitw.wallinprogress} to true
+                    wait 12 seconds
+                    set {mcc.hitw.wallinprogress} to false
+                    hitwsendwall()
+
+command /regwalls <number>:
+    permission: op
+    trigger:
+        delete {mcc.hitw.walls::*}
+        loop arg times:
+            add "walls_%loop-number%" to {mcc.hitw.walls::*}
+
+function hitwsendwall():
+    if {mcc.hitw.returningwall} is not true:
+        set {_wall} to random element out of {mcc.hitw.walls::*}
+        chance of 80%:
+            sendwall({_wall},{mcc.hitw.stage})
+        else:
+            sendjukewall({_wall},{mcc.hitw.stage})
+        
+    else:
+        set {mcc.hitw.returningwall} to false
+
+
+function sendwall(wall:text,speed:number):
+    set {_direction} to random element out of {cardinaldirections::*}
+    #broadcast "%{_direction}%"
+    
+    if {_direction} is "north" or "south":
+        execute console command "/schempaste %{_wall}%_ns holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+        #broadcast "/schempaste %{_wall}%_ns holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+    else:
+        execute console command "/schempaste %{_wall}%_ew holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+        #broadcast "/schempaste %{_wall}%_ew holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+    set {_counter} to 1
+    while {mcc.hitw.currentwalls.%{_counter}%::*} is set:
+        add 1 to {_counter}
+    if {mcc.hitw.currentwalls.%{_counter}%::*} is not set:
+        loop blocks in region "%{_direction}%":
+            if loop-block is not air:
+                add loop-block to {mcc.hitw.currentwalls.%{_counter}%::*}
+                
+        loop 19 times:
+            if {_speed} is 1:
+                wait 0.8 second
+            else if {_speed} is 2:
+                wait 0.65 second
+            else if {_speed} is 3:
+                wait 0.5 second
+            else if {_speed} is 4:
+                wait 0.35 seconds
+            else if {_speed} is 5:
+                wait 0.25 seconds
+            movewall({_direction},{_counter})
+        wait 0.5 seconds
+        if {mcc.hitw.returningwall} is true:
+            returnwall({_counter}, {_direction})
+        else:
+            loop {mcc.hitw.currentwalls.%{_counter}%::*}:
+                set block at loop-value to air
+            delete {mcc.hitw.currentwalls.%{_counter}%::*}
+
+function returnwall(wall:number, direction:text):
+    if {_direction} is "north":
+        set {_direction} to "south"
+    else if {_direction} is "south":
+        set {_direction} to "north"
+    else if {_direction} is "east":
+        set {_direction} to "west"
+    else if {_direction} is "west":
+        set {_direction} to "east"
+    loop 19 times:
+        if {_speed} is 1:
+            wait 0.8 second
+        else if {_speed} is 2:
+            wait 0.65 second
+        else if {_speed} is 3:
+            wait 0.5 second
+        else if {_speed} is 4:
+            wait 0.35 seconds
+        else if {_speed} is 5:
+            wait 0.25 seconds
+        movewall({_direction},{_wall})
+    wait 0.5 seconds
+    loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+        set block at loop-value to air
+    delete {mcc.hitw.currentwalls.%{_wall}%::*}
+
+
+
+function sendjukewall(wall:text,speed:number):
+    set {_direction} to random element out of {cardinaldirections::*}
+    #broadcast "%{_direction}%"
+    
+    if {_direction} is "north" or "south":
+        execute console command "/schempaste %{_wall}%_ns holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+        #broadcast "/schempaste %{_wall}%_ns holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+    else:
+        execute console command "/schempaste %{_wall}%_ew holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+        #broadcast "/schempaste %{_wall}%_ew holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction}%})%"
+    set {_counter} to 1
+    while {mcc.hitw.currentwalls.%{_counter}%::*} is set:
+        add 1 to {_counter}
+    if {mcc.hitw.currentwalls.%{_counter}%::*} is not set:
+        loop blocks in region "%{_direction}%":
+            if loop-block is not air:
+                add loop-block to {mcc.hitw.currentwalls.%{_counter}%::*}
+    remove {_direction} from {cardinaldirections::*}
+    set {_direction2} to a random element out of {cardinaldirections::*}
+    add {_direction} to {cardinaldirections::*}
+    
+    set {_wall} to random element out of {mcc.hitw.walls::*}
+    if {_direction2} is "north" or "south":
+        execute console command "/schempaste %{_wall}%_ns holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction2}%})%"
+        #broadcast "/schempaste %{_wall}%_ns holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction2}%})%"
+    else:
+        execute console command "/schempaste %{_wall}%_ew holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction2}%})%"
+        #broadcast "/schempaste %{_wall}%_ew holeinthewall %floor(x-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(y-coord of {mcc.hitw.locations.%{_direction2}%})% %floor(z-coord of {mcc.hitw.locations.%{_direction2}%})%"
+    set {_counter2} to 1
+    while {mcc.hitw.currentwalls.%{_counter2}%::*} is set:
+        add 1 to {_counter2}
+    if {mcc.hitw.currentwalls.%{_counter2}%::*} is not set:
+        loop blocks in region "%{_direction2}%":
+            if loop-block is not air:
+                add loop-block to {mcc.hitw.currentwalls.%{_counter2}%::*}
+    set {_count} to 0
+    loop 19 times:
+        if {_speed} is 1:
+            wait 0.8 second
+        else if {_speed} is 2:
+            wait 0.65 second
+        else if {_speed} is 3:
+            wait 0.5 second
+        else if {_speed} is 4:
+            wait 0.35 seconds
+        else if {_speed} is 5:
+            wait 0.25 seconds
+        add 1 to {_count}
+        movewall({_direction2},{_counter2})
+        if {_count} is less than 5:
+            movewall({_direction},{_counter})
+        
+    wait 0.5 seconds
+    loop {mcc.hitw.currentwalls.%{_counter}%::*}:
+        set block at loop-value to air
+    delete {mcc.hitw.currentwalls.%{_counter}%::*}
+    loop {mcc.hitw.currentwalls.%{_counter2}%::*}:
+        set block at loop-value to air
+    delete {mcc.hitw.currentwalls.%{_counter2}%::*}
+        
+on damage:
+    world is "holeinthewall"
+    victim is a player
+    cancel event
+
+function movewall(direction:text,wall:number):
+    
+    if {_direction} is "north":
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            set block north of loop-value to type of loop-value
+            add block north of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
+            set block at loop-value to air
+            remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            loop entities in radius 1 of loop-value:
+                #broadcast loop-entity
+                if block below loop-entity is not slime block:
+                    teleport loop-entity to the location 1 block north of loop-entity's location
+                    push loop-entity north
+                else if block above loop-entity is slime block:
+                    teleport loop-entity to the location 1 block north of loop-entity's location
+                    push loop-entity north
+            
+    if {_direction} is "east":
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            set block east of loop-value to type of loop-value
+            add block east of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
+            set block at loop-value to air
+            remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            loop entities in radius 1 of loop-value:
+                #broadcast loop-entity
+                if block below loop-entity is not slime block:
+                    teleport loop-entity to the location 1 block east of loop-entity's location
+                    push loop-entity east 
+                else if block above loop-entity is slime block:
+                    teleport loop-entity to the location 1 block east of loop-entity's location
+                    push loop-entity east
+            
+    if {_direction} is "west":
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            set block west of loop-value to type of loop-value
+            add block west of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
+            set block at loop-value to air
+            remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            loop entities in radius 1 of loop-value:
+                #broadcast loop-entity
+                if block below loop-entity is not slime block:
+                    teleport loop-entity to the location 1 block west of loop-entity's location
+                    push loop-entity west 
+                else if block above loop-entity is slime block:
+                    teleport loop-entity to the location 1 block west of loop-entity's location
+                    push loop-entity west
+            
+    if {_direction} is "south":
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            set block south of loop-value to type of loop-value
+            add block south of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
+            set block at loop-value to air
+            remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
+        loop {mcc.hitw.currentwalls.%{_wall}%::*}:
+            loop entities in radius 1 of loop-value:
+                #broadcast loop-entity
+                if block below loop-entity is not slime block:
+                    teleport loop-entity to the location 1 block south of loop-entity's location
+                    push loop-entity south 
+                else if block above loop-entity is slime block:
+                    teleport loop-entity to the location 1 block south of loop-entity's location
+                    push loop-entity south
+                

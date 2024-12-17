@@ -1,0 +1,598 @@
+variables:
+	{mcc.pg.timeleft} = -1
+	{mcc.pg.stage} = 0
+	{mcc.pg.round} = 0
+	{mcc.pg.defendingteam} = 0
+
+
+command /setsails <number> <number>:
+	trigger:
+		command sender is the console or "itsasquid2"
+		set {_bla} to white wool
+		if arg 2 is equal to 1:
+			set {_bla} to red wool
+		else if arg 2 is equal to 2:
+			set {_bla} to orange wool
+		else if arg 2 is equal to 3:
+			set {_bla} to yellow wool
+		else if arg 2 is equal to 4:
+			set {_bla} to lime wool
+		else if arg 2 is equal to 5:
+			set {_bla} to green wool
+		else if arg 2 is equal to 6:
+			set {_bla} to cyan wool
+		else if arg 2 is equal to 7:
+			set {_bla} to light blue wool
+		else if arg 2 is equal to 8:
+			set {_bla} to blue wool
+		else if arg 2 is equal to 9:
+			set {_bla} to purple wool
+		else if arg 2 is equal to 10:
+			set {_bla} to magenta wool
+		loop {mcc.pg.flagblocks.%arg 1%::*}:
+			set block at loop-value to {_bla}
+
+command /setsailblocks <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop blocks in radius 50 of player:
+				if loop-block is wool:
+					add loop-block to {mcc.pg.flagblocks.%arg 1%::*}
+			set {mcc.pg.spawns::%arg 1%} to player's location
+
+command /setsailblockssmall <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop blocks in radius 7 of player:
+				if loop-block is wool:
+					add loop-block to {mcc.pg.flagblocks.%arg 1%::*}
+			set {mcc.pg.spawns::%arg 1%} to player's location
+	
+command /deletesailblocks <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			delete {mcc.pg.flagblocks.%arg 1%::*}
+		else:
+			message "e"
+
+command /setpgchestsattacker:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			if {settingpgchests} is false:
+				set {settingpgchests} to true
+				message "now setting pg chests"
+			else:
+				set {settingpgchests} to false
+				message "now no longer setting pg chests"
+
+command /setpgchestscoin:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			if {settingpgchests2} is false:
+				set {settingpgchests2} to true
+				message "now setting pg chests2"
+			else:
+				set {settingpgchests2} to false
+				message "now no longer setting pg chests2"
+
+command /deletepgchestattacker:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			delete {mcc.pg.attackerchests::*}
+
+command /deletepgchestcoin:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			delete {mcc.pg.coinchests::*}
+
+on break:
+	if {settingpgchests} is true:
+		if player is "itsasquid2":
+			add event-block to {mcc.pg.attackerchests::*}
+	if {settingpgchests2} is true:
+		if player is "itsasquid2":
+			add event-block to {mcc.pg.coinchests::*}
+
+function mccpgtutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Treasure Hunt" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Welcome to Treasure Hunt!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Treasure Hunt is a high-seas heist!" to {_p}
+	send "" to {_p}
+	send "Raid the pirate ship and steal coins for your team, or defend the ship from the swarm of attackers!" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>In Treasure Hunt, one team defends the ship, and all other teams attack it." to {_p}
+	send "" to {_p}
+	send "Every team will get one chance to defend, and attack all the other rounds." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 7 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>The attacking teams keep all the coins that they steal from the ship." to {_p}
+	send "" to {_p}
+	send "The defending team keeps the coins that remain on the ship after 2 minutes." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 8 seconds
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Attackers can boat or bridge over to the ship. However, be aware that blocks will dissapear after 5 seconds" to {_p}
+	send "" to {_p}
+	send "To score for your team, you must steal coins, and return to your island without dying!" to {_p}
+	send "" to {_p}
+	send "If you die, you'll lose your coins and your ender pearls, if you had any." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Some things to note:" to {_p}
+	send "" to {_p}
+	send "<pink>- Water does damage to you." to {_p}
+	send "- It's harder to break non-wool blocks." to {_p}
+	send "- You can't blow up chests, just open them!" to {_p}
+	send "- Attackers can't fight other attackers." to {_p}
+	send "- Blocks will dissapear after 5 seconds." to {_p}
+	send "- Ender Pearls respawn in your spawn chests every 12 seconds." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+	
+	wait 15 seconds
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Now, time for a guided ship tour!" to {_p}
+	send "" to {_p}
+	send "It's important to know where the chests are." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 4 seconds
+	teleport {_p} to {mcc.pg.tutoriallocs::1}
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "There are 2 chests on the main sail, by the crow's nest." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+	teleport {_p} to {mcc.pg.tutoriallocs::2}
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "There are 2 chests in the captain's room." to {_p}
+	send "" to {_p}
+	send "The defenders respawn here if they die." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+	teleport {_p} to {mcc.pg.tutoriallocs::3}
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "There is 1 chest in the dining room." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+	teleport {_p} to {mcc.pg.tutoriallocs::4}
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "There is 1 chest in the map room." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+	teleport {_p} to {mcc.pg.tutoriallocs::5}
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "There is 1 chest in the boiler room." to {_p}
+	send "" to {_p}
+	send "(This room is below the deck)" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+	teleport {_p} to {mcc.pg.tutoriallocs::6}
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "There is 1 chest in the kitchen." to {_p}
+	send "" to {_p}
+	send "(This room is below the deck)" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+	teleport {_p} to {mcc.pg.tutoriallocs::7}
+	
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "Finally, there are 2 chests in the cargo hold." to {_p}
+	send "" to {_p}
+	send "This room is the very lowest on the ship, it's beneath the water level!" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+function pgspawn(p:player) :: number:
+	set {_count} to 1
+	loop {mcc.pg.teamlist::*}:
+		if loop-value is equal to {mcc.team.%{_p}%}:
+			set {_own} to {_count}
+		if loop-value is equal to {mcc.pg.defendingteam}:
+			set {_def} to {_count}
+		add 1 to {_count}
+	if {_def} is greater than {_own}:
+		add {mcc.pg.numteams} to {_own}
+	return {_own} - {_def} + 1
+	
+	
+
+
+function pgpregame():
+	execute console command "/schempaste piratemap pirategame 168 79 740"
+	wait 1 second
+	loop all players:
+		if {mcc.team.%loop-player%} is not equal to 0:
+			set loop-player's game mode to adventure
+			set loop-player's health to 10
+			set loop-player's hunger to 10
+			set loop-player's saturation to 5
+			execute console command "/setsails %pgspawn(loop-player)% %{mcc.team.%loop-player%}%"
+			teleport loop-player to {mcc.pg.spawns::%pgspawn(loop-player)%}
+			#broadcast "%pgspawn(loop-player)% %loop-player%"
+			send title "Round %{mcc.pg.round}%" with subtitle "%{mcc.teams::%{mcc.pg.defendingteam}%}% are defending" to loop-player for 3 seconds
+	#refill all chests (loot and attacker island)
+	loop {mcc.pg.attackerchests::*}:
+		add 2 cobwebs to inventory of block at loop-value 
+		add 2 potions of speed to inventory of block at loop-value
+		add 2 splash potions of harming to inventory of block at loop-value 
+		add 1 ender pearl to inventory of block at loop-value
+		add 15 oak boats to inventory of block at loop-value 
+	loop {mcc.pg.coinchests::*}:
+		loop 90 times:
+			set {_bla} to a random integer between 0 and 26
+			if slot {_bla} of inventory of block at loop-value-1 is air:
+				set slot {_bla} of inventory of block at loop-value-1 to a sunflower of curse of vanishing named "<gold>Gold Doubloon" 
+			else:
+				add 1 to the item amount of slot {_bla} of inventory of block at loop-value-1
+
+
+
+on damage:
+	victim is a player
+	damage is greater than or equal to victim's health
+	"%victim's world%" is equal to "pirategame"
+	set victim's gamemode to spectator
+	set damage to 0.01
+	set victim's health to 10
+	set victim's hunger to 10
+	set victim's saturation to 5 
+	loop 5 times:
+		send title "<pink>You died!" with subtitle "<yellow>Respawning in %6 - loop-number%" to victim for 1 second
+		wait 1 second
+	set {_bla} to number of sunflowers in victim's inventory
+	loop {_bla} times:
+		set {_ba} to a random integer between 1 and 10
+		set {_baa} to a random integer between 0 and 26
+		if slot {_baa} of inventory of block at {mcc.pg.coinchests::%{_ba}%} is air:
+			set slot {_baa} of inventory of block at {mcc.pg.coinchests::%{_ba}%} to a sunflower of curse of vanishing named "<gold>Gold Doubloon"
+		else:
+			add 1 to the item amount of slot {_baa} of inventory of block at {mcc.pg.coinchests::%{_ba}%}
+	remove all sunflowers from the victim
+	remove all ender pearl from the victim
+	teleport victim to {mcc.pg.spawns::%pgspawn(victim)%}
+	if {mcc.pg.stage} is equal to 2:
+		set victim's gamemode to survival	
+
+on block damaging:
+	"%player's world%" is equal to "pirategame"
+	player's gamemode is survival
+	if event-block is wool:
+		remove mining fatigue from the player
+	else:
+		if {mcc.team.%player%} is equal to {mcc.pg.defendingteam}:
+			apply mining fatigue 2 to the player for 5 seconds replacing existing effect
+		else:
+			apply mining fatigue to the player for 5 seconds replacing existing effect
+	
+
+on break of chest:
+	"%player's world%" is equal to "pirategame"
+	player's gamemode is survival
+	message "<pink>You cannot break chests!" to event-player
+	cancel event
+
+on place of wool:
+	"%player's world%" is equal to "pirategame" 
+	player's gamemode is survival
+	set {_block} to location of event-block
+	wait 1 tick
+	if type of player's off hand tool is wool:
+		add 1 to item amount of player's off hand tool
+	else:
+		give 1 of event-item to player
+	wait 5 seconds
+	set block at {_block} to air
+	
+on place of ladder:
+	"%player's world%" is equal to "pirategame" 
+	player's gamemode is survival
+	wait 1 tick
+	if type of player's off hand tool is ladder:
+		add 1 to item amount of player's off hand tool
+	else:
+		give 1 of event-item to player
+		
+
+on inventory click:
+	"%player's world%" is equal to "pirategame"
+	if item type is sunflower:
+		if inventory action is drop all from cursor or drop one from slot:
+			message "<pink>This inventory action is disabled!" to event-player
+			cancel event
+		if player has 64 sunflowers:
+			message "<pink>You have too many coins on you! Return to your island first!" to event-player
+			cancel event
+
+on explosion:
+	"%event-world%" is equal to "pirategame"
+	loop exploded blocks:
+		if loop-block is a chest:
+			delete {_stacks::*}
+			loop 27 times: 
+				add slot (loop-number - 1) of inventory of loop-block to {_stacks::*}
+			clear inventory of loop-block
+			wait a tick
+			set loop-block to a chest
+			loop 27 times:
+				set slot (loop-number - 1) of inventory of loop-block to {_stacks::%loop-number%}
+
+on walking on water:
+	"%player's world%" is equal to "pirategame"
+	player's gamemode is survival
+	player is not riding a boat
+	damage player by 2 hearts
+
+
+on place of tnt:
+	"%event-world%" is equal to "pirategame" or "skybattle" or "survivalgames" or "survivalgames2"
+	wait a tick
+	set event-block to air
+	spawn a primed tnt at event-location
+	add "att %player%" to the scoreboard tags of the spawned primed tnt
+
+
+on craft of chest:
+	if {mcc.pg.timeleft} is greater than 0:
+		if {mcc.team.%player%} is not equal to 0:
+			message "<pink>This recipe is disabled!" to event-player
+			cancel event
+
+on craft of yellow dye:
+	if {mcc.pg.timeleft} is greater than 0:
+		if {mcc.team.%player%} is not equal to 0:
+			message "<pink>This recipe is disabled!" to event-player
+			cancel event
+
+on pickup:
+	type of event-item is sunflower
+	{mcc.pg.timeleft} is greater than 0
+	{mcc.team.%player%} is equal to {mcc.pg.defendingteam}
+	cancel event
+
+on inventory click:
+	inventory action is collect to cursor
+	{mcc.pg.timeleft} is greater than 0
+	{mcc.team.%player%} is not equal to 0
+	message "<pink>You cannot collect all coins at once! Shift-click them into your inventory instead." to event-player
+	cancel event
+
+on damage:
+	attacker is a player
+	victim is a player
+	{mcc.pg.timeleft} is greater than 0
+	{mcc.team.%attacker%} is not equal to 0
+	if attacker is equal to victim:
+		exit trigger
+	if {mcc.team.%attacker%} is not equal to {mcc.pg.defendingteam}:	
+		if {mcc.team.%victim%} is not equal to {mcc.pg.defendingteam}:	
+			send "<pink>You cannot attack fellow attackers!" to attacker
+			cancel event
+	if {mcc.team.%attacker%} is equal to {mcc.pg.defendingteam}:	
+		if {mcc.team.%victim%} is equal to {mcc.pg.defendingteam}:	
+			send "<pink>You cannot attack teammates!" to attacker
+			cancel event
+
+on rightclick on chest:
+	"%player's world%" is equal to "pirategame"
+	if {mcc.team.%player%} is equal to {mcc.pg.defendingteam}:
+		message "<pink>You cannot open chests!" to event-player
+		cancel event
+	set {_good} to true
+	set {_bla} to pgspawn(player)
+	loop 8 times:
+		if loop-value + 1 is not equal to {_bla}:
+			if distance between {mcc.pg.spawns::%loop-value + 1%} and player is less than 10:
+				message "<pink>You cannot open this chest!" to event-player
+				cancel event
+
+
+
+
+on walking on sand or sandstone:
+	"%player's world%" is equal to "pirategame"
+	{mcc.pg.timeleft} is greater than 0
+	player's game mode is not spectator
+	{mcc.team.%player%} is not equal to {mcc.pg.defendingteam}
+	distance between player and {mcc.pg.spawns::%pgspawn(player)%} is less than 10
+	if player has a sunflower:
+		set {_bla} to number of sunflowers in player's inventory
+		ac(player, {_bla}, "You stole %{_bla}% coins!", false)
+		remove all sunflowers from the player
+		subtract {_bla} from {mcc.pg.coinsleft}	
+		broadcast formatted "<%mcccolor({mcc.team.%player%})%>%player% <gray>has banked <yellow>%{_bla}% <yellow>coins!" 
+
+command /mccpirategame:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/schempaste piratemap pirategame 168 79 740"
+		execute console command "/mccnewgame"
+		set {mcc.currentevent} to "pirategame"
+		delete {mcc.pg.teamlist::*}
+		set {mcc.pg.numteams} to 0
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				if {mcc.pg.teamlist::*} does not contain {mcc.team.%loop-player%}:
+					add {mcc.team.%loop-player%} to {mcc.pg.teamlist::*}
+					add 1 to {mcc.pg.numteams}
+		set {mcc.pg.stage} to 0
+		set {mcc.pg.round} to 1
+		set {mcc.pg.timeleft} to 120
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				teleport loop-player to {mcc.pg.spawns::1}
+				set {immune.%loop-player%} to false
+				wait a tick
+				set loop-player's game mode to spectator
+				mccpgtutorial(loop-player)
+				
+		
+
+
+every second:
+	if {mcc.paused} is true:
+		exit trigger
+	if {mcc.pg.timeleft} is greater than 0:
+		subtract 1 from {mcc.pg.timeleft}
+		if mod({mcc.pg.timeleft}, 12) is 0:
+			loop {mcc.pg.attackerchests::*}:
+				add 1 ender pearl to inventory of block at loop-value
+		if {mcc.pg.timeleft} is equal to 10:
+			if {mcc.pg.stage} is equal to 0:
+				set {mcc.pg.stage} to 1
+			if {mcc.pg.stage} is equal to 1:
+				set {mcc.pg.defendingteam} to {mcc.pg.teamlist::%{mcc.pg.round}%}
+				set {mcc.pg.coinsleft} to 900
+				pgpregame()
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:	
+						teleport loop-player to {mcc.pg.spawns::%pgspawn(loop-player)%}
+						clear the loop-player's inventory
+						if {mcc.team.%loop-player%} is equal to {mcc.pg.defendingteam}:
+							set the loop-player's helmet to iron helmet	
+							set the loop-player's chestplate to iron chestplate 
+							set the loop-player's leggings to iron leggings 
+							set the loop-player's boots to iron boots 
+							set the loop-player's off hand tool to shield 
+							give an iron sword of sharpness 3 to loop-player
+							give an iron axe of sharpness 2 to loop-player
+							givecoloredwool(loop-player)
+							give a crossbow of quick charge 3 and piercing 1 to loop-player
+							give 20 bread to loop-player
+							give 48 arrows to loop-player
+							give shears of efficiency 3 to loop-player
+							give an oak boat to loop-player
+							give 1 TNT to loop-player
+							give 2 splash potions of strong harming to loop-player
+						else:
+							give a wooden sword to loop-player
+							give a wooden axe to loop-player
+							give an iron pickaxe to loop-player
+							give 20 bread to loop-player
+							givecoloredwool(loop-player)
+							give 64 ladders to loop-player
+							give shears to loop-player
+		
+		else if {mcc.pg.timeleft} is equal to 3:
+			if {mcc.pg.stage} is equal to 1:
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						execute console command "/boopboopboopbeep %loop-player%" 
+		else if {mcc.pg.timeleft} is equal to 0:
+			if {mcc.pg.stage} is equal to 1:
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						set loop-player's game mode to survival
+						#if {mcc.team.%loop-player%} is not equal to {mcc.pg.defendingteam}:
+						#	apply glowing to loop-player for 2 minutes
+						loop blocks in radius 7 around loop-player:
+							if loop-block is barrier block:
+								if {mcc.pg.barriers::*} does not contain loop-block:
+									add loop-block to {mcc.pg.barriers::*}
+				loop {mcc.pg.barriers::*}:
+					set block at loop-value to air
+				set {mcc.pg.stage} to 2
+				set {mcc.pg.timeleft} to 120
+			else if {mcc.pg.stage} is equal to 2:
+				set {_numpl} to 0
+				loop all players:
+					if {mcc.team.%loop-player%} is equal to {mcc.pg.defendingteam}:
+						add 1 to {_numpl}
+				loop all players:
+					if {mcc.team.%loop-player%} is equal to {mcc.pg.defendingteam}:
+						ac(loop-player, ceil({mcc.pg.coinsleft}/{_numpl}), "Your team defended %{mcc.pg.coinsleft}% coins!", false)
+				if {mcc.pg.round} is greater than or equal to {mcc.pg.numteams}:
+					loop all players:
+						if {mcc.team.%loop-player%} is not equal to 0:
+							send title "<pink>Game over!" to loop-player for 5 seconds
+					set {mcc.pg.stage} to 3
+					set {mcc.pg.timeleft} to 30
+					execute console command "/mccstandings"
+				else:
+					loop all players:
+						if {mcc.team.%loop-player%} is not equal to 0:
+							set loop-player's game mode to spectator
+							send title "<pink>Round over!" to loop-player for 5 seconds
+					add 1 to {mcc.pg.round}
+					set {mcc.pg.stage} to 1
+					set {mcc.pg.timeleft} to 20
+				loop all dropped items in "pirategame":
+					delete the loop-entity
+				loop all boats in "pirategame":
+					delete the loop-entity
+			else if {mcc.pg.stage} is equal to 3:
+				set {mcc.pg.timeleft} to -1
+				execute console command "/mccbreak"	
+
+
+

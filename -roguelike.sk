@@ -1,0 +1,468 @@
+command /generateroguelike:
+    permission: op
+    trigger:
+        execute console command "/mvdelete rogue"
+        execute console command "/mvconfirm"
+        execute console command "/mvcreate rogue normal -t flat -g voidgenerator"
+        set the gamerule doDaylightCycle of world "rogue" to false
+        set the gamerule doWeatherCycle of world "rogue" to false
+        set the gamerule doMobSpawning of world "rogue" to false
+        set the gamerule doMobLoot of world "rogue" to false
+        set the gamerule doImmediateRespawn of world "rogue" to true
+        set {startingloc} to the location at 0, -61, 0 of the world "rogue"
+        genwalls(8,{startingloc})
+        gendoor(8,{startingloc})
+        set {roguenumber} to 8
+        set {roguelike.roomnum} to 0
+
+command /roguelike:
+    trigger:
+        if {mcc.inprogress} is false:
+            if amount of players in world "rogue" is less than 1:
+                teleport player to the location at 0, -61, 0 of the world "rogue"
+                clear player's inventory
+                give player wooden sword
+                clear player's potion effects
+                set {roguelike.damage.%player%} to 0
+                set {roguelike.protection.%player%} to 1
+                set {roguelike.cleave.%player%} to 0
+                set {roguelike.health.%player%} to 0
+                set {roguelike.speed.%player%} to 0
+                set {roguelike.fireball.%player%} to 0
+                set {roguelike.regen.%player%} to 1
+                give player book named "&2Upgrades"
+                apply infinite potion of night vision to player
+            else if {roguelike.roomnum} is 0:
+                message "Joined!"
+                teleport player to the location at 0, -61, 0 of the world "rogue"
+                clear player's inventory
+                give player wooden sword
+                clear player's potion effects
+                set {roguelike.damage.%player%} to 0
+                set {roguelike.protection.%player%} to 1
+                set {roguelike.cleave.%player%} to 0
+                set {roguelike.health.%player%} to 0
+                set {roguelike.speed.%player%} to 0
+                set {roguelike.fireball.%player%} to 0
+                set {roguelike.regen.%player%} to 1
+                give player book named "&2Upgrades"
+                apply infinite potion of night vision to player
+            else:
+                message "Someone else is already doing that! Squads can only be joined on room 0"
+
+command /spectateroguelike:
+    trigger:
+        if {mcc.inprogress} is false:
+            teleport player to the location at 0, -61, 0 of the world "rogue"
+            wait 10 ticks
+            set player's gamemode to spectator
+
+on explode:
+    
+    event-world is "rogue"
+    cancel event
+    create safe explosion with force explosion radius of event-entity
+
+function genwalls(n:number,loc:location):
+    delete bound with id "rogueroom"
+    loop 10 times:
+        loop {_n} times:
+            set block at the location {_n}/2 blocks south of the location {_n}/2 blocks east of the location loop-number-2 west of the location loop-number-1 blocks above {_loc} to white concrete
+            set block at the location {_n}/2 blocks south of the location {_n}/2 blocks east of the location loop-number-2 west of the location 1 blocks above the location 2 blocks north of {_loc} to white concrete
+    loop 10 times:
+        loop {_n} times:
+            set block at the location {_n}/2 blocks north of the location {_n}/2 blocks east of the location loop-number-2 west of the location loop-number-1 blocks above {_loc} to white concrete
+            set block at the location {_n}/2 blocks north of the location {_n}/2 blocks east of the location loop-number-2 west of the location 1 blocks above the location 2 blocks south of {_loc} to white concrete
+    loop 10 times:
+        loop {_n} times:
+            set block at the location {_n}/2 blocks east of the location {_n}/2 blocks north of the location loop-number-2 south of the location loop-number-1 blocks above {_loc} to white concrete
+            set block at the location {_n}/2 blocks east of the location {_n}/2 blocks north of the location loop-number-2 south of the location 1 blocks above the location 2 blocks west of {_loc} to white concrete
+    loop 10 times:
+        loop {_n} times:
+            set block at the location {_n}/2 blocks west of the location {_n}/2 blocks north of the location loop-number-2 south of the location loop-number-1 blocks above {_loc} to white concrete
+            set block at the location {_n}/2 blocks west of the location {_n}/2 blocks north of the location loop-number-2 south of the location 1 blocks above the location 2 blocks east of {_loc} to light blue carpet
+    loop {_n} times:
+        loop {_n} times:
+            set block at the location 11 blocks above the location {_n}/2 blocks south of the location {_n}/2 blocks east of the location loop-number-1 blocks north of the location loop-number-2 blocks west of {_loc} to white concrete
+            set block at the location {_n}/2 blocks south of the location {_n}/2 blocks east of the location loop-number-1 blocks north of the location loop-number-2 blocks west of {_loc} to white concrete
+    if {_n}/2 is not an integer:
+        loop {_n}-3 times:
+            loop {_n}-3 times:
+                set block at the location 1 block above the location floor({_n}/2-1) blocks south of the location floor({_n}/2-1) blocks east of the location loop-number-1 blocks north of the location loop-number-2 blocks west of {_loc} to light blue carpet
+    else:
+        loop {_n}-4 times:
+            loop {_n}-4 times:
+                set block at the location 1 block above the location floor({_n}/2-1) blocks south of the location floor({_n}/2-1) blocks east of the location loop-number-1 blocks north of the location loop-number-2 blocks west of {_loc} to light blue carpet
+
+    
+    set {_loc1} to the location {_n}/2 blocks north of the location {_n}/2 blocks east of {_loc}
+    set {_loc2} to the location {_n}/2 blocks south of the location {_n}/2 blocks west of the location 10 blocks above {_loc}
+    create bound with id "rogueroom" between {_loc1} and {_loc2} 
+
+on shoot:
+    world is "roguelike"
+    shooter is not a player
+    loop 3 times:
+        wait 10 ticks
+        make shooter range attack nearest player relative to shooter with charge 1
+
+on damage:
+    world is "roguelike"
+    victim is a player
+    attacker is not a player
+    wait 1 tick
+    make attacker attack victim
+
+
+
+function genentities(n:number):
+    #broadcast {_n}
+    set {_blocks::*} to all blocks within bound bound with id "rogueroom"
+    loop {_blocks::*}:
+        if block below loop-value is not air:
+            if loop-value is air:
+                chance of rounded {_n}/10%:
+                    chance of 25%:
+                        spawn a zombie at loop-value's location
+                        apply infinite potion of speed of tier floor({roguelike.roomnum}/10) to last spawned entity
+                        if {_n} is more than 5:
+                            if {_n} is less than 11:
+                                equip last spawned entity with all leather armour
+                                set last spawned entity's tool to wooden sword
+                        if {_n} is more than 10:
+                            if {_n} is less than 16:
+                                equip last spawned entity with all chainmail armour
+                                set last spawned entity's tool to wooden sword
+                                enchant last spawned entity's tool with sharpness 1
+                        if {_n} is more than 15:
+                            if {_n} is less than 21:
+                                equip last spawned entity with all golden armour
+                                set last spawned entity's tool to golden sword
+                        if {_n} is more than 20:
+                            if {_n} is less than 26:
+                                equip last spawned entity with all iron armour
+                                set last spawned entity's tool to iron sword
+                        if {_n} is more than 25:
+                            if {_n} is less than 31:
+                                equip last spawned entity with all diamond armour
+                                set last spawned entity's tool to diamond sword
+                        if {_n} is more than 30:
+                            equip last spawned entity with all netherite armour
+                            
+                            set {_num} to rounded {roguelike.roomnum}/10-3
+                            set {_enchant} to "protection %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's helmet with {_enchant}
+                            enchant last spawned entity's chestplate with {_enchant}
+                            enchant last spawned entity's leggings with {_enchant}
+                            enchant last spawned entity's boots with {_enchant}
+                            set last spawned entity's tool to netherite sword
+                            set {_enchant} to "sharpness %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's tool with {_enchant}
+                        
+
+                    chance of 25%:
+                        spawn a skeleton at loop-value's location
+                        
+                        if {_n} is more than 5:
+                            if {_n} is less than 11:
+                                equip last spawned entity with all leather armour
+                                
+                        if {_n} is more than 10:
+                            if {_n} is less than 16:
+                                equip last spawned entity with all chainmail armour
+                                
+                                
+                        if {_n} is more than 15:
+                            if {_n} is less than 21:
+                                equip last spawned entity with all golden armour
+                                
+                        if {_n} is more than 20:
+                            if {_n} is less than 26:
+                                equip last spawned entity with all iron armour
+                                
+                        if {_n} is more than 25:
+                            if {_n} is less than 31:
+                                equip last spawned entity with all diamond armour
+                                
+                        if {_n} is more than 30:
+                            equip last spawned entity with all netherite armour
+                            
+                            set {_num} to rounded {roguelike.roomnum}/10-3
+                            set {_enchant} to "protection %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's helmet with {_enchant}
+                            enchant last spawned entity's chestplate with {_enchant}
+                            enchant last spawned entity's leggings with {_enchant}
+                            enchant last spawned entity's boots with {_enchant}
+                        set {_num} to rounded {roguelike.roomnum}/2
+                        set {_enchant} to "power %{_num}%" parsed as enchantment type
+                        enchant last spawned entity's tool with {_enchant}
+                    chance of 10%:
+                        spawn a stray at loop-value's location
+                        
+                        if {_n} is more than 5:
+                            if {_n} is less than 11:
+                                equip last spawned entity with all leather armour
+                                
+                        if {_n} is more than 10:
+                            if {_n} is less than 16:
+                                equip last spawned entity with all chainmail armour
+                                
+                                
+                        if {_n} is more than 15:
+                            if {_n} is less than 21:
+                                equip last spawned entity with all golden armour
+                                
+                        if {_n} is more than 20:
+                            if {_n} is less than 26:
+                                equip last spawned entity with all iron armour
+                                
+                        if {_n} is more than 25:
+                            if {_n} is less than 31:
+                                equip last spawned entity with all diamond armour
+                                
+                        if {_n} is more than 30:
+                            equip last spawned entity with all netherite armour
+                            
+                            set {_num} to rounded {roguelike.roomnum}/10-3
+                            set {_enchant} to "protection %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's helmet with {_enchant}
+                            enchant last spawned entity's chestplate with {_enchant}
+                            enchant last spawned entity's leggings with {_enchant}
+                            enchant last spawned entity's boots with {_enchant}
+                        set {_num} to rounded {roguelike.roomnum}/2
+                        set {_enchant} to "power %{_num}%" parsed as enchantment type
+                        enchant last spawned entity's tool with {_enchant}
+                            
+                    chance of 10%:
+                        apply infinite potion of speed of tier floor({roguelike.roomnum}/10) to last spawned entity
+                        spawn a wither skeleton at loop-value's location
+                        if {_n} is more than 5:
+                            if {_n} is less than 11:
+                                equip last spawned entity with all leather armour
+                                set last spawned entity's tool to wooden sword
+                        if {_n} is more than 10:
+                            if {_n} is less than 16:
+                                equip last spawned entity with all chainmail armour
+                                set last spawned entity's tool to wooden sword
+                                enchant last spawned entity's tool with sharpness 1
+                        if {_n} is more than 15:
+                            if {_n} is less than 21:
+                                equip last spawned entity with all golden armour
+                                set last spawned entity's tool to golden sword
+                        if {_n} is more than 20:
+                            if {_n} is less than 26:
+                                equip last spawned entity with all iron armour
+                                set last spawned entity's tool to iron sword
+                        if {_n} is more than 25:
+                            if {_n} is less than 31:
+                                equip last spawned entity with all diamond armour
+                                set last spawned entity's tool to diamond sword
+                        if {_n} is more than 30:
+                            equip last spawned entity with all netherite armour
+                            
+                            set {_num} to rounded {roguelike.roomnum}/10-3
+                            set {_enchant} to "protection %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's helmet with {_enchant}
+                            enchant last spawned entity's chestplate with {_enchant}
+                            enchant last spawned entity's leggings with {_enchant}
+                            enchant last spawned entity's boots with {_enchant}
+                            set last spawned entity's tool to netherite sword
+                            set {_enchant} to "sharpness %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's tool with {_enchant}
+                    chance of 5%:
+                        apply infinite potion of speed of tier floor({roguelike.roomnum}/10) to last spawned entity
+                        spawn a husk at loop-value's location
+                        if {_n} is more than 5:
+                            if {_n} is less than 11:
+                                equip last spawned entity with all leather armour
+                                set last spawned entity's tool to wooden sword
+                                enchant last spawned entity's tool with sharpness 1
+                        if {_n} is more than 10:
+                            if {_n} is less than 16:
+                                equip last spawned entity with all chainmail armour
+                                set last spawned entity's tool to wooden sword
+                                enchant last spawned entity's tool with sharpness 5
+                        if {_n} is more than 15:
+                            if {_n} is less than 21:
+                                equip last spawned entity with all golden armour
+                                set last spawned entity's tool to golden sword
+                                enchant last spawned entity's tool with sharpness 5
+                        if {_n} is more than 20:
+                            if {_n} is less than 26:
+                                equip last spawned entity with all iron armour
+                                set last spawned entity's tool to iron sword
+                                enchant last spawned entity's tool with sharpness 5
+                        if {_n} is more than 25:
+                            if {_n} is less than 31:
+                                equip last spawned entity with all diamond armour
+                                set last spawned entity's tool to diamond sword
+                                enchant last spawned entity's tool with sharpness 5
+                        if {_n} is more than 30:
+                            equip last spawned entity with all netherite armour
+                            
+                            set {_num} to rounded {roguelike.roomnum}/10-3
+                            set {_enchant} to "protection %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's helmet with {_enchant}
+                            enchant last spawned entity's chestplate with {_enchant}
+                            enchant last spawned entity's leggings with {_enchant}
+                            enchant last spawned entity's boots with {_enchant}
+                            set last spawned entity's tool to netherite sword
+                            set {_enchant} to "sharpness %{_num}%" parsed as enchantment type
+                            enchant last spawned entity's tool with {_enchant}
+
+on rightclick:
+    if player's world is "rogue":
+        if player's tool is book named "&2Upgrades":
+            if {roguelike.randommized.%player%} is false:
+                open chest inventory with 1 row named "upgrades" to player
+                set slot 3 of player's current inventory to random element out of {roguelike.upgrades::*}
+                set slot 4 of player's current inventory to random element out of {roguelike.upgrades::*}
+                set slot 5 of player's current inventory to random element out of {roguelike.upgrades::*}
+                set {roguelike.randommized.%player%} to true
+            else:
+                message "<red>You already used your book once this room, try going to the next room!"
+
+
+
+command /addupgrade:
+    trigger:
+        if command sender is "itsasquid2":
+            add player's tool to {roguelike.upgrades::*}
+            message "added %player's tool% to upgrades"
+
+command /delupgrades:
+    trigger:
+        if command sender is "itsasquid2":
+            remove player's tool from {roguelike.upgrades::*}
+
+on inventory click:
+    if inventory name of event-inventory is "upgrades":
+        if {roguelike.upgrades::*} contains event-item:
+            if amount of {upgradepoint} in player's inventory is more than 0:
+                remove 1 sunflower from player
+                if name of event-item is "damage upgrade":
+                    
+                    add 1 to {roguelike.damage.%player%}
+                    apply infinite potion of strength of tier {roguelike.damage.%player%} to the player        
+                else if name of event-item is "defense upgrade":
+                    
+                    add 1 to {roguelike.protection.%player%}
+                    
+                else if name of event-item is "speed upgrade":
+                    
+                    add 1 to {roguelike.speed.%player%}
+                    set {_p} to potion effect of speed of tier {roguelike.speed.%player%} for 9999 days
+                    add {_p} to potion effects of player
+                else if name of event-item is "health upgrade":
+                    set {_health} to event-player's health
+                    add 1 to {roguelike.health.%player%}
+                    apply infinite potion of health boost of tier {roguelike.health.%player%}*2 to the player 
+                    
+                    set event-player's health to {_health}
+                else if event-item is golden shovel of unbreaking 10 and knockback 1 named "Rocket Launcher":
+                    if event-player does not have golden shovel of unbreaking 10 and knockback 1 named "Rocket Launcher" in their inventory:
+                        give golden shovel of unbreaking 10 and knockback 1 named "Rocket Launcher" to player
+                    add 1 to {roguelike.fireball.%player%}
+                else if name of event-item is "regen upgrade":
+                    add 1 to {roguelike.regen.%player%}
+                    set {_p} to potion effect of regeneration of tier {roguelike.regen.%player%}/2 for 9999 days
+                    add {_p} to potion effects of player
+                    
+                cancel event
+                set event-slot to air
+            else:
+                cancel event
+
+on respawn:
+    event-world is "rogue":
+        wait 1 tick
+        execute console command "/mvtp %event-player% world"
+        if amount of players in world "rogue" is less than 1:
+            execute console command "/generateroguelike"
+
+on world change:
+    
+    if past event-world is "rogue":
+        if amount of players in world "rogue" is less than 1:
+            execute console command "/generateroguelike"
+        
+
+on leave:
+   
+    if event-world is "rogue":
+        if amount of players in world "rogue" is less than 1:
+            execute console command "/generateroguelike"
+        
+
+on join:
+    
+    if event-world is "rogue":
+        execute console command "/mvtp %event-player% world"
+
+command /upgrademenu:
+    trigger:
+        give player book named "&2Upgrades"
+
+on rightclick on door:
+    event-world is "rogue"
+    
+    set {_b} to bound with id "rogueroom"
+    set {_done} to true
+    loop entities in bound {_b}:
+        
+        if loop-entity's type is not player or a dropped item or a arrow:
+            
+            set {_done} to false
+    if {_done} is false:
+        cancel event
+        
+        message "<red>Kill everything in the room first!"
+        exit trigger
+    else:
+        cancel event
+        set event-block to white concrete
+        if event-block's y coordinate is -59.5:
+            set block above event-block to white concrete
+        else:
+            set block below event-block to white concrete
+        add 1 to {roguelike.roomnum}
+        set {_num} to a random number from 8 to 8+{roguelike.roomnum}
+        
+        set {startingloc} to the location {roguenumber}/2 blocks north of the location {_num}/2 blocks north of {startingloc}
+        set {roguenumber} to {_num}
+        genwalls({_num},{startingloc})
+        gendoor({_num},{startingloc})
+        genentities({roguelike.roomnum})
+        loop all entity in bound {_b}:
+            if loop-entity is a player:
+                set {roguelike.randommized.%loop-entity%} to false
+                give loop-entity sunflower named "&2Experience Point"
+                set {upgradepoint} to sunflower named "&2Experience Point"
+                
+                
+                
+                
+                
+                
+                set {_loc} to the location 4 block north of event-block's location
+                set yaw of {_loc} to loop-entity's yaw
+                set pitch of {_loc} to loop-entity's pitch
+                teleport loop-entity to {_loc}
+                
+                message "Room Number: %{roguelike.roomnum}%" to loop-entity
+        
+on damage of a player:
+    world is "rogue"
+    if attacker is not a player:
+        set damage to damage-0.25*{roguelike.protection.%victim%}
+    else:
+        cancel event
+        message "<red>No >:(" to attacker
+
+on damage:
+    world is "rogue"
+    wait 1 tick
+    set victim's invulnerability ticks to 0
+
+function gendoor(n:number,loc:location):
+    set block at the location {_n}/2 blocks north of the location 1 block above {_loc} to oak door

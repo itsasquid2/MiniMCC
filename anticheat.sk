@@ -1,0 +1,228 @@
+variables:
+	{superop.%player%} = false
+	{smpworld} = "smp_4"
+	{smpworldnether} = "smp_4_nether"
+
+command /superop <player>:
+	trigger:
+		if {superop.%player's name%} is true:
+			set {superop.%arg 1%} to true
+			if arg 1 is not an op:
+				op arg 1
+			message "<green>Made %arg 1% a super op."
+
+on command "/op":
+	if player is not "itsasquid2" or "minimcc":
+		cancel event
+		message "<red>NO"
+
+on command:
+	if onsmp(player) is true:
+		log "%player's name% used command /%command% %arguments%" to "smpcommands"
+
+on gamemode change:
+	if player's name is "itsasquid2":
+		exit trigger
+	if player's gamemode is survival:
+		exit trigger
+	if "%player's world%" is equal to {smpworld}:
+		message "<pink>You are not allowed to change your gamemode on the SMP!"
+		cancel event
+	if "%player's world%" is equal to {smpworldnether}:
+		message "<pink>You are not allowed to change your gamemode on the SMP!"
+		cancel event
+
+on command:
+	if "%command%" starts with "mcc":
+		log "%player's name% used command /%command% %arguments%" to "commands"
+	if "%command%" starts with "/mcc":
+		log "%player's name% used command /%command% %arguments%" to "commands"
+
+on command "/mvtp smp_5":
+	if {superop.%player's name%} is true:
+		exit trigger
+	message "<pink>You cannot mvtp to the SMP! Access the SMP using /smp"
+	cancel event
+
+on command "/mvtp smp_5_nether":
+	if {superop.%player's name%} is true:
+		exit trigger
+	message "<pink>You cannot mvtp to the SMP! Access the SMP using /smp"
+	cancel event
+
+
+on command "/mvtp acerace4":
+	if command sender is "bluized":
+		message "<red>No!"
+		cancel event
+
+on command "/deop":
+	if {superop.%player's name%} is false:
+		message "<pink>You may not deop people on this server!"
+		cancel event
+
+on command "/ban":
+	if {superop.%player's name%} is false:
+		message "<pink>You may not ban people on this server!"
+		cancel event
+
+on command "/pardon":
+	if {superop.%player's name%} is false:
+		message "<pink>You may not unban people on this server!"
+		cancel event
+
+on command "/stop":
+	if {superop.%player's name%} is false:
+		if command sender is not the console:
+			message "<pink>You cannot do this!"
+			cancel event
+
+
+
+
+on command:
+	if command sender's name is "Cabbenge" or "ech0craft":
+		log "%player's name% used command /%command% %arguments%" to "sus"
+
+
+on command "/whitelist":
+	if {superop.%player's name%} is false:
+		if command sender is not the console:
+			message "<pink>You cannot edit the whitelist! If you have a friend who would like to join the server please DM Matthew on Discord."
+			cancel event
+
+
+on command "/effect":
+	if {mcc.inprogress} is true:
+		if command sender is not command block:
+			if {superop.%player's name%} is false:
+				message "<pink>This command is disabled!"
+				cancel event
+
+on command "//":
+	message "<pink>This command is disabled!"
+	cancel event
+
+
+on command:
+	command sender is not the console
+	if {mcc.currentevent} is not equal to "none":
+		if {mcc.team.%player's name%} is not equal to 0:
+			exit trigger
+			if {superop.%player's name%} is true:
+				exit trigger
+			if command is "/teamtp":
+				exit trigger
+			if command is "/kit":
+				exit trigger
+			if command is "/choosekit":
+				exit trigger
+			if command is "/tell":
+				exit trigger
+			if command is "/msg":
+				exit trigger
+			send "[<pink><bold>MCC Anticheat<white>] MCC Anticheat has barred you from using this command in-game. Please contact the moderators if you believe this is a mistake." to player
+			cancel event
+
+on rightclick on command block or chain command block or repeating command block:
+	if {superop.%player's name%} is false:
+		message "<pink>This feature is disabled!" to event-player
+		cancel event
+
+on rightclick:
+	player's tool is minecart with command block
+	if {superop.%player's name%} is false:
+		message "<pink>This feature is disabled!" to event-player
+		cancel event
+
+
+
+
+on join:
+	if {lastchat.%player's name%} is not set:
+		set {lastchat.%player's name%} to 5 seconds ago 
+	if {lastmod.%player's name%} is not set:
+		set {lastmod.%player's name%} to 10 minutes ago
+	
+
+
+on chat:
+	exit trigger
+	if {muted.%player's name%} is true:
+		message "<pink>You are muted!"
+		cancel event
+	if player count is greater than 10:
+		if time since {lastchat.%player's name%} is less than 2 seconds:
+			if player is not "itsasquid2":
+				message "<pink>You are chatting too fast!"
+				cancel event
+		else:
+			set {lastchat.%player's name%} to now
+
+
+command /mute <player>:
+	trigger:
+		if player is not "itsasquid2":
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		if {muted.%arg 1%} is true:
+			message "Unmuted %arg 1%!"
+			set {muted.%arg 1%} to false
+		else:
+			message "Muted %arg 1%!"
+			set {muted.%arg 1%} to true
+
+
+command /mod:
+	trigger:
+		if time since {lastmod.%player's name%} is less than 10 minutes:
+			message "<pink>You may only use this command once every 10 minutes! Get your teammates to call the mods in an emergency."
+			exit trigger
+		set {lastmod.%player's name%} to now	
+		message "<lime>Alerted the mods! They will assist you shortly!"
+		
+
+command /vanish:
+	trigger:
+		if {superop.%player's name%} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		if {vanished.%player's name%} is true:
+			set {vanished.%player's name%} to false
+			message "<lime>Unvanished!"			
+			loop all players:
+				reveal player to loop-player
+		else:
+			set {vanished.%player's name%} to true 
+			message "<lime>Vanished!"			
+			#loop all players:
+			#	if loop-player is not equal to player:
+			#		return trigger
+						
+command /vanishplayer <player>:
+	trigger:
+		if {superop.%player's name%} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		if {vanished.%arg 1%} is true:
+			set {vanished.%arg 1%} to false
+			message "<lime>Unvanished!"			
+			loop all players:
+				reveal arg 1 to loop-player
+		else:
+			set {vanished.%arg 1%} to true 
+			message "<lime>Vanished!"			
+			#loop all players:
+			#	if loop-player is not equal to player:
+			#		return trigger
+
+
+	
+command /vanishall:
+	trigger:
+		if {superop.%player's name%} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		loop all players:
+			loop all players:
+				reveal loop-player-1 to loop-player-2

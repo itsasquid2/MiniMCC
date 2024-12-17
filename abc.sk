@@ -1,0 +1,50 @@
+command /maxedset:
+        trigger:
+                if command sender is not the console:
+                        if {mmcc.hoster.%command sender%} isn't true:
+                                if sender is not "MiniMCC":
+                                        message "<pink>You do not have permission to run this command!"
+                                        exit trigger
+                give a netherite helmet of aqua affinity and mending and protection 4 and respiration 3 and unbreaking 3 to the player
+                give a netherite chestplate of mending and protection 4 and thorns 3 and unbreaking 3 to the player
+                give a netherite leggings of mending and protection 4 and unbreaking 3 to the player
+                give a netherite boots of protection 4 and depth strider 3 and feather falling 4 and soul speed 3 and mending and unbreaking 3 to the player
+                give a shield of unbreaking 3 and mending to the player
+                give a netherite sword of sharpness 5 and unbreaking 3 and mending and fire aspect 2 and looting 3 and sweeping edge 3 and knockback 2 to the player
+                give a bow of flame and power 5 and mending and unbreaking 3 and punch 2 to the player
+                give a crossbow of piercing 4 and quick charge 3 and mending and unbreaking 3 to the player
+                give a trident of impaling 5 and loyalty 3 and channeling and mending and unbreaking 3 to the player
+                give a trident of impaling 5 and riptide 3 and mending and unbreaking 3 to the player
+                give a netherite pickaxe of efficiency 5 and unbreaking 3 and mending and fortune 3 to the player
+                give a netherite pickaxe of efficiency 5 and unbreaking 3 and mending and silk touch to the player
+                give a netherite shovel of efficiency 5 and unbreaking 3 and mending to the player
+                give a netherite axe of efficiency 5 and sharpness 5 and silk touch and mending and unbreaking 3 to the player
+                give a netherite hoe of efficiency 5 and silk touch and mending and unbreaking 3 to the player
+                give a shears of efficiency 5 and mending and unbreaking 3 to the player
+                give a fishing rod of luck of the sea 3 and lure 3 and mending and unbreaking 3 to the player
+                give a flint and steel of mending and unbreaking 3 to the player
+
+command /boomboxall:
+        trigger:
+                if command sender is not the console:
+                        if {mmcc.hoster.%command sender%} isn't true:
+                                if sender is not "MiniMCC":
+                                        message "<pink>You do not have permission to run this command!"
+                                        exit trigger
+                loop {boomboxkits.universal::*}:
+                        give loop-value to all players in world "boombox"
+
+command /boomboxpvp <boolean>:
+        trigger:
+                if command sender is not the console:
+                        if {mmcc.hoster.%command sender%} isn't true:
+                                if sender is not "MiniMCC":
+                                        message "<pink>You do not have permission to run this command!"
+                                        exit trigger
+                set {boomboxpvp} to arg
+
+on damage:
+        world is "boombox":
+                if {boomboxpvp} is true:
+                        send message "<red>You may not attack people right now" to attacker
+                        cancel event

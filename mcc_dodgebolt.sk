@@ -1,0 +1,863 @@
+variables:
+	{db.playing.%player%} = false
+	{db.team.%player%} = "none"
+	{db.formerteam.%player%} = "none"
+	{db.wins.%player%} = 0
+	{db.formerteam.%player%} = "none"
+	{db.inprogress} = false
+	{db.arenasize} = 0
+	{dbbad.%player%} = false
+	{frozen.%player%} = false
+	{db.teamwinsa} = 0
+	{db.teamwinsb} = 0
+	{mcc.db.timeleft} = 0
+	{db.mccofficial} = false
+
+on join:
+	set {db.playing.%player's name%} to false
+
+aliases:
+	dbfloor = white concrete, black concrete, cyan concrete, orange concrete
+
+
+
+function mccdbtutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Dodgebolt" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Welcome to Dodgebolt!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Dodgebolt is an elimination game." to {_p}
+	send "" to {_p}
+	send "All players have one life per round." to {_p}
+	send "<pink>Dodgebolt is a best of five." to {_p}
+	send "" to {_p}
+	send "<yellow>First team to 3 wins will win Mini MCC." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "At the start of each round, two arrows will drop in the center of the arena, one on each team's side." to {_p}
+	send "" to {_p}
+	send "Arrows can only be fired from your side of the arena." to {_p}
+	send "" to {_p}
+	send "<pink>Arrows are a one-hit kill." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 8 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "If an arrow hits a player, or misses, it will be ready for pick-up from where it landed." to {_p}
+	send "" to {_p}
+	send "Fire the arrows back and forth until you eliminate the entire opposing team." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 8 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Extra Tips:" to {_p}
+	send "" to {_p}
+	send "- When a player is eliminated, the arena will shrink. Try not to fall off the edges when dodging!" to {_p}
+	send "" to {_p}
+	send "<pink> - You also die if you cross over to the enemy's side!" to {_p}
+	send "" to {_p}
+	send "- Predict your opponent's movement to land your shots. Unpredictable movement is the way to <bold>dodge bolts." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 8 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>There are no coins awarded for Dodgebolt." to {_p}
+	send "" to {_p}
+	send "Instead, you take home the entire show..." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+
+command /mccwon:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			mccwon(11)
+
+function mccwon(n: number):
+	loop all players:
+		send title "%{mcc.teams::%{_n}%}%" with subtitle "are your Mini MCC %{mcc.eventnum}% champions!" to loop-player for 5 seconds
+	broadcast "%{mcc.teams::%{_n}%}%<white> have won the right to the Walk of Fame!"
+	execute console command "/playmusic none"
+	noteall(9)
+	wait 0.4 seconds
+	noteall(9)
+	wait 0.2 seconds
+	noteall(11)
+	wait 0.4 seconds
+	noteall(13)
+	wait 0.6 seconds
+	noteall(11)
+	wait 0.4 seconds
+	noteall(11)
+	wait 0.2 seconds
+	noteall(15)
+	wait 0.6 seconds
+	noteall(14)
+	wait 0.4 seconds
+	noteall(14)
+	wait 0.2 seconds
+	noteall(16)
+	wait 0.4 seconds
+	noteall(18)
+	wait 0.6 seconds
+	noteall(16)
+	wait 0.4 seconds
+	noteall(16)
+	wait 0.2 seconds
+	noteall(20)
+	wait 0.9 seconds
+	noteall(20)
+	wait 0.3 seconds
+	noteall(22)
+	wait 5 seconds
+	loop all players:
+		if {mcc.team.%loop-player's name%} is equal to {_n}:
+			teleport loop-player to {mcc.won}
+		else if {mcc.team.%loop-player's name%} is not equal to 0:
+			teleport loop-player to {mcc.lost}
+		clear the loop-player's scoreboard
+		set title of loop-player's scoreboard to "<yellow><bold>Mini MCC %{mcc.eventnum}%"
+		set line 15 of loop-player's scoreboard to "<lime><bold>Event over!"
+		set line 14 of loop-player's scoreboard to ""
+		set line 13 of loop-player's scoreboard to "Thanks for playing!"
+
+	wait 1 second
+	execute console command "/playmusic walkoffame"
+	mccfireworkshow({_n})
+	set {db.mccofficial} to false
+	wait 5 seconds
+	set {mcc.inprogress} to false
+	set {mcc.currentevent} to "none"
+	
+command /setwin:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {mcc.won} to player's position
+
+command /setlose:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {mcc.lost} to player's position
+
+function mccfireworkshow(n:number):
+	set time in world "mini_mcc_town" to 22:00
+	loop 150 times:
+		set {_ba} to a random number between 1 and 10
+		loop {_ba} times:
+			wait a tick
+		set {_bla} to a random element of {mcc.fireworklocs::*}	
+		set {_dura} to a random number between 2 and 4
+		chance of 20%:
+			set {_a} to ball
+		else:
+			chance of 25%:
+				set {_a} to large ball
+			else:
+				chance of 33%:
+					set {_a} to star
+				else:
+					chance of 50%:
+						set {_a} to burst
+					else:
+						set {_a} to creeper
+		chance of 25%:
+			launch flickering {_a} colored mcccolor({_n}) at {_bla} with duration {_dura}
+		else:
+			chance of 33%:
+				launch trailing {_a} colored mcccolor({_n}) at {_bla} with duration {_dura}
+			else:
+				chance of 50%:
+					launch flickering trailing {_a} colored mcccolor({_n}) at {_bla} with duration {_dura}
+				else:
+					launch {_a} colored mcccolor({_n}) at {_bla} with duration {_dura}
+
+
+
+
+function dbterritory(p:player) :: number:
+	if x-coordinate of {_p} is greater than 81.5:
+		return 2 	
+	else if x-coordinate of {_p} is greater than 80.5:
+		if z-coordinate of {_p} is less than -208:
+			return 2
+		else if z-coordinate of {_p} is greater than -195:
+			return 2
+	if x-coordinate of {_p} is less than 75.5:
+		return 0 	
+	else if x-coordinate of {_p} is less than 76.5:
+		if z-coordinate of {_p} is less than -208:
+			return 0
+		else if z-coordinate of {_p} is greater than -195:
+			return 0
+	return 1	
+
+
+function dbdead(p:player):
+	set {db.playing.%{_p}%} to false
+	set {db.formerteam.%{_p}%} to {db.team.%{_p}%}
+	set {db.team.%{_p}%} to "none"
+	set {db.ready.%{_p}%} to false
+	teleport {_p} to {dbdeadspawn}
+	if {db.inprogress} is true:
+		if dbover() is greater than 0:
+			if {db.mccofficial} is true:
+				dbendround(dbover())
+			else:
+				dbendgame(dbover())
+		else:
+			add 1 to {db.arenasize}
+			if {db.arenasize} is less than 7:
+				execute console command "/dbflash %{db.arenasize}%"
+
+command /dbsetdeadspawn:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			set {dbdeadspawn} to player's position
+
+function dbover() :: number:
+	set {_bla1} to 0
+	set {_bla2} to 0
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:	
+			if {db.team.%loop-player's name%} is equal to "sapnap":
+				add 1 to {_bla1}
+			else:
+				add 1 to {_bla2}
+	if {_bla1} is equal to 0:
+		return 2
+	else if {_bla2} is equal to 0:
+		return 1
+	else:
+		return 0
+
+function dbendgame(n:number):
+	set {db.inprogress} to false
+	set {db.arenasize} to 0
+	execute console command "/dbresetarena"
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:
+			set {db.playing.%loop-player's name%} to false
+			teleport loop-player to {dbdeadspawn}
+			set {db.formerteam.%loop-player's name%} to {db.team.%loop-player's name%}
+			set {db.team.%loop-player's name%} to "none"
+	if {_n} is equal to 1:
+		broadcast "<yellow>[Dodgebolt] %{mcc.teams::%{db.color1}%}%<yellow> win Dodgebolt!"
+		loop all players:
+			if {db.formerteam.%loop-player's name%} is equal to "sapnap":
+				dbwin(loop-player)
+	else:
+		broadcast "<yellow>[Dodgebolt] %{mcc.teams::%{db.color2}%}%<yellow> win Dodgebolt!"
+		loop all players:
+			if {db.formerteam.%loop-player's name%} is equal to "techno":
+				dbwin(loop-player)
+	wait 1 second
+	loop all dropped arrows in "world":
+		if y-coordinate of loop-entity is between 60 and 80:
+			if z-coordinate of loop-entity is between -187 and -217:	
+				if x-coordinate of loop-entity is between 61 and 95:
+					delete the loop-entity
+
+
+
+function dbendround(n:number):
+	set {db.inprogress} to false
+	set {db.arenasize} to 0
+	execute console command "/dbresetarena"
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:
+			set {db.playing.%loop-player's name%} to false
+			set {db.formerteam.%loop-player's name%} to {db.team.%loop-player's name%}
+			set {db.team.%loop-player's name%} to "none"
+	wait 1 tick 
+	loop all dropped arrows in "world":
+		if y-coordinate of loop-entity is between 60 and 80:
+			if z-coordinate of loop-entity is between -187 and -217:	
+				if x-coordinate of loop-entity is between 61 and 95:
+					delete the loop-entity
+	if {_n} is equal to 1:
+		add 1 to {db.teamwinsa}
+		if {db.teamwinsa} is equal to 3:
+			mccwon({db.color1})
+		else:
+			loop all players:
+				send title "<pink>Round over!" to loop-player for 5 seconds
+			set {mcc.db.timeleft} to 15
+			wait 5 seconds
+			execute console command "/mccdodgebolt %{db.color1}% %{db.color2}% 10"
+	else:
+		add 1 to {db.teamwinsb}
+		if {db.teamwinsb} is equal to 3:
+			mccwon({db.color2})
+		else:
+			loop all players:
+				send title "<pink>Round over!" to loop-player for 5 seconds
+			set {mcc.db.timeleft} to 15
+			wait 5 seconds
+			execute console command "/mccdodgebolt %{db.color1}% %{db.color2}% 10"
+
+
+function dbwin(p:player):
+	add 1 to {db.wins.%{_p}%}
+	#ach({_p},501)
+	if {db.wins.%{_p}%} is greater than or equal to 5:
+		#ach({_p},502)	
+	if {db.wins.%{_p}%} is greater than or equal to 10:
+		#ach({_p},503)	
+
+function freeze(p:player, n:number):
+	set {_b} to the block above {_p}
+	loop blocks in radius 2.5 of {_b}:
+		if the distance between loop-block and {_b} is greater than 1:
+			if loop-block is air:	
+				set loop-block to minecraft:barrier
+		else:
+			if the y-coordinate of loop-block is greater than or equal to y-coordinate of {_b}:
+				if the distance between loop-block and {_b} is greater than 0.1:
+					if loop-block is air:
+						set loop-block to minecraft:barrier
+	set {frozen.%{_p}%} to true
+	loop {_n} times:
+		wait 1 second
+	set {frozen.%{_p}%} to false 
+	loop blocks in radius 3 of {_b}:
+		if loop-block is minecraft:barrier:
+			set loop-block to air
+
+on break:
+	if {frozen.%player's name%} is true:
+		cancel event
+
+
+
+
+function givetealarrow():
+	drop an arrow at {db.tealarrow} without velocity
+
+function giveorangearrow():
+	drop an arrow at {db.orangearrow} without velocity
+
+
+function dballready() :: boolean:
+        set {_good1} to false
+        set {_good2} to false
+        loop all players:
+                if {db.playing.%loop-player's name%} is true:
+                        if {db.ready.%loop-player's name%} is false:
+                                return false
+                        else:
+                                if {db.team.%loop-player's name%} is equal to "sapnap":
+                                        set {_good1} to true
+                                else:
+                                        set {_good2} to true
+        if {_good1} is false:
+                return false
+        if {_good2} is false:
+                return false
+        return true
+
+function dbstartgame():
+	execute console command "/dbresetarena"
+	set {db.inprogress} to true
+	delete {db.orange::*} 
+	delete {db.teal::*} 
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:
+			clear the loop-player's inventory
+			give a bow to the loop-player
+			set the loop-player's health to 10
+			set the loop-player's hunger to 10
+			set {db.ready.%loop-player's name%} to false
+			if {db.team.%loop-player's name%} is equal to "sapnap":
+				add loop-player to {db.orange::*}
+			else:
+				add loop-player to {db.teal::*}
+	set {db.orange::*} to shuffled {db.orange::*}
+	set {db.teal::*} to shuffled {db.teal::*}
+	set {_bla} to 1
+	loop {db.orange::*}:
+		teleport loop-value to {db.orangespawn.%{_bla}%}
+		if {_bla} is less than 4:
+			add 1 to {_bla}
+	set {_bla} to 1
+	loop {db.teal::*}:
+		teleport loop-value to {db.tealspawn.%{_bla}%}
+		if {_bla} is less than 4:
+			add 1 to {_bla}
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:
+			freeze(loop-player,3)
+			execute console command "/note 6 %loop-player's name%"
+			set loop-player's game mode to adventure 
+			send title "<light blue> Starting in" with subtitle "<red>3" to the loop-player for 1 second
+	wait 1 second
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:
+			execute console command "/note 6 %loop-player's name%"
+			send title "<light blue> Starting in" with subtitle "<yellow>2" to the loop-player for 1 second
+	wait 1 second
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:
+			execute console command "/note 6 %loop-player's name%"
+			send title "<light blue> Starting in" with subtitle "<green>1" to the loop-player for 1 second
+	wait 1 second
+	loop all players:
+		if {db.playing.%loop-player's name%} is true:
+			execute console command "/note 18 %loop-player's name%"
+			set {frozen.%loop-player's name%} to false
+	giveorangearrow()
+	givetealarrow()
+	
+
+on rightclick on button:
+	event-block's z coordinate is -235.5
+	if player is in world "world":
+		if {mcc.currentevent} is not equal to "none":
+			message "<pink>You cannot do this now!" to event-player
+			exit trigger
+		if {db.mccofficial} is true:
+			message "<pink>You may not join Dodgebolt now, the final duel is happening!" to event-player
+			exit trigger
+		if {db.inprogress} is false:
+			if {db.playing.%player's name%} is false:
+				broadcast "<yellow>[Dodgebolt] <white>%player's name% has joined team %{mcc.teams::%{db.color1}%}%!"
+				set {db.team.%player's name%} to "sapnap"
+				set {db.playing.%player's name%} to true
+				teleport player to {db.orangearrow}
+				clear the player's inventory
+				equip the player with leather boots
+				dye the player's boots mcccolor({db.color1}) 
+				set slot 4 of the player's inventory to gunpowder named "<lime>Ready"
+				set slot 8 of the player's inventory to red dye named "<pink>Leave"
+			else:
+				message "<yellow>[Dodgebolt] <pink>You are already playing Dodgebolt!" to event-player
+		else:
+			message "<yellow>[Dodgebolt] <pink>This arena is in use!" to event-player
+			
+on rightclick on button:
+	event-block's z coordinate is -236.5
+	if player is in world "world":
+		if {mcc.currentevent} is not equal to "none":
+			message "<pink>You cannot do this now!" to event-player
+			exit trigger
+		if {db.mccofficial} is true:
+			message "<pink>You may not join Dodgebolt now, the final duel is happening!" to event-player
+			exit trigger
+		if {db.inprogress} is false:
+			if {db.playing.%player's name%} is false:
+				broadcast "<yellow>[Dodgebolt] <white>%player's name% has joined team %{mcc.teams::%{db.color2}%}%!"
+				set {db.team.%player's name%} to "techno"
+				set {db.playing.%player's name%} to true
+				teleport player to {db.tealarrow}
+				clear the player's inventory
+				equip the player with leather boots
+				dye the player's boots mcccolor({db.color2}) 
+				set slot 4 of the player's inventory to gunpowder named "<lime>Ready"
+				set slot 8 of the player's inventory to red dye named "<pink>Leave"
+			else:
+				message "<yellow>[Dodgebolt] <pink>You are already playing Dodgebolt!" to event-player
+		else:
+			message "<yellow>[Dodgebolt] <pink>This arena is in use!" to event-player
+
+on rightclick:
+        if {db.playing.%player's name%} is true:
+                if player's tool is red dye named "<pink>Leave":
+                        set {db.playing.%player's name%} to false
+                        set {db.ready.%player's name%} to false
+                        set {db.team.%player's name%} to "none"
+                        teleport player to {dbdeadspawn}
+                else if player's tool is gunpowder named "<lime>Ready":
+                        set {db.ready.%player's name%} to true
+                        if dballready() is true:
+                                dbstartgame()
+                        else:
+                                set player's tool to lime dye named "<gray>Unready"
+                else if player's tool is lime dye named "<gray>Unready":
+                        set {db.ready.%player's name%} to false
+                        set player's tool to gunpowder named "<lime>Ready"
+
+on shoot:
+        projectile is an arrow
+        shooter is a player
+        if {db.playing.%shooter%} is true:
+                add "dodgebolt" to the scoreboard tags of the event-projectile
+
+on projectile hit:
+        if the event-projectile has the scoreboard tag "dodgebolt":
+                delete the event-projectile
+                drop an arrow at the event-location 
+
+on damage:
+	attacker is a player
+	"%damage cause%" is not equal to "projectile"
+	if {db.playing.%attacker%} is true:
+		if {db.team.%attacker%} is equal to {db.team.%victim%}:
+			send "<pink>You cannot attack teammates!" to attacker
+			cancel event
+
+on break:
+	if {db.playing.%player's name%} is true:
+		if player's name is not "itsasquid2":
+			cancel event
+
+
+
+on place:
+	if {db.playing.%player's name%} is true:
+		cancel event
+
+on hunger meter change:
+	if {db.playing.%player's name%} is true:
+		cancel event
+
+
+on drop:
+	event-item is bow
+	if {db.playing.%player's name%} is true:
+		message "<pink>You might want to keep that!" to event-player
+		cancel event
+
+on walking on carpet:
+	if {db.playing.%player's name%} is true:
+		if {db.inprogress} is false:
+			exit trigger
+		if dbterritory(player) is equal to 1:
+			if player has a bow:
+				remove a bow from the player
+				message "<pink>You have stepped into neutral territory, so you have lost your bow. Get it back by returning to your team's territory." to event-player
+		else if dbterritory(player) is equal to 0:
+			if {db.team.%player's name%} is equal to "techno":
+				broadcast formatted "<yellow>[Dodgebolt] <%mcccolor({db.color2})%>%player's name% <yellow>crossed into enemy territory!"
+				dbdead(player)
+			else:
+				if player does not have a bow:
+					give a bow to the player
+		else if dbterritory(player) is equal to 2:
+			if {db.team.%player's name%} is equal to "sapnap":
+				broadcast formatted "<yellow>[Dodgebolt] <%mcccolor({db.color1})%>%player's name% <yellow>crossed into enemy territory!"
+				dbdead(player)
+			else:
+				if player does not have a bow:
+					give a bow to the player
+
+
+
+every 0.5 seconds in "world":
+	loop all dropped arrows:
+		if y-coordinate of loop-entity is between 60 and 67:
+			if z-coordinate of loop-entity is between -187 and -217:	
+				if x-coordinate of loop-entity is between 61 and 78.5:
+					delete the loop-entity
+					giveorangearrow()	
+				else if x-coordinate of loop-entity is between 78.5 and 95: 
+					delete the loop-entity
+					givetealarrow()
+	loop all projectiles:
+		if loop-projectile is an arrow:
+			if y-coordinate of loop-entity is between 60 and 67:
+				if z-coordinate of loop-entity is between -187 and -217:	
+					if x-coordinate of loop-entity is between 61 and 78.5:
+						delete the loop-entity
+						giveorangearrow()	
+					else if x-coordinate of loop-entity is between 78.5 and 95: 
+						delete the loop-entity
+						givetealarrow()
+
+
+
+command /temp:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			set {db.orangespawn.1} to the location at 69.5, 68, -210.5 of world "world"
+			set {db.orangespawn.2} to the location at 66.5, 68, -204.5 of world "world"
+			set {db.orangespawn.3} to the location at 66.5, 68, -198.5 of world "world"
+			set {db.orangespawn.4} to the location at 69.5, 68, -192.5 of world "world"
+			set {db.tealspawn.1} to the location at 87.5, 68, -210.5 of world "world"
+			set {db.tealspawn.2} to the location at 90.5, 68, -204.5 of world "world"
+			set {db.tealspawn.3} to the location at 90.5, 68, -198.5 of world "world"
+			set {db.tealspawn.4} to the location at 87.5, 68, -192.5 of world "world"
+			set {db.tealarrow} to the location at 84.5, 68, -201.5 of world "world"
+			set {db.orangearrow} to the location at 72.5, 68, -201.5 of world "world"
+			set {dbdeadspawn} to the location at 78.5, 73, -218.5 of world "world"
+
+on damage:
+        victim is a player
+        "%damage cause%" is equal to "projectile"
+        if {db.playing.%victim%} is true:
+                set damage to 0
+                if {db.team.%attacker%} is equal to {db.team.%victim%}:
+                        send "<pink>You cannot attack teammates!" to attacker
+                        exit trigger 
+                set {baba} to the block below victim 
+                if {db.team.%victim%} is equal to "sapnap":
+                        broadcast formatted "<yellow>[Dodgebolt] <%mcccolor({db.color1})%>%victim% <yellow>was tagged by <%mcccolor({db.color2})%>%attacker%"
+                        launch ball large colored mcccolor({db.color1}) at {baba} with duration 0
+                if {db.team.%victim%} is equal to "techno":
+                        broadcast formatted "<yellow>[Dodgebolt] <%mcccolor({db.color2})%>%victim% <yellow>was tagged by <%mcccolor({db.color1})%>%attacker%"
+                        launch ball large colored mcccolor({db.color2}) at {baba} with duration 0
+                if victim has an arrow:
+                        drop an arrow at the event-location
+                dbdead(victim)	
+
+on walking on lava:
+	if {db.playing.%player's name%} is true:
+		if {db.team.%player's name%} is equal to "techno":
+			broadcast "<yellow>[Dodgebolt] <cyan>%player's name% <yellow>fell off the map!"
+		else:
+			broadcast "<yellow>[Dodgebolt] <orange>%player's name% <yellow>fell off the map!"
+		dbdead(player)
+
+on quit:
+	if {db.playing.%player's name%} is true:
+		if {db.team.%player's name%} is equal to "techno":
+			broadcast formatted "<yellow>[Dodgebolt] <%mcccolor({db.color2})%>%player's name% <yellow>disconnected!"
+		else:
+			broadcast formatted "<yellow>[Dodgebolt] <%mcccolor({db.color1})%>%player's name% <yellow>disconnected!"
+		dbdead(player)
+		set {dbbad.%player's name%} to true
+
+on join:
+	set {db.ready.%player's name%} to false
+	if {dbbad.%player's name%} is true:
+		set {dbbad.%player's name%} to false
+		teleport player to {dbdeadspawn}
+
+
+on item merge of arrow:
+	if world of event-location is "world": 
+		if y-coordinate of event-location is between 60 and 75:
+			if z-coordinate of event-location is between -187 and -216:
+				if x-coordinate of event-location is between 62 and 95:
+					cancel event	
+
+
+
+command /mccdbsetcolors <number> <number>:
+	permission: op
+	trigger:
+		set {db.color1} to arg 1
+		set {db.color2} to arg 2
+		if arg 1 is equal to 1:
+			set {_bl1} to red carpet
+		else if arg 1 is equal to 2:
+			set {_bl1} to orange carpet	
+		else if arg 1 is equal to 3:
+			set {_bl1} to yellow carpet	
+		else if arg 1 is equal to 4:
+			set {_bl1} to lime carpet	
+		else if arg 1 is equal to 5:
+			set {_bl1} to green carpet	
+		else if arg 1 is equal to 6:
+			set {_bl1} to cyan carpet	
+		else if arg 1 is equal to 7:
+			set {_bl1} to light blue carpet	
+		else if arg 1 is equal to 8:
+			set {_bl1} to blue carpet	
+		else if arg 1 is equal to 9:
+			set {_bl1} to purple carpet	
+		else if arg 1 is equal to 10:
+			set {_bl1} to magenta carpet	
+		if arg 2 is equal to 1:
+			set {_bl2} to red carpet
+		else if arg 2 is equal to 2:
+			set {_bl2} to orange carpet	
+		else if arg 2 is equal to 3:
+			set {_bl2} to yellow carpet	
+		else if arg 2 is equal to 4:
+			set {_bl2} to lime carpet	
+		else if arg 2 is equal to 5:
+			set {_bl2} to green carpet	
+		else if arg 2 is equal to 6:
+			set {_bl2} to cyan carpet	
+		else if arg 2 is equal to 7:
+			set {_bl2} to light blue carpet	
+		else if arg 2 is equal to 8:
+			set {_bl2} to blue carpet	
+		else if arg 2 is equal to 9:
+			set {_bl2} to purple carpet	
+		else if arg 2 is equal to 10:
+			set {_bl2} to magenta carpet	
+		set {db.block1} to {_bl1}
+		set {db.block2} to {_bl2}
+		execute console command "/dbresetarena"
+
+
+command /dbresetarena:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		loop 7 times:
+			loop {mcc.db.zone.%loop-number%::*}:
+				if {mcc.db.whatblock.%loop-value-2%} is equal to 1:
+					set the block above loop-value-2 to white carpet
+					set the block at loop-value-2 to packed ice
+				else if {mcc.db.whatblock.%loop-value-2%} is equal to 2:
+					set the block above loop-value-2 to black carpet
+					set the block at loop-value-2 to packed ice
+				else if {mcc.db.whatblock.%loop-value-2%} is equal to 3:
+					set the block above loop-value-2 to {db.block1} 
+					set the block at loop-value-2 to packed ice
+				else if {mcc.db.whatblock.%loop-value-2%} is equal to 4:
+					set the block above loop-value-2 to {db.block2} 
+					set the block at loop-value-2 to packed ice
+
+command /addblocktozone <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			loop blocks in radius 30 around player:
+				if loop-block is white carpet:
+					add loop-block to {mcc.db.zone.%arg 1%::*}
+					set {mcc.db.whatblock.%loop-block%} to 1
+				if loop-block is black carpet:
+					add loop-block to {mcc.db.zone.%arg 1%::*}
+					set {mcc.db.whatblock.%loop-block%} to 2
+				if loop-block is orange carpet:
+					add loop-block to {mcc.db.zone.%arg 1%::*}
+					set {mcc.db.whatblock.%loop-block%} to 3
+				if loop-block is cyan carpet:
+					add loop-block to {mcc.db.zone.%arg 1%::*}
+					set {mcc.db.whatblock.%loop-block%} to 4
+
+command /swapcolors:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop all blocks in radius 30 around player:
+				if loop-block is red carpet:
+					set {mcc.db.whatblock.%loop-block%} to 3
+				if loop-block is orange carpet:
+					set {mcc.db.whatblock.%loop-block%} to 4
+			
+
+command /resetdbzone <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			delete {mcc.db.zone.%arg 1%::*}
+
+command /resetdbzones:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			loop blocks in radius 30 of player:
+				delete {mcc.db.whatblock.%loop-block%}
+			loop 7 times:
+				delete {mcc.db.zone.%loop-number%::*}
+
+
+
+
+command /dbflash <number>:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		loop 5 times:
+			loop {mcc.db.zone.%arg 1%::*}:
+				set the block at loop-value-2 to magma block
+				set the block above loop-value-2 to air
+			wait 0.3 seconds
+			loop {mcc.db.zone.%arg 1%::*}:
+				if {mcc.db.whatblock.%loop-value-2%} is equal to 1:
+					set the block above loop-value-2 to white carpet
+					set the block at loop-value-2 to packed ice
+				else if {mcc.db.whatblock.%loop-value-2%} is equal to 2:
+					set the block above loop-value-2 to black carpet
+					set the block at loop-value-2 to packed ice
+				else if {mcc.db.whatblock.%loop-value-2%} is equal to 4:
+					set the block above loop-value-2 to {db.block2} 
+					set the block at loop-value-2 to packed ice
+				else if {mcc.db.whatblock.%loop-value-2%} is equal to 3:
+					set the block above loop-value-2 to {db.block1} 
+					set the block at loop-value-2 to packed ice
+			wait 0.3 seconds	
+		loop {mcc.db.zone.%arg 1%::*}:
+			set the block above loop-value to air
+			set the block at loop-value to air
+
+
+
+command /mccdodgebolt <number> <number> <number>:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				if command sender is not "notcbop":
+					message "<pink>You do not have permission to run this command!"
+					exit trigger
+		execute console command "/mccdbsetcolors %arg 1% %arg 2%"
+		if arg 3 is equal to 60:
+			loop all players:
+				clear the loop-player's scoreboard
+				send title "Final Duel" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
+				mccdbtutorial(loop-player)	
+			set {db.teamwinsa} to 0
+			set {db.teamwinsb} to 0
+		set {mcc.currentevent} to "dodgebolt"
+		set {db.mccofficial} to true
+		loop all players:
+			if {mcc.team.%loop-player's name%} is equal to arg 1:
+				set {db.team.%loop-player's name%} to "sapnap"
+				set {db.playing.%loop-player's name%} to true
+				teleport loop-player to {db.orangearrow}
+				clear the loop-player's inventory
+				equip the loop-player with leather boots
+				dye the loop-player's boots mcccolor({db.color1}) 
+			else if {mcc.team.%loop-player's name%} is equal to arg 2:
+				set {db.team.%loop-player's name%} to "techno"
+				set {db.playing.%loop-player's name%} to true
+				teleport loop-player to {db.tealarrow}
+				clear the loop-player's inventory
+				equip the loop-player with leather boots
+				dye the loop-player's boots mcccolor({db.color2}) 
+			else if {mcc.team.%loop-player's name%} is not equal to 0:
+				teleport loop-player to {dbdeadspawn}
+				clear the loop-player's inventory
+				
+		set {mcc.db.timeleft} to arg 3	
+
+
+
+every second:
+	if {mcc.paused} is true:
+		exit trigger
+	if {mcc.db.timeleft} is greater than 0:
+		subtract 1 from {mcc.db.timeleft}
+		if {mcc.db.timeleft} is equal to 3:
+			dbstartgame()
+	else:
+		set {mcc.db.timeleft} to -1
+
+on damage:
+	attacker is a player
+	"%attacker's world%" is equal to "world"
+	attacker's x-coordinate is between 46 and 104
+	attacker's z-coordinate is between -225 and -172
+	"%damage cause%" is equal to "attack"
+	send "<pink><bold>Hey! <gray>Sorry, but you can't PvP here." to attacker
+	cancel event

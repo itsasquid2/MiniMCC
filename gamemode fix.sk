@@ -1,0 +1,102 @@
+variables:
+	{immune.%player%} = false
+
+
+#per-world settings
+#gamemode
+#hunger
+#fall damage
+
+command /setgm <world> <gamemode>:
+	permission: op
+	trigger:
+		set {worldgm.%arg 1%} to arg 2
+		message "Set the game mode of world %arg 1% to %arg 2%"
+
+
+command /bla:
+	trigger:
+		loop all worlds:
+			if {worldgm.%loop-world%} is not set:
+				message "%loop-world%"
+
+on player world change:
+	wait 0.5 seconds
+	set the player's game mode to {worldgm.%player's world%}
+
+on disconnect:
+	set {gamemode.%player%} to the player's gamemode
+
+on login:
+	wait 0.1 seconds
+	set the player's gamemode to {gamemode.%player%}	
+
+
+command /gmc:
+	trigger:
+		set {_good} to false
+		if player is an op:
+			set {_good} to true
+		if {builder.%player%} is true:
+			if "%player's world%" is "mini_mcc_town" or "world":
+				set {_good} to true
+			if "%player's world%" is "free1":
+				set {_good} to true
+		if {_good} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger			
+		if {mcc.team.%player%} is not equal to 0:
+			if {mcc.currentevent} is not equal to "none":
+				if {superop.%player%} is false:
+					send "[<pink><bold>MCC Anticheat<white>] MCC Anticheat has barred you from using this command in-game. Please contact the moderators if you believe this is a mistake." to player
+					exit trigger
+		set {immune.%player%} to false
+		set the player's gamemode to creative
+		message "Set game mode to creative"
+		loop all players:
+			if loop-player's name is "itsasquid2":
+				send "%player% just used gmc" to loop-player
+		
+
+command /gms:
+	permission: op
+	trigger:
+		if {mcc.team.%player%} is not equal to 0:
+			if {mcc.currentevent} is not equal to "none":
+				if {superop.%player%} is false:
+					send "[<pink><bold>MCC Anticheat<white>] MCC Anticheat has barred you from using this command in-game. Please contact the moderators if you believe this is a mistake." to player
+					exit trigger
+		set {immune.%player%} to false
+		set the player's gamemode to survival
+		message "Set game mode to survival"
+
+command /gmsp:
+	trigger:
+		set {_good} to false
+		if player is an op:
+			set {_good} to true
+		if {builder.%player%} is true:
+			if "%player's world%" is "mini_mcc_town":
+				set {_good} to true
+			if "%player's world%" is "free":
+				set {_good} to true
+		if {_good} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger			
+		if {mcc.team.%player%} is not equal to 0:
+			if {mcc.currentevent} is not equal to "none":
+				if {superop.%player%} is false:
+					send "[<pink><bold>MCC Anticheat<white>] MCC Anticheat has barred you from using this command in-game. Please contact the moderators if you believe this is a mistake." to player
+					exit trigger
+		set {immune.%player%} to false
+		set the player's gamemode to spectator
+		message "Set game mode to spectator"
+		loop all players:
+			if loop-player's name is "itsasquid2":
+				send "%player% just used gmsp" to loop-player
+
+
+
+on hunger meter change:
+	player's world is "world"
+	cancel event

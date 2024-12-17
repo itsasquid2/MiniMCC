@@ -1,0 +1,66 @@
+
+command /creative:
+	trigger:
+		if {builder.%player's name%} is false:
+			message "<pink>Only builders can access the creative world!"
+			exit trigger
+		if {builder.%player's name%} is not set:
+			message "<pink>Only builders can access the creative world!"
+			exit trigger
+		if "%player's world%" is not equal to "world":
+			message "<pink>The creative world can only be accessed from the hub!"
+			exit trigger
+		execute console command "/mv tp %player's name% free5"
+		wait a tick
+		set {immune.%player's name%} to false
+		set player's game mode to creative
+		message "You can return to the hub any time by typing /hub!"
+
+command /creativepublic:
+	trigger:
+		if "%player's world%" is not equal to "world":
+			message "<pink>The creative world can only be accessed from the hub!"
+			exit trigger
+		execute console command "/mv tp %player's name% free1"
+		wait a tick
+		set {immune.%player's name%} to false
+		set player's game mode to creative
+		message "You can return to the hub any time by typing /hub!"
+on world change:
+	if "%player's world%" is equal to "world":
+		set {immune.%player's name%} to false
+		wait 1 second
+		set player's game mode to adventure
+
+command /givebuilder <player> :
+	trigger:
+		if {superop.%player's name%} is false:
+			message "<red>You cannot make people builder on this server!"
+			exit trigger
+		set {builder.%arg 1's name%} to true
+
+command /givebuilderpre <text> :
+	trigger:
+		if {superop.%player's name%} is false:
+			message "<red>You cannot make people builder on this server!"
+			exit trigger
+		set {builder.%arg 1's name%} to true
+
+command /delbuilder <text>:
+	trigger:
+		if {superop.%player's name%} is false:
+			message "<red>You cannot make people builder on this server!"
+			exit trigger
+		set {builder.%arg 1's name%} to false
+
+command /gotommcctown:
+	trigger:
+		if {builder.%player's name%} is true:
+			execute console command "/mvtp %player's name% mini_mcc_town"
+
+command /viewbuilderlist:
+	permission: op
+	trigger:
+		loop offline players:
+			if {builder.%name of loop-value%} is true:
+				message "%loop-value%"

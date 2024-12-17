@@ -1,0 +1,705 @@
+function meltdowntutorial(p:player):
+    wait 3 seconds
+    send title "<yellow>Meltdown" to {_p} for 5 seconds
+    wait 5 seconds
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "<yellow>Welcome to Meltdown!" to {_p}
+    send "" to {_p}
+    send "<italics>Here's how you play..." to {_p}
+    send "" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 3 seconds
+
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "<bold>Meltdown is a bow pvp game!" to {_p}
+    send "" to {_p}
+    send "You gain points by collecting <gold>Coin Crates<reset> (gold blocks) and freezing other players" to {_p}
+    send "" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 10 seconds
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "To collected <gold>Coin Crates<reset>, take your team's telepickaxe by rightclicking, and mine it!" to {_p}
+    send "" to {_p}
+    send "<bold>Coin crate coins are shared across your team." to {_p}
+    send "" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 10 seconds
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "Every once in a while, the <gold><bold>gold rush <reset>will occur!" to {_p}
+    send "" to {_p}
+    send "During this time, everyone must scramble to get as much gold as possible from the gold mine before they are teleported back." to {_p}
+    send "" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+    wait 10 seconds
+
+    send "<lime>--------------------------------------------------" to {_p}
+    send "" to {_p}
+    send "Don't forget to watch for secrete caches of ores locked away behind copper walls! Remember, these walls are too strong for dynamite to explode, use the tnt minecart instead." to {_p}
+    send "" to {_p}
+    send "Work together, communicate, and good luck!" to {_p}
+    send "" to {_p}
+    send "" to {_p}
+    send "<lime>--------------------------------------------------" to {_p}
+
+command /freeze <player>:
+	permission: op
+	trigger:
+		if {frozen.%arg 1's name%} is false:
+			if {frozencooldown.%arg 1's name%} is false:
+				if arg 1's inventory contains shulker spawn egg named "&3Heater":
+					set {heatercooldown.%arg's name%} to true
+				send title "<pink><bold>FROZEN" to arg 1 for 3 seconds
+				loop numbers from 0 to 8:
+					set slot loop-number of arg 1's inventory to blue ice
+				set {frozen.%arg 1's name%} to true
+				if {meltdown.hitby.%arg's name%} is set:
+					ac({meltdown.hitby.%arg's name%},25,"Killed a player",false)
+				apply slowness 255 to arg 1 for 1000 seconds
+				apply mining fatigue 255 to arg 1 for 1000 seconds
+				set total experience of arg 1 to 0
+				if block at the location 1 block above arg 1's location is air:
+					set block at the location 1 block above arg 1's location to blue ice
+				if block at arg 1's location is air:
+					set block at arg 1's location to blue ice
+				set {_count} to 0
+				loop all players in world {meltdownworld}:
+					if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
+						if loop-player's gamemode is adventure:
+							if {frozen.%loop-player's name%} is false:
+								add 1 to {_count}
+				if {_count} is 0:
+					loop all players in world {meltdownworld}:
+						if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
+							send title "<red><bold>Team Frozen!" to loop-player
+					wait 10 seconds
+					loop all players in world {meltdownworld}:
+						if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
+							if loop-player's gamemode is adventure:
+								if {frozen.%loop-player's name%} is false:
+									add 1 to {_count1}
+					if {_count1} is 0:
+						teamkill({mcc.team.%arg's name%})
+
+function teamkill(n:number):
+	loop all players in world {meltdownworld}:
+		if {mcc.team.%loop-player's name%} is equal to {_n}:
+			if block at the location 1 block above loop-player's location is blue ice:
+				set block at the location 1 block above loop-player's location to air
+			if block at loop-player's location is blue ice:
+				set block at loop-player's location to air
+			set gamemode of loop-player to spectator
+			set {frozen.%loop-player's name%} to false
+			clear all potion effects of loop-player
+			#ac({meltdown.hitby.%loop-player's name%},25,"Killed a player",false)
+
+command /teamkill <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			exit trigger
+		teamkill(arg)
+
+
+
+command /adddoormeltdown <number>:
+	trigger:
+		{mmcc.hoster.%command sender%} is true
+		add player's location to {meltdowndoors.%arg%::*}
+		message "added %player's location% to meltdown door locations of room %arg%"
+
+command /deletedoorsmeltdown <number>:
+	trigger:
+		{mmcc.hoster.%command sender%} is true
+		delete {meltdowndoors.%arg%::*}
+
+command /closedoor <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is false: 
+			if command sender is not the console:
+				exit trigger
+		loop 4 times:
+			loop {meltdowndoors.%arg%::*}:
+				if block at the location 1 block below loop-value-2 is iron trapdoor:
+					if block at the location 1 block south of the location 1 block below loop-value-2 is an iron trapdoor:
+						execute console command "/schempaste meltdowndoorsn%loop-value-1% meltdown %floor(x-coord of loop-value-2)% %y-coord of loop-value-2% %floor(z-coord of loop-value-2)%"
+						#set block at the location loop-value-3 south of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks north of the location 1 block east of loop-value-2 to gray concrete
+						#set block at the location loop-value-3 south of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks north of the location 1 block west of loop-value-2 to gray concrete
+					else:
+						execute console command "/schempaste meltdowndoorew%loop-value-1% meltdown %floor(x-coord of loop-value-2)% %y-coord of loop-value-2% %floor(z-coord of loop-value-2)%"
+						#set block at the location loop-value-3 east of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks west of the location 1 block north of loop-value-2 to gray concrete
+						#set block at the location loop-value-3 east of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks west of the location 1 block south of loop-value-2 to gray concrete
+			wait 1 second
+
+command /fixmeltdowndoors:
+	permission: op
+	trigger:
+		loop 30 times:
+			loop 4 times:
+				if block at the location 1 block below {meltdowndoors.%loop-number-1%::%loop-value-2%} is air:
+					set {meltdowndoors.%loop-number-1%::%loop-value-2%} to the location 1 block below {meltdowndoors.%loop-number-1%::%loop-value-2%}
+				else if block at {meltdowndoors.%loop-number-1%::%loop-value-2%} is iron trapdoor:
+					set {meltdowndoors.%loop-number-1%::%loop-value-2%} to the location 1 block above {meltdowndoors.%loop-number-1%::%loop-value-2%}
+			wait 0.1 second
+			
+command /transfermeltdowndoorvariables:
+	permission: op
+	trigger:
+		loop 30 times:
+			loop 4 times:
+				set {meltdowndoorsbackup.%loop-number-1%::%loop-number-2%} to {meltdowndoors.%loop-number-1%::%loop-number-2%}
+				set world of {meltdowndoorsbackup.%loop-number-1%::%loop-number-2%} to "meltdownmap" parsed as world
+				message {meltdowndoorsbackup.%loop-number-1%::%loop-number-2%}
+		loop 100 times:
+			set {mcc.meltdownbackup.spawndoors::%loop-number-1%} to {mcc.meltdown.spawndoors::%loop-number-1%}
+			set world of {mcc.meltdownbackup.spawndoors::%loop-number-1%} to "meltdownmap" parsed as world
+			message {mcc.meltdownbackup.spawndoors::%loop-number-1%}
+		
+
+command /opendoormeltdown <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is false: 
+			if command sender is not the console:
+				exit trigger
+		loop 4 times:
+			loop {meltdowndoors.%arg%::*}:
+				if block at the location 1 block below loop-value-2 is iron trapdoor:
+					if block at the location 1 block south of the location 1 block below loop-value-2 is an iron trapdoor:
+						execute console command "/schempaste meltdowndoorsn%4 - loop-value-1% meltdown %floor(x-coord of loop-value-2)% %y-coord of loop-value-2% %floor(z-coord of loop-value-2)%"
+						#set block at the location loop-value-3 south of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks north of the location 1 block east of loop-value-2 to air
+						#set block at the location loop-value-3 south of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks north of the location 1 block west of loop-value-2 to air
+					else:
+						execute console command "/schempaste meltdowndoorew%4 - loop-value-1% meltdown %floor(x-coord of loop-value-2)% %y-coord of loop-value-2% %floor(z-coord of loop-value-2)%"
+						#set block at the location loop-value-3 east of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks west of the location 1 block north of loop-value-2 to air
+						#set block at the location loop-value-3 east of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks west of the location 1 block south of loop-value-2 to air
+			wait 1 second
+
+command /meltdownroom <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is false: 
+			if command sender is not the console:
+				exit trigger
+		loop all entities within bound bound with id "meltdownroom%arg%":
+			if loop-entity is a player:
+				send formatted "<red><bold>ROOM MELTDOWN ALERT! <reset><yellow>Melting has begun." to loop-entity
+		if arg is not 0:
+			loop all blocks within bound bound with id "meltdownroom%arg%":
+				if loop-block is red concrete or orange concrete:
+					set loop-block to gray concrete
+			set {_loc} to the location at greater x coord of bound with id "meltdownroom%arg%", lesser y coord of bound with id "meltdownroom%arg%", greater z coord of bound with id "meltdownroom%arg%" of the world {meltdownworld}
+			set {_loc2} to the location 30 blocks north of the location 30 blocks west of {_loc}
+			set {_counter} to 0
+			while {_done} is not true:
+				if block at the location {_counter} blocks above {_loc2} is not air:
+					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc2}
+					set block at the location {_counter} blocks above {_loc2} to red concrete
+					
+					set {_done} to true
+				else:
+					add 1 to {_counter}
+				
+			loop 33 times:
+				loop entities in bound bound with id "meltdownroom%arg%":
+					
+					if loop-entity is a marker:
+						
+						if block at loop-entity's location is red concrete:
+						
+							loop blocks in radius 1 around block at loop-entity's location:
+								if loop-block is not air or iron trapdoor or orange concrete or red concrete:
+									set loop-block to orange concrete
+									summon marker at loop-block's location
+								else if loop-block is iron trapdoor:
+									if block below loop-block is not sea lantern or black concrete:
+										set loop-block to orange concrete
+										summon marker at loop-block's location
+				wait 1 second
+				loop entities in bound bound with id "meltdownroom%arg%":
+					if loop-entity is a marker:
+						if block at loop-entity's location is red concrete:
+							
+							set block at loop-entity's location to air
+							kill loop-entity
+						if block at loop-entity's location is orange concrete:
+							
+							set block at loop-entity's location to red concrete
+				if loop-value-1 is 30:
+					loop all entities in bound bound with id "meltdownroom%arg%":
+						if loop-entity is a player:
+							send formatted "<red><bold>FULL MELTDOWN IMMINENT! <reset><yellow>Blast doors are closing." to loop-entity
+					loop all markers in bound bound with id "meltdownroom%arg%":
+						kill loop-entity
+				if loop-value-1 is 33:
+					execute console command "/closedoor %arg%"
+					wait 1 tick
+					set all blocks within bound bound with id "meltdownroom%arg%" to air
+				wait 1 second
+		else:
+			loop all blocks within bound bound with id "meltdownroom%arg%":
+				if loop-block is red concrete or orange concrete:
+					set loop-block to gray concrete
+			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") - 1, lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") - 1 of the world {meltdownworld}
+			set {_done} to false
+			set {_counter} to 0
+			while {_done} is not true:
+				if block at the location {_counter} blocks above {_loc} is not air:
+					set block at the location {_counter} blocks above {_loc} to red concrete
+					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set {_done} to true
+				if {_counter} is more than 30:
+					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
+						if loop-block is not air:
+							set loop-block to red concrete
+							spawn marker at loop-block's location
+					set {_done} to true
+				else:
+					add 1 to {_counter}
+			set {_loc} to the location at lesser x coord of bound with id "meltdownroom%arg%", lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") - 1 of the world {meltdownworld}
+			set {_done} to false
+			set {_counter} to 0
+			while {_done} is not true:
+				if block at the location {_counter} blocks above {_loc} is not air:
+					set block at the location {_counter} blocks above {_loc} to red concrete
+					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set {_done} to true
+				if {_counter} is more than 30:
+					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
+						if loop-block is not air:
+							set loop-block to red concrete
+							spawn marker at loop-block's location
+					set {_done} to true
+				else:
+					add 1 to {_counter}
+			set {_loc} to the location at lesser x coord of bound with id "meltdownroom%arg%", lesser y coord of bound with id "meltdownroom%arg%", lesser z coord of bound with id "meltdownroom%arg%" of the world {meltdownworld}
+			set {_done} to false
+			set {_counter} to 0
+			while {_done} is not true:
+				if block at the location {_counter} blocks above {_loc} is not air:
+					set block at the location {_counter} blocks above {_loc} to red concrete
+					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set {_done} to true
+				if {_counter} is more than 30:
+					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
+						if loop-block is not air:
+							set loop-block to red concrete
+							spawn marker at loop-block's location
+					set {_done} to true
+				else:
+					add 1 to {_counter}
+			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") - 1, lesser y coord of bound with id "meltdownroom%arg%", lesser z coord of bound with id "meltdownroom%arg%" of the world {meltdownworld}
+			set {_done} to false
+			set {_counter} to 0
+			while {_done} is not true:
+				if block at the location {_counter} blocks above {_loc} is not air:
+					set block at the location {_counter} blocks above {_loc} to red concrete
+					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set {_done} to true
+				if {_counter} is more than 30:
+					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
+						if loop-block is not air:
+							set loop-block to red concrete
+							spawn marker at loop-block's location
+					set {_done} to true
+				else:
+					add 1 to {_counter}
+			loop 45 times:
+				
+				loop entities in bound bound with id "meltdownroom%arg%":
+					
+					if loop-entity is a marker:
+						
+						if block at loop-entity's location is red concrete:
+						
+							loop blocks in radius 1 around block at loop-entity's location:
+								if loop-block is not air or iron trapdoor or orange concrete or red concrete:
+									set loop-block to orange concrete
+									summon marker at loop-block's location
+								else if loop-block is iron trapdoor:
+									if block below loop-block is not sea lantern or black concrete:
+										set loop-block to orange concrete
+										summon marker at loop-block's location
+				wait 1 second
+				loop entities in bound bound with id "meltdownroom%arg%":
+					if loop-entity is a marker:
+						if block at loop-entity's location is red concrete:
+							
+							set block at loop-entity's location to air
+							kill loop-entity
+						if block at loop-entity's location is orange concrete:
+							
+							set block at loop-entity's location to red concrete
+				wait 1 second
+		if arg is not 0:
+			loop entities in bound bound with id "meltdownroom%arg%":
+				if loop-entity is a player:
+					if loop-entity's gamemode is not spectator:
+						set gamemode of loop-entity to spectator
+						
+						set {frozen.%loop-entity%} to false
+						clear all potion effects of loop-entity
+						
+						broadcast formatted "<%mcccolor({mcc.team.%loop-entity%})%>%loop-entity% <white>Got stuck in a melting room"
+				
+				
+on rightclick on warped trapdoor:
+	event-world is "meltdown"
+	cancel event
+		
+
+
+command /meltdownroomloc <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is false: 
+			if command sender is not the console:
+				exit trigger
+		delete bound with id "meltdownroom%arg%"
+		create a new bound with id "meltdownroom%arg%" between player's location and the location 59 blocks north of the location 59 blocks east of the location 48 blocks above player's location
+			
+
+on join:
+	if player's world is {meltdownworld}:
+		set player's gamemode to adventure
+	
+on player walk:
+	event-world is {meltdownworld}
+	if {frozen.%player's name%} is true:
+		cancel event
+
+
+
+on experience spawn:
+	world is {meltdownworld}
+	cancel event
+
+function endmeltdown():
+	if {mcc.meltdown.roundnum} is less than 3:
+		add 1 to {mcc.meltdown.roundnum}
+		execute console command "/schempaste meltdownmap meltdown -999 31 -999"
+		wait 1 second
+		execute console command "/mccmeltdown"
+		
+	else:
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				send title "<pink>Game over!" to loop-player for 3 seconds
+		
+		set {mcc.meltdown.timeleft} to 30
+		execute console command "/mccstandings"
+
+function transfermeltdowndoorvariablesback():
+	wait 5 seconds
+	loop 30 times:
+		loop 4 times:
+			if {meltdowndoorsbackup.%loop-number-1%::%loop-number-2%} is set:
+				set {meltdowndoors.%loop-number-1%::%loop-number-2%} to {meltdowndoorsbackup.%loop-number-1%::%loop-number-2%}
+				set world of {meltdowndoors.%loop-number-1%::%loop-number-2%} to "meltdown" parsed as world
+	loop 100 times:
+		if {mcc.meltdownbackup.spawndoors::%loop-number-1%} is set:
+			set {mcc.meltdown.spawndoors::%loop-number-1%} to {mcc.meltdownbackup.spawndoors::%loop-number-1%}
+			set world of {mcc.meltdown.spawndoors::%loop-number-1%} to "meltdown" parsed as world
+
+command /mccmeltdown:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				if command sender is not "notcbop":
+					message "<pink>You do not have permission to run this command!"
+					exit trigger
+		if {mmcc.hoster.%command sender%} is true:
+			set {mcc.meltdown.roundnum} to 1
+			set {meltdownworld} to "meltdown"
+			execute console command "/mccnewgame"
+			set {mcc.currentevent} to {meltdownworld}
+		set {mcc.meltdown.stage} to 0
+		set {mcc.meltdown.timeleft} to 80
+		
+		loop all players:
+			teleport loop-player to {mcc.meltdown.spawnloc.%{mcc.team.%loop-player's name%}%}
+			execute console command "/unfreeze %loop-player's name%"
+			set loop-player's gamemode to adventure
+			set slot 8 of loop-player to shulker spawn egg named "&3Heater"
+			apply infinite potion of night vision to loop-player
+		execute console command "/meltdownclosespawndoors"
+		loop 4 times:
+			execute console command "/closedoor %loop-number%"
+		
+			
+
+	
+		
+
+every second:
+	if {mcc.meltdown.timeleft} is equal to 0:
+		exit trigger
+	if {mcc.paused} is true:
+		exit trigger
+	
+	if {meltdown.playersleft} is 1:
+		if {meltdown.stage} is 1:
+			endmeltdown()
+	subtract 1 from {mcc.meltdown.timeleft}
+	if {mcc.meltdown.timeleft} is 4:
+		if {mcc.meltdown.stage} is 0:
+			execute console command "/boopboopboopbeepall"
+	if {mcc.meltdown.timeleft} is 1:
+		if {mcc.meltdown.stage} is 0:
+			set {mcc.meltdown.stage} to 1
+			set {mcc.meltdown.timeleft} to 330
+			execute console command "/meltdownopenspawndoors"
+		else if {mcc.meltdown.stage} is 1:
+			set {mcc.meltdown.stage} to 2
+			endmeltdown()
+			
+		else if {mcc.meltdown.stage} is 2:
+			execute console command "/mccbreak"
+	else if {mcc.meltdown.timeleft} is 295:
+		if {mcc.meltdown.stage} is 1:
+			loop 10 times:
+				set all blocks in region "meltdownspawn%loop-number%" to air 
+				execute console command "/meltdownroom %31 - loop-number%"
+				wait 2 ticks
+	else if {mcc.meltdown.timeleft} is 250:
+		if {mcc.meltdown.stage} is 1:
+			loop 8 times:
+				execute console command "/meltdownroom %17 - loop-number%"
+				wait 2 ticks
+	else if {mcc.meltdown.timeleft} is 230:
+		if {mcc.meltdown.stage} is 1:
+			loop 4 times:
+				execute console command "/meltdownroom %21 - loop-number%"
+				wait 2 ticks
+				execute console command "/opendoormeltdown %loop-number%"
+			wait 5 seconds
+			execute console command "/closedoormeltdown 0"
+	else if {mcc.meltdown.timeleft} is 195:
+		if {mcc.meltdown.stage} is 1:
+			loop 4 times:
+				execute console command "/meltdownroom %9 - loop-number%"
+				wait 2 ticks
+	else if {mcc.meltdown.timeleft} is 170:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/opendoormeltdown 0"
+				
+	else if {mcc.meltdown.timeleft} is 150:
+		if {mcc.meltdown.stage} is 1:
+			loop 4 times:
+				execute console command "/meltdownroom %5 - loop-number%"
+				wait 2 ticks
+	else if {mcc.meltdown.timeleft} is 105:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/meltdownroom 0"
+			loop blocks in region "meltdownmid":
+				if loop-block is light blue stained glass:
+					set loop-block to air
+	set {meltdown.playersleft} to 0
+	loop all players in world {meltdownworld}:
+		if gamemode of loop-player is adventure:
+			add 1 to {meltdown.playersleft}
+	loop all players in world {meltdownworld}:
+		mccupdatescoreboard(loop-player)
+		
+	
+
+on join:
+	set {frozen.%player's name%} to false
+
+
+
+command /unfreeze <player>:
+	permission: op
+	trigger:
+		set {frozen.%arg 1's name%} to false
+		if arg's world is {meltdownworld}:
+			clear arg 1's inventory
+			set arg's experience to 0
+			set arg 1's offhand tool to air
+			give arg 1 bow of infinity
+			give arg 1 arrow
+			give arg 1 wooden pickaxe named "&3Telepickaxe Shell"
+			clear all the potion effects of arg
+			apply infinite potion of night vision to arg
+			set {frozencooldown.%arg 1's name%} to true
+			if block at the location 1 block above arg 1's location is blue ice:
+				set block at the location 1 block above arg 1's location to air
+			if block at arg 1's location is blue ice:
+				set block at arg 1's location to air
+			ac({hitby.%arg's name%},-25,"Killed a player",false)
+		
+			
+		
+on rightclick:
+	world is {meltdownworld}
+	if player has player's tool on cooldown:
+		cancel event
+	else:
+		if player's gamemode is adventure:
+			if player's tool is shulker spawn egg:
+				if "%event-block%" is not "<none>":
+					if block at event-location is not air or iron bars or stairs or water:
+						if block above event-location is air or light block or water:
+							delete player's tool
+							spawn a shulker at event-location
+							set name of last spawned entity to "%player's name%'s Heater"
+							set {_shulker} to last spawned entity
+							wait 10 seconds
+							if {_shulker}'s world is {meltdownworld}:
+								teleport {_shulker} to {shulkerspot}
+								set {heatercooldown.%player's name%} to true
+
+			
+on spawn:
+	event-world is {meltdownworld}
+	if event-entity is shulker bullet:
+		cancel event
+
+
+every second:
+	loop all players in world {meltdownworld}:
+		set {frozencooldown.%loop-player's name%} to false
+		if loop-player's total experience is larger than 5:
+			execute console command "/unfreeze %loop-player's name%"
+		if {frozen.%loop-player's name%} is true:
+			loop shulkers in radius 3.5 of loop-player:
+				set {_bla} to (the length of name of loop-entity-2) - 9
+				
+				if {mcc.team.%the first {_bla} characters of name of loop-entity-2%} is equal to {mcc.team.%loop-player's name%}:
+					
+					give 2 experience to loop-player
+			#give 1 experience to loop-player
+		if {frozen.%loop-player's name%} is false:
+			if {heatercooldown.%loop-player's name%} is true:
+				set slot 8 of loop-player to shulker spawn egg named "&3Heater"
+				set {heatercooldown.%loop-player's name%} to false
+				set item cooldown of shulker spawn egg for loop-player to 5 seconds
+
+
+
+on drop:
+	world is "meltdown"
+	cancel event
+
+on inventory click:
+	world is "meltdown"
+	event-player is not "itsasquid2"
+	cancel event	
+
+on damage:
+	event-world is {meltdownworld}
+	if {frozen.%attacker's name%} is true:
+		cancel event
+	if {frozen.%victim's name%} is true:
+		cancel event
+	else if damage cause is suffocation or fall:
+		cancel event
+	if victim is a shulker:
+		if damage cause is not projectile:
+			set {_bla} to the length of name of victim - 9
+			
+			set {_p} to the first {_bla} characters of name of victim parsed as player
+			teleport victim to {shulkerspot}
+			set {heatercooldown.%{_p}%} to true
+		else:
+			cancel event
+	
+
+on join:
+	set {frozen.player} to false
+
+on damage of a player:
+	event-world is {meltdownworld}
+	set damage to 0
+	if damage cause is projectile:
+		if {mcc.team.%victim's name%} is not equal to {mcc.team.%attacker's name%}:
+			if {frozen.%victim's name%} is not true:
+				youkilled(attacker, victim)
+				ac(attacker,25,"Killed a player",false)
+				execute console command "/freeze %victim's name%"
+				set {meltdown.hitby.%victim's name%} to attacker
+		else:
+			send message "don't attack your teammates >:(" to attacker
+	if damage cause is lava:
+		set victim's gamemode to spectator
+		set {frozen.%victim's name%} to false
+		clear all potion effects of victim
+		#ac({meltdown.hitby.%victim's name%},25,"Killed a player",false)
+		broadcast formatted "<%mcccolor({mcc.team.%victim's name%})%>%victim's name% <white>Fell into molten lava"
+
+command /telepicaxetest:
+	trigger:
+		{mmcc.hoster.%command sender%} is true
+		give player wooden pickaxe named "&3Telepickaxe Shell"
+
+on shoot:
+	world is "meltdown"
+	set durability of shooter's tool to maximum durability of shooter's tool
+
+on rightclick:
+	world is "meltdown"
+	if name of player's tool is "&3Telepickaxe Shell":
+		if player has player's tool on cooldown:
+			cancel event
+		else:
+			loop all players:
+				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:
+					
+					message formatted "<%mcccolor({mcc.team.%player's name%})%>%player's name% <white>has taken your team's telepickaxe!" to loop-player
+					loop (loop-player)'s inventory:
+						if loop-value-2 is diamond pickaxe:
+							set loop-value-2 to wooden pickaxe named "&3Telepickaxe Shell"
+						else if loop-value-2 is wooden pickaxe named "&3Telepickaxe Shell":
+							set item cooldown of (loop-value-2) for event-player to 5 seconds
+			set player's tool to {telepickaxe}
+		
+on break:
+	world is {meltdownworld}
+	{frozen.%event-player's name%} is false
+	if {mcc.meltdown.stage} is not 1:
+		cancel event
+	if event-block is gold block:
+		if event-player's tool is a diamond pickaxe:
+			loop all players:
+				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%event-player's name%}:
+					ac(loop-player,2.5,"<gold>Collected a Coin Pile", false)
+			clear drops
+		else:
+			cancel event
+
+on teleport:
+	world is {meltdownworld}
+	if event-entity is a shulker:
+		cancel event
+
+on death of shulker:
+	event-world is {meltdownworld}
+	clear drops
+
+
+on hunger bar change:
+	event-world is {meltdownworld}
+	cancel event
+
+command /abc <player>:
+	permission: op
+	trigger:
+		loop all players:
+			if loop-player is not arg 1:
+				hide loop-player from arg 1
+				hide arg 1 from loop-player
+
+command /givehunger <player>:
+	trigger:
+		if player's name is "itsasquid2":
+			set arg 1's hunger to 10

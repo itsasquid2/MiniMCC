@@ -1,0 +1,432 @@
+variables:
+	{reset5.%player%} = false	
+	{smptimelimit} = 120
+	{smptime.%player%} = 0
+	{smpday} = 0
+	{smp.lastdayjoined.%player%} = -1 
+	{smplore} = false
+	{teleportimmune.%player%} = false
+	{smptpcooldown.%player%} = false
+
+
+options:	
+	advancement: "{""display"":{""icon"":{""item"":""minecraft:stone""},""title"":""Smp Player"",""description"":""Join the SMP!"",""frame"":""challenge"",""show_toast"":true,""announce_to_chat"":true,""hidden"":false},""criteria"":{""requirement"":{""trigger"":""minecraft:impossible""}}}"
+	advancement2: "{""display"":{""icon"":{""item"":""minecraft:diamond_block""},""title"":""Smp Builder"",""description"":""Buildin!"",""frame"":""challenge"",""show_toast"":true,""announce_to_chat"":true,""hidden"":false},""criteria"":{""requirement"":{""trigger"":""minecraft:impossible""}}}"
+
+
+on load:
+	register shaped recipe:
+		id: "custom:small_jump_pad"
+		result: warped plank named "&aJump Pad"
+		shape: "aaa", "aba", "dcd"
+		ingredients:
+			set ingredient of "a" to iron ingot
+			set ingredient of "b" to material choice of all planks
+			set ingredient of "c" to piston
+			set ingredient of "d" to redstone
+	register shaped recipe:
+		id: "custom:medium_jump_pad"
+		result: netherrack named "&aJump Pad"
+		shape: "aaa", "aba", "dcd"
+		ingredients:
+			set ingredient of "a" to diamond
+			set ingredient of "b" to material choice of all planks
+			set ingredient of "c" to piston
+			set ingredient of "d" to redstone
+	register shaped recipe:
+		id: "custom:big_jump_pad"
+		result: acacia plank named "&aJump Pad"
+		shape: "aaa", "aba", "dcd"
+		ingredients:
+			set ingredient of "a" to diamond block
+			set ingredient of "b" to material choice of all planks
+			set ingredient of "c" to piston
+			set ingredient of "d" to redstone block
+	register shaped recipe:
+		id: "custom:rocket_launcher"
+		result: golden shovel of unbreaking 10 and knockback 1 named "Rocket Launcher"
+		shape: "bab", "bcb", "bcb"
+		ingredients:
+			set ingredient of "a" to gold block
+			set ingredient of "b" to tnt
+			set ingredient of "c" to stick
+
+			
+			
+on join:
+	execute console command "/recipe give %event-player% *"
+
+on damage:
+	if victim is a dropped item:
+		
+		if damage cause is entity explosion or block explosion:
+			cancel event
+
+command /giveboombox:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			give player a barrel named "<white>BoomBox"
+			give player a barrel named "<orange>FireBox"
+			give player a barrel named "<purple>LaunchBox"
+		else if event-world is "boombox":
+			give player 64 barrels named "<white>BoomBox"
+			give player 64 barrels named "<orange>FireBox"
+			give player 64 barrels named "<purple>LaunchBox"
+	
+command /giveboomboxall:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			give all players 64 barrels named "<white>BoomBox"
+			give all players 64 barrels named "<orange>FireBox"
+			give all players 64 barrels named "<purple>LaunchBox"
+			
+command /boomboxcreative:
+	trigger:
+		
+		if {boomboxtourny} is true:
+			message "<red>You cannot do this right now!"
+			exit trigger
+		if event-world is "boombox":
+			set player's gamemode to creative
+
+command /boomboxcreatekit <text>:
+	trigger:
+		world is "boombox"
+		delete {boomboxkits.arg::*}
+		loop all items in player's inventory:
+			add loop-item to {boomboxkits.arg::*}
+		message "Made kit named %arg% with items: %{boomboxkits.%arg%::*}%"
+
+command /boomboxgetkit <text>:
+	trigger:
+		world is "boombox"
+		if {boomboxtourny} is false:
+			loop {boomboxkits.arg::*}:
+				give loop-value to player
+		
+
+command /boomboxsurvival:
+	trigger:
+		if {boomboxtourny} is true:
+			message "<red>You cannot do this right now!"
+			exit trigger
+		if event-world is "boombox":
+			set player's gamemode to survival
+
+command /boombox:
+	trigger:
+		if {boomboxtourny} is true:
+			message "<red>You cannot do this right now!"
+			exit trigger
+		if event-world is "world":
+			execute console command "/mvtp %player's name% boombox"
+		else:
+			message "you have to do /hub first!"
+
+on death of player:
+	world is "boombox"
+	if {boomboxtourny} is true:
+		set victim's gamemode to spectator
+
+command /boomboxtourny <boolean>:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<red>>:("
+			exit trigger
+		if arg is true:
+			set {boomboxtourny} to true
+			message "set boombox tourny to true!"
+		else:
+			set {boomboxtourny} to false
+			message "set boombox tourny to false!"
+on place:
+	world is "boombox"
+	if event-block is barrel:
+		if event-block's name is "<white>BoomBox":
+			add event-block to {boomboxes::*}
+		if event-block's name is "<orange>FireBox":
+			add event-block to {fireboxes::*}
+		if event-block's name is "<purple>LaunchBox":
+			add event-block to {launchboxes::*}
+
+on rightclick on barrel:
+	world is "boombox"
+	if {boomboxes::*} contains event-block:
+		remove event-block from {boomboxes::*}
+		
+		delete event-block
+		if event-world is "boombox":
+			create an explosion with force 5 at event-location
+		else:
+			create a safe explosion with force 5 at event-block's location
+	else if {fireboxes::*} contains event-block:
+		
+		remove event-block from {fireboxes::*}
+		
+		delete event-block
+		if world is "boombox":
+			loop players in radius 10 of event-location:
+				if loop-player's y coordinate is more than or equal to event-block's y coordinate:
+					damage loop-player by 2*(10-distance between loop-player and event-location)
+				else:
+					damage loop-player by 0.5
+			create an explosion with force 4 at event-location with fire
+			
+		else:
+			create a fake explosion at event-location
+			loop all blocks in radius 5 around event-block's location:
+				
+				chance of 20%:
+					if loop-block isn't air:
+						
+						if block above loop-block is air:
+							
+							set block above loop-block to fire
+			loop players in radius 10 of event-location:
+				if loop-player's y coordinate is more than or equal to event-block's y coordinate:
+					damage loop-player by 2*(10-distance between loop-player and event-location)
+				else:
+					damage loop-player by 0.5
+	else if {launchboxes::*} contains event-block:
+		
+		remove event-block from {launchboxes::*}
+		
+		delete event-block
+		create a fake explosion at event-location
+		set {_p} to potion effect of levitation of tier 15 without particles for 3 seconds 
+		set {_p1} to potion effect of invisibility of tier 1 without particles for 3 seconds 
+		set {_p2} to potion effect of levitation of tier 15 without particles for 1 seconds 
+		set {_p3} to potion effect of poison of tier 10 without particles for 1 seconds
+		
+		summon a slime at event-location
+		add {_p} to potion effects of last spawned entity
+		add {_p1} to potion effects of last spawned entity
+		set {_armourstand} to last spawned entity
+		add {_armourstand} to {launchboxarmourstands::*}
+		loop 15 times:
+			set {_v} to spherical vector radius 1, yaw (36*loop-value), pitch 0
+			draw 1 of campfire_signal_smoke at {_armourstand} ~ {_v} with extra 0
+			
+			loop all entities in radius 2 around {_armourstand}:
+				if loop-entity is not {_armourstand}:
+					
+					add {_p2} to loop-entity's potion effects
+					damage loop-entity by 1.5
+			wait 0.2 seconds
+		kill {_armourstand}
+		wait 1 tick
+		remove {_armourstand} from {launchboxarmourstands::*}
+		
+on projectile hit:
+	if {launchboxarmourstands::*} contains event-projectile:
+		cancel event
+
+
+on death:
+	if {launchboxarmourstands::*} contains victim:
+		clear drops
+
+on damage:
+	if {launchboxarmourstands::*} contains victim:
+		cancel event
+	if {launchboxarmourstands::*} contains attacker:
+		cancel event
+
+on combust:
+	if {launchboxarmourstands::*} contains event-entity:
+		cancel event		
+
+		
+on right click on minecart:
+	world is "smp" or "smp_nether" or "smp_end"
+	set max minecart speed of event-entity to 1.5
+
+
+
+
+
+
+
+
+
+
+
+
+		
+
+
+command /gotospawn:
+	trigger:
+		if player's world is "smp" or "smp_nether" or "smp_end":
+			teleport player to {smpspawn}
+
+command /setsmpspawn:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {smpspawn} to player's location
+
+command /smplore:
+	permission: op
+	trigger:
+		if {superop.%player's name%} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		else:
+			if {smplore} is false:
+				set {smplore} to true
+				message "<lime>Disabled SMP time limit."
+			else:
+				set {smplore} to false
+				message "<lime>Enabled SMP time limit."
+
+function saveloc(p:player):
+	if onsmp({_p}) is true:
+		set {smplocation.%{_p}%} to {_p}'s location
+	set {smplastloc.%{_p}%} to {_p}'s location
+
+			
+
+
+
+
+on death of player:
+	set {smplastloc.%victim%} to the victim's location
+	
+
+
+
+
+
+command /setsmpworld <text>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {smpworld} to arg 1
+	
+command /smp:
+	trigger:
+		if {mcc.currentevent} is not equal to "none":
+			if {mcc.team.%player's name%} is not equal to 0:
+				message "<pink>You cannot abandon your Mini MCC teammates!"
+				exit trigger
+
+		set {_advancement} to "skbee:smp" parsed as advancement
+		set {_progress} to advancement progress of {_advancement} of player
+		award criteria "requirement" of {_progress}
+		if onsmp(player) is true:
+			message "[<gold><bold>SMP<white>] You are already on the SMP!"
+			exit trigger
+		if {smp.locked} is true:
+			message "[<gold><bold>SMP<white>] The SMP is locked now. Please check back later!"
+			exit trigger
+		message "[<gold><bold>SMP<white>] Teleporting to the SMP! You can go back anytime with /hub"
+		if {smplocation.%player's name%} is not set:
+			execute console command "/mvtp %player's name% smp"
+			clear player's inventory
+			heal player
+			feed player
+		else:
+			teleport player to {smplocation.%player's name%}
+
+
+
+		
+on place:
+	add 1 to {blocksplacedsmp.%player's name%}
+	if {blocksplacedsmp.%player's name%} is more than 5000:
+		set {_advancement} to "skbee:smpbuilder" parsed as advancement
+		set {_progress} to advancement progress of {_advancement} of player
+		award criteria "requirement" of {_progress}
+
+
+
+
+command /baack <player>:
+	executable by: console
+	trigger:
+		teleport arg 1 to {smplastloc.%arg 1%}
+
+on world change:
+	saveloc(event-player)
+
+command /hub:
+	trigger:
+		if {mcc.currentevent} is equal to "none":
+			saveloc(event-player)
+			execute console command "/mv tp %player's name% world"
+			set {immune.%player's name%} to false
+			wait 1 second
+			set player's game mode to adventure
+			message "<gold>Teleported to hub!"
+		else:
+			message "<pink>You cannot use this command in a game!"
+			
+
+function onsmp(p: player) :: boolean:
+	if "%{_p}'s world%" is equal to {smpworld}:
+		return true
+	if "%{_p}'s world%" is equal to {smpworldnether}:
+		return true
+	if "%{_p}'s world%" is equal to {smpworldend}:
+		return true
+	return false
+
+
+on join:
+	if {smp.lastdayjoined.%player's name%} is not equal to {smpday}:
+		set {smp.lastdayjoined.%player's name%} to {smpday}
+		set {smptime.%player's name%} to 0
+	if onsmp(player) is true:
+		if {smp.locked} is true:
+			execute console command "/mv tp %player's name% world"
+			message "<pink>The SMP is locked now! Please join again later!"
+
+command /locksmp:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		if {smp.locked} is true:
+			set {smp.locked} to false
+			message "<lime>Unlocked the SMP!"
+		else:
+			set {smp.locked} to true
+			message "<lime>Locked the SMP!"
+			loop all players:
+				if onsmp(loop-player) is true:
+					execute console command "/mv tp %loop-player% world"
+					send "<pink>The SMP is locked now! Please join again later!" to loop-player
+
+on portal enter:
+	"%player's world%" is equal to "world"
+	player's x-coordinate is between 4 and 7
+	player's z-coordinate is between -131 and -128
+	{smptpcooldown.%player's name%} is false 
+	make player execute command "/smp"
+	set {smptpcooldown.%player's name%} to true
+	set {teleportimmune.%player's name%} to true
+	wait 0.1 seconds
+	set {teleportimmune.%player's name%} to false 
+	wait 3 seconds
+	set {smptpcooldown.%player's name%} to false 
+
+
+
+on damage of player:
+	"%victim's world%" is equal to "world"
+	damage cause is fall
+	cancel event
+
+
+	
+
+
+on damage:
+	world is "smp"
+	attacker is a player
+	if distance between victim and the location 0, 70, 0 is less than 10:
+		cancel event
+		send message "<red>You cannot attack people near spawn!" to attacker
+
+	
+		

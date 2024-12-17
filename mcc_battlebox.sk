@@ -1,0 +1,656 @@
+command /mccbattlebox:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/mccnewgame"
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				execute console command "/mvtp %loop-player's name% battlebox"
+				mccbbtutorial(loop-player)
+				set {immune.%loop-player's name%} to false
+				wait a tick
+				set loop-player's game mode to spectator
+		set {_over} to false
+		wait 30 seconds
+		set {mcc.bb.round} to 1
+		roundrobin()
+
+		
+
+
+
+command /tptest:
+	permission: op
+	trigger:
+		bbtptostart()
+
+function bbtptostart():
+	loop all players:
+		loop blocks in radius 15 around loop-player:
+			if loop-block is calcite:
+				teleport loop-player to location(x-coordinate of loop-block, (y-coordinate of loop-block)+1, (z-coordinate of loop-block), world "battlebox", yaw of loop-player, pitch of loop-player)
+
+function roundrobin():
+	if {mcc.bb.round} is 1:
+		set {mcc.bb.teamnum} to 0
+		delete {_teamsdone::*}
+		delete {mcc.bb.row1::*}
+		loop all players:
+			if {_teamsdone::*} does not contain {mcc.team.%loop-player's name%}:
+				if {mcc.team.%loop-player's name%} is not 0:
+					if {mcc.team.%loop-player's name%} is set:
+						add {mcc.team.%loop-player's name%} to {_teamsdone::*}
+						add 1 to {mcc.bb.teamnum}
+						add {mcc.team.%loop-player's name%} to {mcc.bb.row1::*}
+		
+		set {mcc.bb.row1::*} to sorted {mcc.bb.row1::*}
+	else if {mcc.bb.round} is not 1:
+		loop {mcc.bb.teamnum} times:
+			if loop-number-2 is 1:
+				set {_temprow::1} to 1
+			else if loop-number-2 is 2:
+				set {_temprow::2} to {mcc.bb.row1::%{mcc.bb.teamnum}%}
+			else:
+				set {_temprow::%loop-number-2%} to {mcc.bb.row1::%(loop-number-2) - 1%}
+		set {mcc.bb.row1::*} to {_temprow::*}
+	broadcast {mcc.bb.row1::*}
+	loop floor({mcc.bb.teamnum}/2) times:
+		set {mcc.bb.teama.%loop-number%} to {mcc.bb.row1::%loop-number%}
+		set {mcc.bb.teamb.%loop-number%} to {mcc.bb.row1::%loop-number+floor({mcc.bb.teamnum}/2)%}
+	broadcast {mcc.bb.teamnum}
+	#loop floor({mcc.bb.teamnum}/2) times:
+		#execute console command "/mccbb %{mcc.bb.teama.%loop-number%}% %{mcc.bb.teamb.%loop-number%}% %loop-number%"
+	#set {mcc.bb.round} to ({mcc.bb.round}+1)
+
+				
+command /mccbb <number> <number> <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			set {mcc.currentevent} to "battlebox"
+			set {mcc.bb.opponent.%arg 1%} to arg 2
+			set {mcc.bb.opponent.%arg 2%} to arg 1
+			set {mcc.bb.teama.%arg 3%} to arg 1
+			set {mcc.bb.teamb.%arg 3%} to arg 2
+			loop all players:
+				if {mcc.team.%loop-player's name%} is equal to arg 1:
+					remove speed from the loop-player
+					teleport loop-player to {mcc.bb.spawnpoints.%arg 3%.teama}
+					set loop-player's game mode to adventure
+					clear loop-player's inventory
+					send title "Round %{mcc.bb.round}%" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
+					givewool(loop-player, {mcc.team.%loop-player's name%})
+				else if {mcc.team.%loop-player's name%} is equal to arg 2:
+					remove speed from the loop-player
+					teleport loop-player to {mcc.bb.spawnpoints.%arg 3%.teamb}
+					set loop-player's game mode to adventure
+					clear loop-player's inventory
+					send title "Round %{mcc.bb.round}%" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
+					givewool(loop-player, {mcc.team.%loop-player's name%})
+			set {mcc.bb.timeleft} to 40
+			set {mcc.bb.kits} to true
+			loop all players:
+				delete {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.util}
+				delete {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.archer}
+				delete {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.fighter}
+				delete {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.tank}
+				delete {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.healer}
+
+
+command /roundrobin:
+	permission: op
+	trigger:
+		roundrobin()
+		loop 5 times:
+			broadcast "%{mcc.bb.teama.%loop-number%}%"
+			broadcast "%{mcc.bb.teamb.%loop-number%}%"
+			
+
+#syntax is spawnpoint_two digit number where the first digit is the map and the second digit is the team
+command /bbsetspawn <number> <text>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {mcc.bb.spawnpoints.%arg 1%.%arg 2%} to player's location
+			broadcast "%{mcc.bb.spawnpoints.%arg 1%.%arg 2%}%"
+
+
+command /bbsetdeadspawn <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {mcc.bb.deadspawn.%{arg 1}%} to player's location
+
+command /bbendgame <number> <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			mccbbendgame(arg 1, arg 2)
+
+function mccbbendgame(n:number, awon:number):
+	set {_over} to false
+	if {_awon} is equal to 1:
+		broadcast "[<gold><bold>Battle Box<white>] %{mcc.teams::%{mcc.bb.teama.%{_n}%}%}% <white>have defeated %{mcc.teams::%{mcc.bb.teamb.%{_n}%}%}%!"
+	else if {_awon} is equal to -1:
+		broadcast "[<gold><bold>Battle Box<white>] %{mcc.teams::%{mcc.bb.teamb.%{_n}%}%}% <white>have defeated %{mcc.teams::%{mcc.bb.teama.%{_n}%}%}%!"
+	else:
+		broadcast "[<gold><bold>Battle Box<white>] %{mcc.teams::%{mcc.bb.teama.%{_n}%}%}% <white>have tied with %{mcc.teams::%{mcc.bb.teamb.%{_n}%}%}%!"
+	loop all entities in radius 50 of {mcc.bb.deadspawn.%{_n}%}:
+		if "%loop-entity%" contains "dropped splash" or "creeper" or "arrow": 
+			delete the loop-entity
+	loop all players:
+		if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teama.%{_n}%}:
+			set loop-player's game mode to spectator
+			close the loop-player's inventory
+			if {_awon} is equal to 1:
+				send title "<lime>Your team won!" with subtitle "<lime>Well played!"  to loop-player for 3 seconds
+				set {_bla} to 0
+				loop all players:
+					if {mcc.team.%loop-player-2's name%} is equal to {mcc.team.%loop-player-1's name%}:
+						add 1 to {_bla}
+				ac(loop-player, ceil(160/{_bla}), "Your team won this round!", false)
+			else if {_awon} is equal to -1:
+				send title "<pink>Your team lost!" with subtitle "<pink>You'll get 'em next time, champ!" to loop-player for 3 seconds
+			else:
+				send title "Ohhh!" with subtitle "It's a tie!!!!!!!" to loop-player for 3 seconds
+				set {_bla} to 0
+				loop all players:
+					if {mcc.team.%loop-player-2's name%} is equal to {mcc.team.%loop-player-1's name%}:
+						add 1 to {_bla}
+				ac(loop-player, ceil(80/{_bla}), "Your team tied this round!", false)
+		if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teamb.%{_n}%}:
+			set loop-player's game mode to spectator
+			if {_awon} is equal to -1:
+				send title "<lime>Your team won!" with subtitle "<lime>Well played!"  to loop-player for 3 seconds
+				set {_bla} to 0
+				loop all players:
+					if {mcc.team.%loop-player-2's name%} is equal to {mcc.team.%loop-player-1's name%}:
+						add 1 to {_bla}
+				ac(loop-player, ceil(160/{_bla}), "Your team won this round!", false)
+			else if {_awon} is equal to 1:
+				send title "<pink>Your team lost!" with subtitle "<pink>You'll get 'em next time, champ!" to loop-player for 3 seconds
+			else:
+				send title "Ohhh!" with subtitle "It's a tie!!!!!!!" to loop-player for 3 seconds
+				set {_bla} to 0
+				loop all players:
+					if {mcc.team.%loop-player-2's name%} is equal to {mcc.team.%loop-player-1's name%}:
+						add 1 to {_bla}
+				ac(loop-player, ceil(80/{_bla}), "Your team tied this round!", false)
+	delete {mcc.bb.teama.%{_n}%}
+	delete {mcc.bb.teamb.%{_n}%}
+	loop blocks in radius 30 of {mcc.bb.center.%{_n}%}:
+		if loop-block is cobweb or jungle leaves:
+			set loop-block to air
+		if loop-block is wool:
+			set loop-block to white wool
+	
+	if {mcc.bb.round} is 9:
+		set {_over} to true
+	if {_over} is true:
+		set {mcc.bb.timeleft} to 30
+		set {mcc.bb.inprogress} to false
+		set {mcc.bb.kits} to false
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				send title "<pink>Game over!" to loop-player for 3 seconds
+		execute console command "/mccstandings"
+		wait 30 seconds
+		execute console command "/mccbreak"
+	loop all players:
+		if {mcc.%loop-player's name%.kit} is "healer":
+			set {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.healer} to false
+		if {mcc.%loop-player's name%.kit} is "archer":
+			set {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.archer} to false
+		if {mcc.%loop-player's name%.kit} is "tank":
+			set {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.tank} to false
+		if {mcc.%loop-player's name%.kit} is "fighter":
+			set {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.fighter} to false
+		if {mcc.%loop-player's name%.kit} is "util":
+			set {mcc.kitstaken.%{mcc.team.%loop-player's name%}%.util} to false
+		set {mcc.%loop-player's name%.haskit} to false
+		clear loop-player's inventory
+		clear all potion effects of loop-player
+		set {color} to "white"
+		set {_c} to {mcc.team.%loop-player's name%}
+		if {_c} is 1:
+			set {color} to "red"
+		if {_c} is 2:
+			set {color} to "orange"
+		if {_c} is 3:
+			set {color} to "yellow"
+		if {_c} is 4:
+			set {color} to "lime"
+		if {_c} is 5:
+			set {color} to "green"
+		if {_c} is 6:
+			set {color} to "cyan"
+		if {_c} is 7:
+			set {color} to "light_blue"
+		if {_c} is 8:
+			set {color} to "blue"
+		if {_c} is 9:
+			set {color} to "purple"
+		if {_c} is 10:
+			set {color} to "pink"
+		execute console command "/give %loop-player's name% %{color}%_wool{CanPlaceOn:[bedrock]} 64"
+
+command /setcenterbb <number>:
+	permission: op
+	trigger:
+		set {mcc.bb.center.%arg 1%} to player's position
+
+
+
+on hunger meter change:
+	player's world is "battlebox"
+	cancel event
+
+on damage:
+	"%victim's world%" is equal to "battlebox"
+	if "%damage cause%" is equal to "projectile":
+		if name of victim's tool is "tanky picaxe":
+			cancel event
+		if the first 13 characters of name of victim's tool is "combat picaxe":
+			cancel event
+	damage is greater than or equal to victim's health
+	if attacker is a player:
+		if {mcc.team.%attacker%} is equal to {mcc.team.%victim%}:
+			if attacker is not equal to victim:
+				exit trigger
+	if damage cause is fall:
+		exit trigger
+	set {_good} to false
+	loop 20 times:
+		if {mcc.bb.teama.%loop-number%} is equal to {mcc.team.%victim%}:
+			set {_good} to true
+		else if {mcc.bb.teamb.%loop-number%} is equal to {mcc.team.%victim%}:
+			set {_good} to true
+	if {_good} is true:	
+		if attacker is a player:
+			if {mcc.team.%victim%} is not equal to {mcc.team.%attacker%}:
+				ac(attacker, 15, "You killed %victim%!", false)
+				youkilled(attacker, victim)
+			if damage cause is attack:
+				bbbr({mcc.team.%attacker%},{mcc.team.%victim%},"[<gold><bold>Battle Box<white>] <%mcccolor({mcc.team.%victim%})%>%victim% <white>was slain by <%mcccolor({mcc.team.%attacker%})%>%attacker%")
+			else if "%damage cause%" is equal to "projectile":
+				bbbr({mcc.team.%attacker%},{mcc.team.%victim%},"[<gold><bold>Battle Box<white>] <%mcccolor({mcc.team.%victim%})%>%victim% <white>was shot by <%mcccolor({mcc.team.%attacker%})%>%attacker%")
+			else:
+				bbbr({mcc.team.%attacker%},{mcc.team.%victim%},"[<gold><bold>Battle Box<white>] <%mcccolor({mcc.team.%victim%})%>%victim% <white>was killed by <%mcccolor({mcc.team.%attacker%})%>%attacker% <white>using magic")
+		else if attacker is a creeper:
+			set {_bla} to the first index of "'" in "%name of attacker%"
+			set {_attackername} to the first {_bla}-1 characters of "%name of attacker%"
+			loop all players:
+				if "%loop-player's name%" is equal to {_attackername}:
+					set {_atkr} to loop-player
+			if {_atkr} is set:
+				bbbr({mcc.team.%{_atkr}%},{mcc.team.%victim%},"[<gold><bold>Battle Box<white>] <%mcccolor({mcc.team.%victim%})%>%victim% <white>was blown up by <%mcccolor({mcc.team.%{_atkr}%})%>%{_atkr}%")
+				if {mcc.team.%{_atkr}%} is not equal to {mcc.team.%victim%}:
+					ac({_atkr}, 15, "You killed %victim%!", false)	
+					youkilled({_atkr}, victim)
+			else:
+				bbbr({mcc.team.%victim%},{mcc.bb.opponent.%{mcc.team.%victim%}%},"[<gold><bold>Battle Box<white>] <%mcccolor({mcc.team.%victim%})%>%victim% <white>blew up")
+		else:
+			bbbr({mcc.team.%victim%},{mcc.bb.opponent.%{mcc.team.%victim%}%},"[<gold><bold>Battle Box<white>] <%mcccolor({mcc.team.%victim%})%>%victim% <white>died")
+		set damage to 0
+		wait a tick
+		set victim's health to 10
+		loop 20 times:
+			if {mcc.bb.teama.%loop-number%} is equal to {mcc.team.%victim%}:
+				teleport victim to {mcc.bb.deadspawn.%loop-number%}
+				set victim's game mode to spectator
+			else if {mcc.bb.teamb.%loop-number%} is equal to {mcc.team.%victim%}:
+				teleport victim to {mcc.bb.deadspawn.%loop-number%}
+				set victim's game mode to spectator
+
+function givewool(p:player, c:number):
+	set {color} to "white"
+	if {_c} is 1:
+		set {color} to "red"
+	if {_c} is 2:
+		set {color} to "orange"
+	if {_c} is 3:
+		set {color} to "yellow"
+	if {_c} is 4:
+		set {color} to "lime"
+	if {_c} is 5:
+		set {color} to "green"
+	if {_c} is 6:
+		set {color} to "cyan"
+	if {_c} is 7:
+		set {color} to "light_blue"
+	if {_c} is 8:
+		set {color} to "blue"
+	if {_c} is 9:
+		set {color} to "purple"
+	if {_c} is 10:
+		set {color} to "pink"
+	execute console command "/give %{_p}% %{color}%_wool{CanPlaceOn:[bedrock]} 64"
+
+on rightclick on button:
+	loop blocks in radius 1 of event-location:
+		if loop-block is redstone block:
+			if {mcc.kitstaken.%{mcc.team.%player's name%}%.healer} is true:
+				message "A teammate has already picked this kit! Please choose another one!" to event-player
+			else if {mcc.%player's name%.haskit} is true:
+				message "You already have a kit!" to event-player
+			else:
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.healer} to true
+				set {mcc.%player's name%.haskit} to true
+				set {mcc.%player's name%.kit} to "healer"
+				give player leather boots
+				give player wooden sword of knockback
+				execute console command "/give %player's name% shears{CanDestroy:[blue_wool,cyan_wool,green_wool,light_blue_wool,lime_wool,orange_wool,pink_wool,purple_wool,white_wool,red_wool,yellow_wool]} 1"
+				
+
+	loop blocks in radius 1 of event-location:
+		if loop-block is minecraft:barrier:
+			if {mcc.%player's name%.kit} is "healer":
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.healer} to false
+			if {mcc.%player's name%.kit} is "archer":
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.archer} to false
+			if {mcc.%player's name%.kit} is "tank":
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.tank} to false
+			if {mcc.%player's name%.kit} is "fighter":
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.fighter} to false
+			if {mcc.%player's name%.kit} is "util":
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.util} to false
+			set {mcc.%player's name%.haskit} to false
+			clear player's inventory
+			clear all potion effects of player
+			set {color} to "white"
+			set {_c} to {mcc.team.%player's name%}
+			if {_c} is 1:
+				set {color} to "red"
+			if {_c} is 2:
+				set {color} to "orange"
+			if {_c} is 3:
+				set {color} to "yellow"
+			if {_c} is 4:
+				set {color} to "lime"
+			if {_c} is 5:
+				set {color} to "green"
+			if {_c} is 6:
+				set {color} to "cyan"
+			if {_c} is 7:
+				set {color} to "light_blue"
+			if {_c} is 8:
+				set {color} to "blue"
+			if {_c} is 9:
+				set {color} to "purple"
+			if {_c} is 10:
+				set {color} to "pink"
+			execute console command "/give %player's name% %{color}%_wool{CanPlaceOn:[bedrock]} 64"
+	loop blocks in radius 1 of event-location:
+		if loop-block is minecraft:target:
+			if {mcc.kitstaken.%{mcc.team.%player's name%}%.archer} is true:
+				message "A teammate has already picked this kit! Please choose another one!" to event-player
+			else if {mcc.%player's name%.haskit} is true:
+				message "You already have a kit!" to event-player
+			else:
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.archer} to true
+				set {mcc.%player's name%.haskit} to true
+				set {mcc.%player's name%.kit} to "archer"
+				give player leather boots
+				give player crossbow 
+				give player wooden sword
+				execute console command "/give %player's name% shears{CanDestroy:[blue_wool,cyan_wool,green_wool,light_blue_wool,lime_wool,orange_wool,pink_wool,purple_wool,white_wool,red_wool,yellow_wool]} 1"
+				give player 16 arrows
+	loop blocks in radius 1 of event-location:
+		if loop-block is minecraft:magma_block:
+			if {mcc.kitstaken.%{mcc.team.%player's name%}%.fighter} is true:
+				message "A teammate has already picked this kit! Please choose another one!" to event-player
+			else if {mcc.%player's name%.haskit} is true:
+				message "You already have a kit!" to event-player
+			else:
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.fighter} to true
+				set {mcc.%player's name%.haskit} to true
+				set {mcc.%player's name%.kit} to "fighter"
+				give player leather boots
+				give player stone sword
+				execute console command "/give %player's name% shears{CanDestroy:[blue_wool,cyan_wool,green_wool,light_blue_wool,lime_wool,orange_wool,pink_wool,purple_wool,white_wool,red_wool,yellow_wool]} 1"
+	loop blocks in radius 1 of event-location:
+		if loop-block is minecraft:obsidian:
+			if {mcc.kitstaken.%{mcc.team.%player's name%}%.tank} is true:
+				message "A teammate has already picked this kit! Please choose another one!" to event-player
+			else if {mcc.%player's name%.haskit} is true:
+				message "You already have a kit!" to event-player
+			else:
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.tank} to true
+				set {mcc.%player's name%.haskit} to true
+				set {mcc.%player's name%.kit} to "tank"
+				give player leather boots
+				give player wooden sword
+				give player potion of strong turtle master
+				execute console command "/give %player's name% shears{CanDestroy:[blue_wool,cyan_wool,green_wool,light_blue_wool,lime_wool,orange_wool,pink_wool,purple_wool,white_wool,red_wool,yellow_wool]} 1"
+	loop blocks in radius 1 of event-location:
+		if loop-block is minecraft:coal_block:
+			if {mcc.kitstaken.%{mcc.team.%player's name%}%.util} is true:
+				message "A teammate has already picked this kit! Please choose another one!" to event-player
+			else if {mcc.%player's name%.haskit} is true:
+				message "You already have a kit!" to event-player
+			else:
+				set {mcc.kitstaken.%{mcc.team.%player's name%}%.util} to true
+				set {mcc.%player's name%.haskit} to true
+				set {mcc.%player's name%.kit} to "util"
+				give player leather boots
+				give player splash potions of harming
+				give player wooden sword
+				execute console command "/give %player's name% potion{custom_potion_effects:[{id:invisibility,duration:200}]} 1"
+				execute console command "/give %player's name% shears{CanDestroy:[blue_wool,cyan_wool,green_wool,light_blue_wool,lime_wool,orange_wool,pink_wool,purple_wool,white_wool,red_wool,yellow_wool]} 1"
+	
+
+on damage of item frame:
+	cancel event
+
+
+
+
+
+	
+
+command /givewool <player> <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			givewool(arg 1, arg 2)
+
+function bbbr(n1: number, n2: number, t:text):
+	loop all players:
+		if {mcc.team.%loop-player's name%} is equal to {_n1} or {_n2} or 0:
+			send formatted {_t} to loop-player
+
+function teleportplayers(n:number, t:text):
+	loop all players:
+		broadcast "%{mcc.team.%loop-player's name%}%"
+		broadcast "%{mcc.bb.%{_t}%.%{_n}%}%"
+		broadcast "%{_t}%.%{_n}%"
+		if {mcc.team.%loop-player's name%} is {mcc.bb.%{_t}%.%{_n}%}:
+			teleport loop-player to {mcc.bb.spawnpoints.%{_n}%.%{_t}%}
+			broadcast "%{mcc.bb.spawnpoints.%{_n}%.%{_t}%}%"
+			broadcast "%{_n}%.%{_t}%"
+
+command /teleportplayers <number> <text>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			teleportplayers(arg 1, arg 2)
+on place:
+	"%player's world%" is equal to "battlebox"
+	player's game mode is adventure
+	
+	
+	if event-block is white wool:
+		exit trigger
+	set {_count} to 0
+	if {mcc.team.%player's name%} is equal to 1:
+		set {_ba} to red wool
+	else if {mcc.team.%player's name%} is equal to 2:
+		set {_ba} to orange wool
+	else if {mcc.team.%player's name%} is equal to 3:
+		set {_ba} to yellow wool
+	else if {mcc.team.%player's name%} is equal to 4:
+		set {_ba} to lime wool
+	else if {mcc.team.%player's name%} is equal to 5:
+		set {_ba} to green wool
+	else if {mcc.team.%player's name%} is equal to 6:
+		set {_ba} to cyan wool
+	else if {mcc.team.%player's name%} is equal to 7:
+		set {_ba} to light blue wool
+	else if {mcc.team.%player's name%} is equal to 8:
+		set {_ba} to blue wool
+	else if {mcc.team.%player's name%} is equal to 9:
+		set {_ba} to purple wool
+	else if {mcc.team.%player's name%} is equal to 10:
+		set {_ba} to pink wool
+	loop blocks in radius 4 of event-location:
+		if loop-block is {_ba}:
+			add 1 to {_count}
+	if {_count} is equal to 9: 
+		loop 20 times:
+			if {mcc.team.%player's name%} is equal to {mcc.bb.teama.%loop-number%}:
+				mccbbendgame(loop-number, 1)
+			else if {mcc.team.%player's name%} is equal to {mcc.bb.teamb.%loop-number%}:
+				mccbbendgame(loop-number, -1)
+
+
+on damage:
+	if event-world is "battlebox":
+		if damage cause is fall:
+			cancel event
+		if attacker is a player:
+			if {mcc.team.%attacker%} is equal to {mcc.team.%victim%}:
+				if attacker is not equal to victim:
+					send "<pink>You cannot attack teammates!" to attacker
+					cancel event
+
+on spawn:
+	"%event-world%" is equal to "battlebox"
+#	if first 3 characters of "%event-entity%" is equal to "zom":
+#		cancel event
+#		exit trigger
+#	if "%event-entity%" is equal to "slime" or "skeleton" or "spider" or "creeper" or "enderman":
+	if "%event-entity%" is not equal to "creeper" or "arrow" or "thrown potion" or "dropped splash potions of strong harming" or "item frame":
+		cancel event
+		exit trigger
+	if "%event-entity%" is equal to "creeper":
+		if "%spawn reason%" is not equal to "spawn egg":
+			cancel event
+			exit trigger
+		if {mcc.bb.kits} is true:
+			if {mcc.bb.timeleft} is less than 10:
+				cancel event	
+
+
+
+every second:
+	if {mcc.paused} is true:
+		exit trigger
+	if {mcc.bb.timeleft} is greater than 0:
+		subtract 1 from {mcc.bb.timeleft}
+		if {mcc.bb.timeleft} is equal to 10:
+			if {mcc.bb.kits} is true:
+				bbtptostart()
+				loop 20 times:
+					loop {mcc.bb.cages.%loop-value%::*}:
+						set block at loop-value-2 to gray stained glass 
+					if {mcc.bb.teama.%loop-value%} is set:
+						loop all players:
+							if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teama.%loop-value-1%}:
+								
+								set loop-player's game mode to adventure
+								set loop-player's health to 10
+								set loop-player's hunger to 10
+								set loop-player's saturation to 5
+							if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teamb.%loop-value-1%}:
+								
+								set loop-player's game mode to adventure
+								set loop-player's health to 10
+								set loop-player's hunger to 10
+								set loop-player's saturation to 5
+		else if {mcc.bb.timeleft} is equal to 2:
+			if {mcc.bb.kits} is true:
+				loop 20 times:
+					if {mcc.bb.teama.%loop-value%} is set:
+						loop all players:
+							if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teama.%loop-value-1%}:
+								execute console command "/boopboopboopbeep %loop-player's name%"
+							if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teamb.%loop-value-1%}:
+								execute console command "/boopboopboopbeep %loop-player's name%"
+	else:
+		if {mcc.bb.kits} is true:
+			set {mcc.bb.kits} to false
+			set {mcc.bb.timeleft} to 60
+			set {mcc.bb.inprogress} to true
+			loop all players:
+				loop blocks in radius 10 around loop-player:
+					if loop-block is gray stained glass:
+						set loop-block to air
+			loop 20 times:
+				if {mcc.bb.teama.%loop-value%} is set:
+					loop {mcc.bb.center.%loop-value%::*}:
+						set block at loop-value-2 to white wool
+		else if {mcc.bb.inprogress} is true:
+			set {mcc.bb.inprogress} to false
+			loop all players:
+				if {mcc.team.%loop-player's name%} is not equal to 0:
+					send title "<pink>Round over!" to loop-player for 3 seconds
+			loop 20 times:
+				if {mcc.bb.teama.%loop-value%} is set:
+					mccbbendgame(loop-value, 0)	
+			loop all dropped items in "battlebox":
+				delete the loop-entity 
+			set {mcc.bb.ready} to true
+			roundrobin()
+
+command /register <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true or the console:
+			loop blocks in radius 20 around player:
+				if loop-block is gray stained glass:
+					add loop-block to {mcc.bb.cages.%arg 1%::*}
+
+function mccbbtutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Battle Box" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Battle Box!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Battle Box is a team vs. team PVP game." to {_p}
+	send "" to {_p}
+	send "You will play every other team, round-robin style." to {_p}
+	send "" to {_p}
+	send "<pink>In each round, you only have 1 minute and 1 life." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 8 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Your team's objective is to fill the wool square in the center completely with your team's wool." to {_p}
+	send "" to {_p}
+	send "The other team is trying to do the same, so killing them might make that easier!" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 8 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Extra tips:" to {_p}
+	send "" to {_p}
+	send "- There are instant damage potions at the center of the map!" to {_p}
+	send "" to {_p}
+	send "- Use your shears to break the wool." to {_p}
+	send "" to {_p}
+	send "- Each player may choose a bonus item before the start of each round!" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}

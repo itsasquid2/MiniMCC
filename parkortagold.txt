@@ -1,0 +1,626 @@
+variables:
+	{mcc.pkt.round} = 1
+	{mcc.pkt.timeleft} = 0
+	{mcc.pkt.stage} = 0
+	{mcc.pkt.hunts.%player%} = 3
+	{mcc.pkt.ready} = false
+	{mcc.pkt.numalive.1} = 0
+	{mcc.pkt.numalive.2} = 0
+	{mcc.pkt.numalive.3} = 0
+	{mcc.pkt.numalive.4} = 0
+	{mcc.pkt.numalive.5} = 0
+	{mcc.pkt.numalive.6} = 0
+	{mcc.pkt.numalive.7} = 0
+	{mcc.pkt.numalive.8} = 0
+	{mcc.pkt.numalive.9} = 0
+	{mcc.pkt.numalive.10} = 0
+	{mcc.pkt.visioncooldown.%player%} = false
+
+import:
+	org.inventivetalent.glow.GlowAPI
+
+on join:
+	loop all players:
+		if {is.%player%.glowingfor.%loop-player%} is true:
+			glow(player, loop-player, true)
+		if {is.%loop-player%.glowingfor.%player%} is true:
+			glow(loop-player, player, true)
+
+
+
+function glow(p: player, q: player, b: boolean):
+	if {is.%{_p}%.glowingfor.%{_q}%} is not set:
+		set {is.%{_p}%.glowingfor.%{_q}%} to false
+	set {_already} to {is.%{_p}%.glowingfor.%{_q}%}
+	if {_b} is not equal to {_already}:
+		set {is.%{_p}%.glowingfor.%{_q}%} to {_b}
+		execute console command "/glow %{_p}% %{_q}%" 
+
+command /glou <player> <player> <boolean>:
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		glow(arg 1, arg 2, arg 3)
+		#GlowAPI.setGlowing(arg 1, arg 3, arg 2)
+		#if arg 3 is true:
+		#	broadcast "made %arg 1% glow for %arg 2%"
+		#else:
+		#	broadcast "made %arg 1% not glow for %arg 2%"
+
+#effect make %player% glow for %player%:
+#	trigger:
+#		broadcast "made %expr-1% glow for %expr-2%"
+#		set {_bla1} to expr-1
+#		set {_bla2} to expr-2
+#		GlowAPI.setGlowing({_bla1}, true, {_bla2})
+
+#effect make %player% not glow for %player%:
+#	trigger:
+#		broadcast "made %expr-1% not glow for %expr-2%"
+#		GlowAPI.setGlowing({_bla1}, false, {_bla2})
+
+function mccpkttutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Parkour Tag" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Parkour Tag!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Parkour Tag is a 3v1 PVP game." to {_p}
+	send "" to {_p}
+	send "You will play each other team in one round." to {_p}
+	send "" to {_p}
+	send "There are two roles in this game: <yellow>Runners<white> and <yellow>Hunters." to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "One player on each team will elect themself to be Hunter for a round. Everyone else will be Runners." to {_p}
+	send "" to {_p}
+	send "Hunters must tag the enemy runners before their team manages to do the same to you." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<pink><bold>Each player can only hunt a total of 2 times." to {_p}
+	send "" to {_p}
+	send "Runners get coins the longer they survive, and a bonus if they survive the full 60 second round." to {_p}
+	send "" to {_p}
+	send "Hunters get coins by hunting faster than the enemy team." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Extra tips:" to {_p}
+	send "" to {_p}
+	send "- Hunters always have vision of Runners through walls." to {_p}
+	send "- Runners have an item to activate temporary vision." to {_p}
+	send "" to {_p}
+	send "- Help your team by communicating where the hunter is, even after you've been tagged out." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+
+
+function mccpktround(n:number, t:number):
+	if {_t} is equal to 2:
+		execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::2}% 1"
+	else if {_t} is equal to 3:
+		if {_n} is equal to 1:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::2}% 1"
+		else if {_n} is equal to 2:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::3}% 1"
+		else if {_n} is equal to 3:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::3}% 1"
+	else if {_t} is equal to 4:
+		if {_n} is equal to 1:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::2}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::4}% 2"
+		else if {_n} is equal to 2:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::3}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::4}% 2"
+		else if {_n} is equal to 3:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::4}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::2}% 2"
+	else if {_t} is equal to 5:
+		if {_n} is equal to 1:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::3}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::5}% 2"
+		else if {_n} is equal to 2:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::4}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::5}% 2"
+		else if {_n} is equal to 3:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::5}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::2}% 2"
+		else if {_n} is equal to 4:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::3}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::2}% 2"
+		else if {_n} is equal to 5:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::2}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::4}% 2"
+	else if {_t} is equal to 6:
+		if {_n} is equal to 1:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::4}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::5}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::6}% 3"
+		else if {_n} is equal to 2:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::5}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::6}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::3}% 3"
+		else if {_n} is equal to 3:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::6}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::3}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::2}% 3"
+		else if {_n} is equal to 4:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::3}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::6}% %{mcc.pkt.teamlist::2}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::4}% 3"
+		else if {_n} is equal to 5:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::2}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::3}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::6}% 3"
+	else if {_t} is equal to 7:
+		if {_n} is equal to 1:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::7}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::6}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::5}% 3"
+		else if {_n} is equal to 2:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::1}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::7}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::6}% 3"
+		else if {_n} is equal to 3:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::4}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::5}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::7}% %{mcc.pkt.teamlist::6}% 3"
+		else if {_n} is equal to 4:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::5}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::6}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::7}% 3"
+		else if {_n} is equal to 5:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::6}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::7}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::1}% 3"
+		else if {_n} is equal to 6:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::7}% %{mcc.pkt.teamlist::5}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::4}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::3}% 3"
+		else if {_n} is equal to 7:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::6}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::5}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::3}% 3"
+	else if {_t} is equal to 8:
+		if {_n} is equal to 1:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::8}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::7}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::6}% 3"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::5}% 4"
+		else if {_n} is equal to 2:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::7}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::8}% %{mcc.pkt.teamlist::6}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::5}% 3"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::4}% 4"
+		else if {_n} is equal to 3:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::6}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::7}% %{mcc.pkt.teamlist::5}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::8}% %{mcc.pkt.teamlist::4}% 3"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::2}% %{mcc.pkt.teamlist::3}% 4"
+		else if {_n} is equal to 4:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::5}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::6}% %{mcc.pkt.teamlist::4}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::7}% %{mcc.pkt.teamlist::3}% 3"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::8}% %{mcc.pkt.teamlist::2}% 4"
+		else if {_n} is equal to 5:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::4}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::3}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::6}% %{mcc.pkt.teamlist::2}% 3"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::7}% %{mcc.pkt.teamlist::8}% 4"
+		else if {_n} is equal to 6:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::3}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::2}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::8}% 3"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::6}% %{mcc.pkt.teamlist::7}% 4"
+		else if {_n} is equal to 7:
+			execute console command "/mccpkt %{mcc.pkt.teamlist::1}% %{mcc.pkt.teamlist::2}% 1"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::3}% %{mcc.pkt.teamlist::8}% 2"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::4}% %{mcc.pkt.teamlist::7}% 3"
+			execute console command "/mccpkt %{mcc.pkt.teamlist::5}% %{mcc.pkt.teamlist::6}% 4"
+
+
+function mccpktdead(p:player):
+	set {_p}'s game mode to spectator
+	launch ball large colored mcccolor({mcc.team.%{_p}%}) at {_p} with duration 0
+	send title "<yellow>Tagged!" to {_p} for 3 seconds
+	subtract 1 from {mcc.pkt.numalive.%{mcc.team.%{_p}%}%}
+	if {mcc.pkt.numalive.%{mcc.team.%{_p}%}%} is equal to 0:
+		ac({mcc.pkt.hunter.%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%}, 50, "You tagged all 3 runners!", false)
+		if {mcc.pkt.numalive.%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%} is greater than 0:
+			set {_num} to 0
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to {mcc.pkt.opponent.%{mcc.team.%{_p}%}%}:
+					add 1 to {_num}
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to {mcc.pkt.opponent.%{mcc.team.%{_p}%}%}:
+					ac(loop-player, 200/{_num}, "Your team tagged all 3 enemy runners first!", true)
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to {mcc.team.%{_p}%}:
+					send "<pink>The enemy hunter tagged all 3 of your team's runners first, earning them a bonus." to loop-player
+			send title "<lime>Huntmaster!" with subtitle "<lime>Well played!" to {mcc.pkt.hunter.%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%} for 3 seconds
+		else:
+			send title "<lime>Hunted!" with subtitle "<lime>Well played!" to {mcc.pkt.hunter.%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%} for 3 seconds
+
+
+function pktforcehunter(n:number):
+	if {mcc.pkt.hunter.%{_n}%} is not set:
+		delete {_players::*}	
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to {_n}:
+				if {mcc.pkt.hunts.%loop-player%} is greater than 0:
+					add loop-player to {_players::*}
+		set {mcc.pkt.hunter.%{_n}%} to a random element of {_players::*}
+		subtract 1 from {mcc.pkt.hunts.%{mcc.pkt.hunter.%{_n}%}%}
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to {_n}:
+				send formatted "<%mcccolor({_n})%>%{mcc.pkt.hunter.%{_n}%}%<lime> is hunting this round. They can hunt %{mcc.pkt.hunts.%{mcc.pkt.hunter.%{_n}%}%}%<lime> more times after this round." to loop-player
+		
+		
+
+function pktcolor(n:number):
+	if {mcc.pkt.teama.%{_n}%} is equal to 1:
+		set {_bla1} to red concrete
+		set {_bla2} to red stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 2:
+		set {_bla1} to orange concrete
+		set {_bla2} to orange stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 3:
+		set {_bla1} to yellow concrete
+		set {_bla2} to yellow stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 4:
+		set {_bla1} to lime concrete
+		set {_bla2} to lime stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 5:
+		set {_bla1} to green concrete
+		set {_bla2} to green stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 6:
+		set {_bla1} to cyan concrete
+		set {_bla2} to cyan stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 7:
+		set {_bla1} to blue concrete
+		set {_bla2} to blue stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 8:
+		set {_bla1} to purple concrete
+		set {_bla2} to purple stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 9:
+		set {_bla1} to magenta concrete
+		set {_bla2} to magenta stained glass
+	else if {mcc.pkt.teama.%{_n}%} is equal to 10:
+		set {_bla1} to black concrete
+		set {_bla2} to black stained glass
+	if {mcc.pkt.teamb.%{_n}%} is equal to 1:
+		set {_bla3} to red stained glass
+		set {_bla4} to red terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 2:
+		set {_bla3} to orange stained glass
+		set {_bla4} to orange terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 3:
+		set {_bla3} to yellow stained glass
+		set {_bla4} to yellow terracotta
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 4:
+		set {_bla3} to lime stained glass
+		set {_bla4} to lime terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 5:
+		set {_bla3} to green stained glass
+		set {_bla4} to green terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 6:
+		set {_bla3} to cyan stained glass
+		set {_bla4} to cyan terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 7:
+		set {_bla3} to light blue stained glass
+		set {_bla4} to light blue terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 8:
+		set {_bla3} to blue stained glass
+		set {_bla4} to blue terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 9:
+		set {_bla3} to purple stained glass
+		set {_bla4} to purple terracotta	
+	else if {mcc.pkt.teamb.%{_n}%} is equal to 10:
+		set {_bla3} to magenta stained glass
+		set {_bla4} to magenta terracotta	
+	loop {mcc.pkt.runnerconcrete.%{_n}%::*}:
+		set block at loop-value to {_bla1}
+	loop {mcc.pkt.runnerglass.%{_n}%::*}:
+		set block at loop-value to {_bla2}
+	loop {mcc.pkt.hunterglass.%{_n}%::*}:
+		set block at loop-value to {_bla3}
+	loop {mcc.pkt.hunterclay.%{_n}%::*}:
+		set block at loop-value to {_bla4}
+		
+
+command /mccparkourtag:
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/mccnewgame"
+		set {mcc.currentevent} to "parkourtag"
+		set {mcc.pkt.stage} to 0
+		set {mcc.pkt.timeleft} to 90
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				execute console command "/mv tp %loop-player% parkourtag"	
+		wait a tick
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				set {immune.%loop-player%} to false
+				set loop-player's game mode to spectator
+				mccpkttutorial(loop-player)
+				set {mcc.pkt.hunts.%loop-player%} to 3
+		while {mcc.pkt.stage} is equal to 0:
+			wait 1 second
+		set {mcc.pkt.round} to 1	
+		delete {mcc.pkt.teamlist::*}
+		set {mcc.pkt.teams} to 0
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				if {mcc.pkt.teamlist::*} does not contain {mcc.team.%loop-player%}:
+					add {mcc.team.%loop-player%} to {mcc.pkt.teamlist::*}
+					add 1 to {mcc.pkt.teams}
+		set {_bla} to {mcc.pkt.teams}
+		if mod({_bla}, 2) is equal to 0:
+			subtract 1 from {_bla}
+		loop {_bla} times:
+			wait 5 seconds
+			mccpktround({mcc.pkt.round}, {mcc.pkt.teams})
+			wait 5 seconds
+			while {mcc.pkt.ready} is false:
+				wait 1 second
+		set {mcc.pkt.stage} to 3
+		set {mcc.pkt.timeleft} to 30
+		loop all players:	
+			if {mcc.team.%loop-player%} is not equal to 0:
+				send title "<pink>Game over!" to loop-player for 5 seconds
+		execute console command "/mccstandings"
+ 
+
+
+command /mccpkt <number> <number> <number>:
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to arg 1:
+				teleport loop-player to {mcc.pkt.lobbya.%arg 3%}
+				send title "Round %{mcc.pkt.round}%" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
+				set loop-player's game mode to adventure 
+				clear the loop-player's inventory
+			else if {mcc.team.%loop-player%} is equal to arg 2:
+				teleport loop-player to {mcc.pkt.lobbyb.%arg 3%}
+				send title "Round %{mcc.pkt.round}%" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
+				set loop-player's game mode to adventure 
+				clear the loop-player's inventory
+		set {mcc.pkt.ready} to false
+		set {mcc.pkt.opponent.%arg 1%} to arg 2
+		set {mcc.pkt.opponent.%arg 2%} to arg 1
+		set {mcc.pkt.teama.%arg 3%} to arg 1
+		set {mcc.pkt.teamb.%arg 3%} to arg 2
+		set {mcc.pkt.teama.%arg 3 + 5%} to arg 2
+		set {mcc.pkt.teamb.%arg 3 + 5%} to arg 1
+		set {mcc.currentevent} to "parkourtag"
+		set {mcc.pkt.timeleft} to 20
+		set {mcc.pkt.stage} to 1
+		delete {mcc.pkt.hunter.%arg 1%}
+		delete {mcc.pkt.hunter.%arg 2%}
+		pktcolor(arg 3)
+		pktcolor(arg 3 + 5)
+
+on rightclick on polished blackstone button:
+	"%player's world%" is equal to "parkourtag"
+	{mcc.pkt.stage} is equal to 1
+	{mcc.pkt.hunter.%{mcc.team.%player%}%} is not set	
+	set {mcc.pkt.hunter.%{mcc.team.%player%}%} to player
+	subtract 1 from {mcc.pkt.hunts.%player%}
+	loop all players:
+		if {mcc.team.%loop-player%} is equal to {mcc.team.%player%}:
+			send formatted "<%mcccolor({mcc.team.%player%})%>%player%<lime> is hunting this round. They can hunt %{mcc.pkt.hunts.%player%}%<lime> more times after this round." to loop-player
+
+#command /register <number>:
+#	trigger:
+#		loop blocks in radius 40 of player:
+#			if loop-block is blue concrete:
+#				add loop-block to {mcc.pkt.runnerconcrete.%arg 1%::*}
+#			else if loop-block is blue stained glass:
+#				add loop-block to {mcc.pkt.runnerglass.%arg 1%::*}
+#			else if loop-block is red stained glass:
+#				add loop-block to {mcc.pkt.hunterglass.%arg 1%::*}
+#			else if loop-block is red terracotta:
+#				add loop-block to {mcc.pkt.hunterclay.%arg 1%::*}
+				
+#command /sp <number>:
+#	trigger:
+#		add player's location to {mcc.pkt.spawns.%arg 1%::*}
+
+#command /splobby <number>:
+#	trigger:
+#		if {mcc.pkt.lobbya.%arg 1%} is not set:
+#			set {mcc.pkt.lobbya.%arg 1%} to player's location	
+#		else:
+#			set {mcc.pkt.lobbyb.%arg 1%} to player's location	
+
+every second:
+	if {mcc.paused} is true:
+		exit trigger
+	if {mcc.pkt.timeleft} is greater than 0:
+		subtract 1 from {mcc.pkt.timeleft} 
+		if {mcc.pkt.timeleft} is equal to 0:
+			if {mcc.pkt.stage} is equal to 0:
+				set {mcc.pkt.stage} to 1
+				set {mcc.pkt.timeleft} to 20  
+			else if {mcc.pkt.stage} is equal to 1:
+				loop 5 times: 
+					if {mcc.pkt.teama.%loop-number%} is set:
+						set {_a1} to loop-number
+						set {_a2} to loop-number + 5
+						loop {mcc.pkt.runnerglass.%{_a1}%::*}:
+							set block at loop-value-2 to air
+						loop {mcc.pkt.hunterglass.%{_a1}%::*}:
+							set block at loop-value-2 to air
+						loop {mcc.pkt.runnerglass.%{_a2}%::*}:
+							set block at loop-value-2 to air
+						loop {mcc.pkt.hunterglass.%{_a2}%::*}:
+							set block at loop-value-2 to air
+				set {mcc.pkt.timeleft} to 60
+				set {mcc.pkt.stage} to 2
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						if {mcc.pkt.hunter.%{mcc.team.%loop-player%}%} is not equal to loop-player:
+							set slot 4 of loop-player's inventory to ender pearl named "<gold><bold>Runner vision"
+			else if {mcc.pkt.stage} is equal to 2:						
+				delete {_goodteams::*}
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						if loop-player's game mode is adventure:
+							if {mcc.pkt.hunter.%{mcc.team.%loop-player%}%} is not equal to loop-player:
+								if {_goodteams::*} does not contain {mcc.team.%loop-player%}:
+									add {mcc.team.%loop-player%} to {_goodteams::*}
+				loop {_goodteams::*}:
+					set {_num} to 0 
+					loop all players:
+						if {mcc.team.%loop-player%} is equal to loop-value-1:
+							if {mcc.pkt.hunter.%loop-value-1%} is not equal to loop-player:
+								add 1 to {_num}
+					loop all players:
+						if {mcc.team.%loop-player%} is equal to loop-value-1:
+							if {mcc.pkt.hunter.%loop-value-1%} is not equal to loop-player:
+								ac(loop-player, 100/{_num}, "Your team survived the whole 60 seconds!", true)
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						set loop-player's game mode to spectator
+						send title "<pink>Round over!" to loop-player for 3 seconds	
+					loop all players:
+						execute console command "/glow %loop-player-2% %loop-player-1% false"
+						#make loop-player-2 not glow for loop-player-1
+				loop 10 times:
+					delete {mcc.pkt.teama.%loop-number%}
+					delete {mcc.pkt.teamb.%loop-number%}
+					delete {mcc.pkt.opponent.%loop-number%}
+				set {mcc.pkt.ready} to true
+			else if {mcc.pkt.stage} is equal to 3:					
+				execute console command "/mccbreak"
+				set {mcc.currentevent} to "none"
+		else if {mcc.pkt.timeleft} is equal to 3:
+			if {mcc.pkt.stage} is equal to 1:
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						execute console command "/boopboopboopbeep %loop-player%"
+		else if {mcc.pkt.timeleft} is equal to 5:
+			if {mcc.pkt.stage} is equal to 1:
+				loop 5 times:
+					if {mcc.pkt.teama.%loop-number%} is set:
+						pktforcehunter({mcc.pkt.teama.%loop-number%})
+						pktforcehunter({mcc.pkt.teamb.%loop-number%})
+						delete {_runners1::*}
+						delete {_runners2::*}
+						loop all players:
+							if {mcc.team.%loop-player%} is equal to {mcc.pkt.teama.%loop-number%}:
+								if loop-player is not equal to {mcc.pkt.hunter.%{mcc.pkt.teama.%loop-number%}%}:
+									add loop-player to {_runners1::*}									
+							else if {mcc.team.%loop-player%} is equal to {mcc.pkt.teamb.%loop-number%}:
+								if loop-player is not equal to {mcc.pkt.hunter.%{mcc.pkt.teamb.%loop-number%}%}:
+									add loop-player to {_runners2::*}									
+						set {mcc.pkt.numalive.%{mcc.pkt.teama.%loop-number%}%} to size of {_runners1::*}
+						set {mcc.pkt.numalive.%{mcc.pkt.teamb.%loop-number%}%} to size of {_runners2::*}
+						set {_runners1::*} to shuffled {_runners1::*}
+						set {_runners2::*} to shuffled {_runners2::*}
+						teleport {_runners1::1} to {mcc.pkt.spawns.%loop-number%::1}
+						teleport {_runners1::2} to {mcc.pkt.spawns.%loop-number%::2}
+						teleport {_runners1::3} to {mcc.pkt.spawns.%loop-number%::3}
+						teleport {mcc.pkt.hunter.%{mcc.pkt.teamb.%loop-number%}%} to {mcc.pkt.spawns.%loop-number%::4} 
+						execute console command "/glow %{_runners1::1}% %{_runners1::2}% true"
+						execute console command "/glow %{_runners1::1}% %{_runners1::3}% true"
+						execute console command "/glow %{_runners1::2}% %{_runners1::1}% true"
+						execute console command "/glow %{_runners1::2}% %{_runners1::3}% true"
+						execute console command "/glow %{_runners1::3}% %{_runners1::1}% true"
+						execute console command "/glow %{_runners1::3}% %{_runners1::2}% true"
+						execute console command "/glow %{_runners1::1}% %{mcc.pkt.hunter.%{mcc.pkt.teamb.%loop-number%}%}% true" 
+						execute console command "/glow %{_runners1::2}% %{mcc.pkt.hunter.%{mcc.pkt.teamb.%loop-number%}%}% true" 
+						execute console command "/glow %{_runners1::3}% %{mcc.pkt.hunter.%{mcc.pkt.teamb.%loop-number%}%}% true" 
+						teleport {_runners2::1} to {mcc.pkt.spawns.%loop-number + 5%::1}
+						teleport {_runners2::2} to {mcc.pkt.spawns.%loop-number + 5%::2}
+						teleport {_runners2::3} to {mcc.pkt.spawns.%loop-number + 5%::3}
+						teleport {mcc.pkt.hunter.%{mcc.pkt.teama.%loop-number%}%} to {mcc.pkt.spawns.%loop-number + 5%::4} 
+						execute console command "/glow %{_runners2::1}% %{_runners2::2}% true"
+						execute console command "/glow %{_runners2::1}% %{_runners2::3}% true"
+						execute console command "/glow %{_runners2::2}% %{_runners2::1}% true"
+						execute console command "/glow %{_runners2::2}% %{_runners2::3}% true"
+						execute console command "/glow %{_runners2::3}% %{_runners2::1}% true"
+						execute console command "/glow %{_runners2::3}% %{_runners2::2}% true"
+						execute console command "/glow %{_runners2::1}% %{mcc.pkt.hunter.%{mcc.pkt.teama.%loop-number%}%}% true" 
+						execute console command "/glow %{_runners2::2}% %{mcc.pkt.hunter.%{mcc.pkt.teama.%loop-number%}%}% true" 
+						execute console command "/glow %{_runners2::3}% %{mcc.pkt.hunter.%{mcc.pkt.teama.%loop-number%}%}% true" 
+		else if mod({mcc.pkt.timeleft}, 10) is equal to 0:
+			if {mcc.pkt.stage} is equal to 2:
+				loop all players:
+					if {mcc.pkt.hunter.%{mcc.team.%loop-player%}%} is not equal to loop-player:
+						if loop-player's game mode is adventure:
+							bac(loop-player, 5, "Survived 10 seconds")					
+on damage:
+	"%victim's world%" is equal to "parkourtag"
+	if damage cause is fall:
+		cancel event
+	else if attacker is a player:
+		if {mcc.team.%attacker%} is equal to {mcc.team.%victim%}:
+			send "<pink>You cannot attack teammates!" to attacker
+			cancel event
+		else if {mcc.pkt.hunter.%{mcc.team.%victim%}%} is equal to victim:
+			send "<pink>You cannot attack the enemy hunter!" to attacker
+			cancel event
+		else if {mcc.pkt.hunter.%{mcc.team.%attacker%}%} is equal to attacker:
+			mccpktdead(victim) 
+			ac(attacker, 6+ceil({mcc.pkt.timeleft}/5), "You tagged %victim%!", false)
+
+on rightclick:
+	player's tool is ender pearl named "<gold><bold>Runner vision"
+	"%player's world%" is equal to "parkourtag"
+	if {mcc.pkt.visioncooldown.%player%} is false:
+		set {mcc.pkt.visioncooldown.%player%} to true
+		set slot 4 of player's inventory to eye of ender named "<gold><bold>Runner vision"
+		execute console command "/glow %{mcc.pkt.hunter.%{mcc.pkt.opponent.%{mcc.team.%player%}%}%}% %player% true" 
+		wait 3 seconds
+		execute console command "/glow %{mcc.pkt.hunter.%{mcc.pkt.opponent.%{mcc.team.%player%}%}%}% %player% false" 
+		wait 7 seconds
+		set {mcc.pkt.visioncooldown.%player%} to false 
+		set slot 4 of player's inventory to ender pearl named "<gold><bold>Runner vision"
+
+on shoot:
+	"%shooter's world%" is equal to "parkourtag"
+	cancel event
+
+on inventory click:
+	"%player's world%" is equal to "parkourtag"
+	message "<pink>Inventory clicking is disabled in Parkour Tag!"
+	cancel event
+on swap hand items:
+	"%player's world%" is equal to "parkourtag"
+	cancel event

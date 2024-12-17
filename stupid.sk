@@ -1,0 +1,139 @@
+variables:
+	{broke.%player%} = false
+
+
+
+on login:
+	set {broke.%player%} to false
+
+on login:
+	loop all players:
+		reveal player to loop-player
+
+on login:
+	loop all players:
+		reveal loop-player to player
+
+on break:
+	distance between the player and the block is less than 1 
+	y-coordinate of the player is greater than the y-coordinate of the block
+	set {broke.%player%} to true
+	wait 10 seconds
+	set {broke.%player%} to false
+
+
+on damage:
+	attacker is a player
+	victim is a player
+	set {broke.%attacker%} to false
+	set {broke.%victim%} to false
+
+
+on break of diamond ore:
+	player's tool is a stone pickaxe
+	message "You're so stupid, you tried to mine diamond with a stone pick!" to event-player
+	
+
+
+on break of diamond block:
+	player's tool is a stone pickaxe
+	message "You're so stupid, you tried to mine diamond with a stone pick!" to event-player
+	
+
+
+
+on death of player:
+	damage was caused by fall or lava or entity explosion or burning
+	victim's altitude is less than 50
+	"%victim's world%" is not equal to "world_nether"
+	"%victim's world%" is not equal to "manhunt_nether"
+	"%victim's world%" is not equal to "bingo_ttt_nether"
+	if {broke.%victim%} is true:
+		set the death message to "%victim% forgot to dig down the Matthew way"
+		
+
+command /invsee <player>:
+	permission: op
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger	
+		open arg 1's inventory to the player
+
+
+command /setwiisports <number>:
+	permission: op
+	trigger:
+		execute console command "/schempaste wii_%arg 1% world 25 78 -274"
+	
+
+command /wiisportsfinale:
+	permission: op
+	trigger:
+		execute console command "/wiisportsfinalemusic"
+		loop integers from 1 to 12:
+			execute console command "/setwiisports %loop-value%"
+			wait 0.25 seconds
+
+
+command /name <text>:
+	trigger:
+		if {name.%arg 1%} is not set:
+			message "No one knows %arg 1%'s real name!"
+		else:
+			message "%arg 1%'s real name is %{name.%arg 1%}%"
+
+
+on place of iron trapdoor:
+	{trapdoor} is true
+	toggle the event-block
+
+command /mysterious <player>:
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		teleport arg 1 to {mysterious}
+		wait 1 second
+		apply nausea 1 to arg 1 for 10000 seconds
+		apply resistance 255 to arg 1 for 10000 seconds
+		set arg 1's helmet to carved pumpkin of curse of binding 
+		set arg 1's game mode to adventure
+
+on command "/tp itsasquid2":
+	message "<pink>An unexpected error occurred: java.lang.socket.io disconnected: ping spoofing error"
+	cancel event
+
+
+every second:
+	loop all players in "lobbyworld":
+		if loop-player's y-coordinate is less than 0:
+			teleport loop-player to the loop-player's bed 
+			send "<gray>You fell! Teleporting to last checkpoint..." to loop-player
+	
+on hunger meter change:
+	player's world is "lobbyworld"
+	set player's hunger to 10
+
+command /ce <number>:
+	permission: op
+	trigger:
+		if command sender is not "itsasquid2":
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		loop entities in radius arg 1 of player:
+			if loop-entity is not a player:
+				delete the loop-entity
+		message "cleared entities in radius %arg 1%"
+
+
+command /attendance:
+	trigger:
+		loop 10 times:
+			set {_bla} to 0
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to loop-number:
+					add 1 to {_bla}
+			message "Team %{mcc.teams::%loop-number%}%<reset> is missing %4-{_bla}% players."
+

@@ -1,0 +1,65 @@
+
+command /choosekit:
+	trigger:
+		set {_kitgui} to a new chest inventory with 3 row with name "Choose a kit:"
+		set slot 0 of {_kitgui} to bow named "Archer" with lore "Start with a bow with Power I and 20 arrows!"
+		set slot 1 of {_kitgui} to rotten flesh named "Cannibal" with lore "Restore hunger by attacking" and "other players and mobs," and "and inflict them with food poisoning!" 
+		set slot 2 of {_kitgui} to splash potion of harming named "Chemist" with lore "Start with a splash potion of poison 2," and "a splash potion of harming 2, and a" and "splash potion of extended weakness." and "Replenishes after 15 minutes!" 
+		set slot 3 of {_kitgui} to stone pressure plate named "Demoman" with lore "Gravel + stone pressure plate = boom." 
+		set slot 4 of {_kitgui} to stone button named "Gambler" with lore "Push the button to get a prize." and "Will it help you or hurt you?" 
+		set slot 5 of {_kitgui} to elytra named "Glider" with lore "Start with an elytra and 1 firework rocket!" 
+		set slot 6 of {_kitgui} to wood axe named "Grandpa" with lore "Start with a wooden axe with" and "sharp 1 and knockback 2!"  
+		set slot 7 of {_kitgui} to leather horse armor named "Kangaroo" with lore "Right click your leather horse" and "armor to double jump, and take" and "at most 3.5 hearts of fall damage!"
+		set slot 8 of {_kitgui} to blaze rod named "Monk" with lore "Hit enemies with your blaze rod" and "to switch their weapon with a random" and "slot in their inventory!" 
+		set slot 9 of {_kitgui} to feather named "Phantom" with lore "Right click your feather to fly" and "for 5 seconds, with a one minute" and "cooldown. Fall damage is doubled!"  
+		set slot 10 of {_kitgui} to chest named "Pickpocket" with lore "Use your Pickpocket Rod to steal from enemies!" 
+		set slot 11 of {_kitgui} to iron boots named "Stomper" with lore "Your fall damage is transferred" and "to nearby players! (You still take" and "up to 2 hearts)" 
+		set slot 12 of {_kitgui} to snowball named "Switcher" with lore "Throw your Switcher Balls at enemies" and "to switch locations with them. Set" and "up all kinds of traps!" 
+		set slot 13 of {_kitgui} to iron axe named "Viking" with lore "Start with an iron axe, but you can't" and "take off the Viking Helmet!" 
+		set slot 14 of {_kitgui} to spider eye named "Viper" with lore "Hit a player to poison" and "them for 5 seconds!" 
+		set slot 15 of {_kitgui} to dirt named "Worm" with lore "Insta-break dirt and take only" and "half a heart of fall damage on dirt!"
+		set slot 16 of {_kitgui} to diamond hoe named "Gru" with lore "You get a Freeze Ray and a" and "Fire Gun! Both have a one minute" and "cooldown. Also, you are legally" and "required to shout which one you" and "fire 2 seconds before you do it."
+		open {_kitgui} to player
+ 
+on inventory click:
+	if name of event-inventory is "Choose a kit:":
+		if index of event-slot = 0:
+			make player execute command "/kit archer"
+		if index of event-slot = 1:
+			make player execute command "/kit cannibal"
+		if index of event-slot = 2:
+			make player execute command "/kit chemist"
+		if index of event-slot = 3:
+			make player execute command "/kit demoman"
+		if index of event-slot = 4:
+			make player execute command "/kit gambler"
+		if index of event-slot = 5:
+			make player execute command "/kit glider"
+		if index of event-slot = 6:
+			make player execute command "/kit grandpa"
+		if index of event-slot = 7:
+			make player execute command "/kit kangaroo"
+		if index of event-slot = 8:
+			make player execute command "/kit monk"
+		if index of event-slot = 9:
+			make player execute command "/kit phantom"
+		if index of event-slot = 10:
+			make player execute command "/kit pickpocket"
+		if index of event-slot = 11:
+			make player execute command "/kit stomper"
+		if index of event-slot = 12:
+			make player execute command "/kit switcher"
+		if index of event-slot = 13:
+			make player execute command "/kit viking"
+		if index of event-slot = 14:
+			make player execute command "/kit viper"
+		if index of event-slot = 15:
+			make player execute command "/kit worm"
+		if index of event-slot = 16:
+			make player execute command "/kit gru"
+		cancel event
+
+
+
+
+

@@ -1,0 +1,115 @@
+variables:
+	{targeting.%player%} = false
+	{showdistance} = false
+	{needcompass.%player%} = false
+
+command /track <player>:
+	trigger:
+		if {hg.playing.%player%} is true:
+			message "<gold>You may not use this command in Hunger Games!"
+			exit trigger
+		if the player's world is not equal to arg 1's world:
+			message "You are not in the same world as %arg 1%!"
+			exit trigger	
+		set {target.%player%} to arg 1
+		message "<gold>Now tracking %arg 1%!"
+		set {targeting.%player%} to true
+
+
+
+command /showdistance:
+	permission: op
+	trigger:
+		if {showdistance} is false:
+			set {showdistance} to true
+			message "<gold> Now showing distances of compass targets!"
+		else:
+			set {showdistance} to false
+			message "<gold> Now hiding distances of compass targets!"
+
+
+
+command /tracknearby:
+	trigger:
+		message "<gold> Now tracking the nearest player!"
+		delete {target.%player%}
+		set {targeting.%player%} to false
+
+
+on right click:
+	player's tool is a compass
+	if {target.%player%} is set:
+		message "<gold>Tracking: %{target.%player%}%" to event-player
+		if the player's world is equal to {target.%player%}'s world:
+			if {showdistance} is true:
+				message "<gold> %distance between player and {target.%player%}% blocks away" to event-player
+		else:
+			message "<gold> Not in this world, so the compass isn't updating" to event-player
+	else:
+		message "<gold> No valid compass targets!" to event-player
+
+
+
+every 5 seconds:
+	loop all players:
+		if {targeting.%loop-player%} is true:
+			if the loop-player's world is equal to {target.%loop-player%}'s world:
+				set loop-player's compass target to {target.%loop-player%}
+		else:
+			set {shortestdist.%loop-player%} to 9999999999
+			delete {target.%loop-player%}
+			loop all players:
+				if loop-player-2 is not equal to loop-player-1:
+					if loop-player-1's world is equal to loop-player-2's world:
+						if loop-player-2's game mode is survival:				
+							if {mcc.team.%loop-player-1%} is equal to 0:
+								if the distance between loop-player-1 and loop-player-2 is less than {shortestdist.%loop-player-1%}:
+									set {shortestdist.%loop-player-1%} to the distance between loop-player-1 and loop-player-2
+									set {target.%loop-player-1%} to loop-player-2
+							else if {mcc.team.%loop-player-2%} is not equal to {mcc.team.%loop-player-1%}:
+								if the distance between loop-player-1 and loop-player-2 is less than {shortestdist.%loop-player-1%}:
+									set {shortestdist.%loop-player-1%} to the distance between loop-player-1 and loop-player-2
+									set {target.%loop-player-1%} to loop-player-2
+			if {target.%loop-player%} is set:
+				if loop-player's world is equal to {target.%loop-player%}'s world: 
+					set loop-player's compass target to {target.%loop-player%}
+	
+
+command /givecompass [<player>]:
+	permission: op
+	trigger:
+		if arg 1 is set:
+			set {_pl} to arg 1
+		else:
+			set {_pl} to player
+		give a compass of curse of vanishing named "<gold>Tracking Compass" to {_pl} 
+
+
+command /world [<player>]:
+	permission: op
+	trigger:
+		if arg 1 is not set:
+			message "You are in world %player's world%!"
+		else:
+			message "%arg 1% is in world %arg 1's world%!"
+
+
+
+on damage:
+	victim is a player
+	damage is greater than or equal to victim's health
+	if gamerule keepInventory of victim's world is true:
+		exit trigger
+	loop items in victim's inventory:
+		if loop-item is compass of curse of vanishing named "<gold>Tracking Compass":
+			set {needcompass.%victim%} to true 	
+
+on respawn:
+	if {needcompass.%player%} is true:
+		set {needcompass.%player%} to false
+		give a compass of curse of vanishing named "<gold>Tracking Compass" to the player
+
+
+on join:
+	if {targeting.%player%} is false:
+		delete {target.%player%}

@@ -1,0 +1,22 @@
+
+
+function summonnpc(t:text, l:location):
+	set {_x} to x-coordinate of {_l}
+	set {_y} to y-coordinate of {_l}
+	set {_z} to z-coordinate of {_l}
+	set {_world} to world of {_l}
+	execute console command "/npc select %{_t}%"
+	execute console command "/npc moveto %{_x}% %{_y}% %{_z}% %{_world}%" 
+#	loop all entities in radius 5 of {npchub}:
+#		broadcast "%loop-entity%"	
+#		if "%loop-entity%" is equal to "%{_t}%":
+#			broadcast "test"
+#			teleport loop-entity to {_l}
+
+
+function docknpc(t:text, l:location):
+	execute console command "/npc despawn %{_t}%"
+
+
+
+

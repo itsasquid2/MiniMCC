@@ -1,0 +1,219 @@
+
+
+command /mccupdateteamleaderboard:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		delete {_already::*}
+		set {_numteams} to 0
+		loop 10 times:
+			add {mcc.teamcoins.%loop-number%} to {_teamcoins::*}
+			add loop-number to {_already::*}
+			if {mcc.teamcoins.%loop-number%} is not equal to 0:
+				add 1 to {_numteams}
+			else:
+				execute console command "/npc despawn %111+loop-number%"
+		set {_teamcoins::*} to sorted {_teamcoins::*}
+		set {_teamcoins::*} to reversed {_teamcoins::*}
+		loop numbers from 10 to 1:
+			if {_teamcoins::%loop-number%} is not equal to 0:
+				set {_good} to false
+				loop 10 times:
+					if {_good} is false:
+						if {_already::*} contains loop-number-2:
+							if {mcc.teamcoins.%loop-number-2%} is equal to {_teamcoins::%loop-number-1%}:
+								set {_team} to loop-number-2
+								set {_good} to true
+								remove loop-number-2 from {_already::*}
+				mccteamlead({_team}, {_numteams}+1-loop-number,loop-number)
+				#broadcast "%11-(loop-number)%. %{mcc.teams::%{_team}%}% %{_ba}% <yellow>%ceil({mcc.teamcoins.%{_team}%})%"
+		if {_numteams} is less than 10:
+			loop numbers from {_numteams}+1 to 10:
+				mccteamlead(0, loop-number, 0)
+		
+command /clearloggedscores:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop 6 times:
+				delete {mcc.loggedscores.game.%loop-number%::*}
+
+command /mccupdateindivleaderboard:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		delete {_already::*}
+		delete {_indivcoins::*}
+		set {_numbad} to 10
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				add {mcc.indivcoins.%loop-player%} to {_indivcoins::*}
+				add loop-player to {_already::*}
+				subtract 1 from {_numbad}
+		set {_indivcoins::*} to sorted {_indivcoins::*}
+		set {_indivcoins::*} to reversed {_indivcoins::*}
+		loop 10 times:
+			set {_good} to false
+			loop all players:
+				if {_good} is false:
+					if {_already::*} contains loop-player:
+						if {mcc.indivcoins.%loop-player%} is equal to {_indivcoins::%loop-number%}:
+							mccindivlead(loop-player, loop-number)
+							set {_good} to true
+							remove loop-player from {_already::*}
+		
+		
+		loop {_numbad} times:
+			execute console command "/npc despawn %132-loop-number%"
+		
+
+
+
+command /mccshowindiv:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		
+		delete {_already::*}
+		delete {_indivcoins::*}
+		set {_numbad} to 10
+		set {_bla::*} to {mccplaying::*}
+		loop {_bla::*}:
+			if {_done::*} does not contain "%loop-value%":
+				# broadcast "%loop-value%'s coins - %{mcc.indivcoins.%loop-value%}%"
+				add "%loop-value%" to {_done::*}
+				if {mcc.team.%loop-value%} is not equal to 0:
+					add {mcc.indivcoins.%loop-value%} to {_indivcoins::*}
+					add loop-value to {_already::*}
+					subtract 1 from {_numbad}
+		set {_indivcoins::*} to sorted {_indivcoins::*}
+		set {_indivcoins::*} to reversed {_indivcoins::*}
+		loop 60 times:
+			set {_good} to false
+			set {_bla::*} to {mccplaying::*}
+			loop {_bla::*}:
+				if {_done::*} does not contain "%loop-value-2%":
+					# broadcast "%loop-value-2%'s coins - %{mcc.indivcoins.%loop-value-2%}%"
+					add "%loop-value-2%" to {_done::*}
+				
+					if {_good} is false:
+						if {_already::*} contains loop-value-2:
+							if {mcc.indivcoins.%loop-value-2%} is equal to {_indivcoins::%loop-number%}:
+								broadcast "%loop-value-2% %{mcc.indivcoins.%loop-value-2%}%"
+								log "%loop-value-2% %{mcc.indivcoins.%loop-value-2%}%"
+
+								set {_good} to true
+								remove loop-value-2 from {_already::*}
+
+		
+			
+
+function mccindivlead(p:player, n:number):
+	execute console command "/npc select %121+{_n}%"
+	execute console command "/npc spawn %121+{_n}%"
+	execute console command "/npc skin %{_p}%"
+	if {mcc.team.%{_p}%} is equal to 1:
+		execute console command "/npc rename %{_n}%. &4%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 2:
+		execute console command "/npc rename %{_n}%. &6%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 3:
+		execute console command "/npc rename %{_n}%. &e%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 4:
+		execute console command "/npc rename %{_n}%. &a%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 5:
+		execute console command "/npc rename %{_n}%. &2%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 6:
+		execute console command "/npc rename %{_n}%. &3%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 7:
+		execute console command "/npc rename %{_n}%. &b%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 8:
+		execute console command "/npc rename %{_n}%. &1%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 9:
+		execute console command "/npc rename %{_n}%. &5%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 10:
+		execute console command "/npc rename %{_n}%. &d%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+
+function mccaceracelead(p:player, n:number):
+	execute console command "/npc select %131+{_n}%"
+	execute console command "/npc spawn %131+{_n}%"
+	execute console command "/npc skin %{_p}%"
+	execute console command "/npc rename %{_n}%. &d%{_p}% &f(%{finaltime.%{_p}%}%)"
+
+function mccteamlead(t:number, n:number, pl:number):
+	if {_t} is equal to 0:
+		set {_bl} to barrier
+	else if {_t} is equal to 1:
+		set {_bl} to red concrete
+	else if {_t} is equal to 2:
+		set {_bl} to orange concrete
+	else if {_t} is equal to 3:
+		set {_bl} to yellow concrete
+	else if {_t} is equal to 4:
+		set {_bl} to lime concrete
+	else if {_t} is equal to 5:
+		set {_bl} to green concrete
+	else if {_t} is equal to 6:
+		set {_bl} to cyan concrete
+	else if {_t} is equal to 7:
+		set {_bl} to light blue concrete
+	else if {_t} is equal to 8:
+		set {_bl} to blue concrete
+	else if {_t} is equal to 9:
+		set {_bl} to purple concrete
+	else if {_t} is equal to 10:
+		set {_bl} to pink concrete
+	loop {mcc.teampillars.%{_pl}%::*}:
+		set block at loop-value to {_bl} 
+	if {_t} is not equal to 0:
+		execute console command "/npc spawn %111+{_t}%" 
+		execute console command "/npc select %111+{_t}%"
+		execute console command "/npc rename %{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)" 
+		summonnpc("%111+{_t}%", {mcc.teamnpclocs::%{_pl}%})
+
+command /setpillar <text> <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			delete {mcc.teampillars.%arg 2%::*}
+			loop blocks in radius 10 of player:
+				if arg 1 is "blue":
+					if loop-block is blue concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "red":
+					if loop-block is red concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "cyan":
+					
+					if loop-block is cyan concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "yellow":
+					if loop-block is yellow concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "orange":
+					if loop-block is orange concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "lime":
+					if loop-block is lime concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "light_blue":
+					if loop-block is light blue concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "magenta":
+					if loop-block is magenta concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "green":
+					if loop-block is green concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				if arg 1 is "purple":
+					if loop-block is purple concrete:
+						add loop-block to {mcc.teampillars.%arg 2%::*}
+				
+command /setnpcplace <number>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {mcc.teamnpclocs::%arg 1%} to player's position
+

@@ -1,0 +1,26 @@
+
+on death of player:
+	onsmp(victim) is true
+	attacker is a player
+	attacker is not equal to victim
+	drop the victim's head	
+
+on place:
+	name of player's tool is "&aJump Pad"
+	"%world%" starts with "smp"
+	if block above event-block is air:
+		set block above event-block to event-block
+		set block at event-block's location to barrier
+	else if block above event-block is water:
+		set block above event-block to event-block
+		set block at event-block's location to barrier
+	else:
+		cancel event
+		message "<red>You need at least 2 blocks of vertical space to place that!" to event-player
+
+on break:
+	"%world%" starts with "smp"
+	if block below event-block is barrier:
+		set block below event-block to air
+		clear drops
+		give event-block named "&aJump Pad" to event-player 

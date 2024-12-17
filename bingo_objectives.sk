@@ -1,0 +1,42 @@
+
+
+
+
+command /addobjective <number> <boolean> <boolean> [<number = 1>]:
+	permission: op
+	trigger:
+		add player's tool to {bingo.objectives::*}
+		add arg 1 to {bingo.difficulties::*}
+		add arg 2 to {bingo.nether::*}
+		add arg 3 to {bingo.silktouch::*}
+		add arg 4 to {bingo.weights::*}
+		message "Added %player's tool% to the list of objectives with difficulty %arg 1%, requiring nether: %arg 2%, requiring silk touch: %arg 3%"
+
+command /deleteobjectives:
+	permission: op
+	trigger:
+		delete {bingo.objectives::*}
+		delete {bingo.difficulties::*}
+		delete {bingo.nether::*}
+		delete {bingo.silktouch::*}
+		delete {bingo.weights::*}
+
+
+command /deleteobj:
+	trigger:
+		if player's name is "itsasquid2":
+			remove player's tool from {bingo.objectives::*}
+
+
+command /viewobjectives <number>:
+	permission: op
+	trigger:
+#		loop all indices of {bingo.objectives::*}:
+		loop size of {bingo.objectives::*} times:
+			if {bingo.difficulties::%loop-value%} is equal to arg 1:	
+				message "%loop-value%: %{bingo.objectives::%loop-value%}%, difficulty: %{bingo.difficulties::%loop-value%}%, requires nether: %{bingo.nether::%loop-value%}%, requires silktouch: %{bingo.silktouch::%loop-value%}%"
+
+
+
+
+

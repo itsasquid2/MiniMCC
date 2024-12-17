@@ -1,0 +1,629 @@
+variables:
+	{hg.flaafy} = 64
+	{hg.good} = false
+	{hg.blab} = 0
+	{hg.balb} = 0
+	{hg.starting} = false
+	{hg.ongoing} = false
+	{hg.playing.%player%} = false
+	{hg.ingame.%player%} = false
+	{hg.numplayers} = 0
+	{hg.time} = 0
+	{hg.reloading} = false
+	{hg.gamekills.%player%} = 0
+	{hg.kills.%player%} = 0
+	{hg.wins.%player%} = 0
+	{hg.seconds.%player%} = 0
+	{hg.choosingkit} = 0
+	{hg.backtohub} = -1
+
+
+on script load:
+	sethgworld()
+
+on join:
+	if {hg.kitsplayed.%player%::*} is not set:
+		add "none" to {hg.kitsplayed.%player%::*}
+	if {hg.kitswon.%player%::*} is not set:
+		add "none" to {hg.kitswon.%player%::*}
+
+
+function mcchgtutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Hunger Games" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Hunger Games!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>The goal of Hunger Games is simple: be the last team standing!" to {_p}
+	send "" to {_p}
+	send "You receive a tracking compass which points to the nearest enemy." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>The game starts with a 2-minute grace period, and then it's a free-for-all!" to {_p}
+	send "" to {_p}
+	send "At the start of the game you may choose a <bold>kit<reset> using the command /choosekit." to {_p}
+	send "" to {_p}
+	send "There are many kits, giving items and special abilities. Read through your options so you aren't surprised!" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 10 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>There will also be supply drops in the form of 'feasts', which are announced in chat and on the scoreboard." to {_p}
+	send "" to {_p}
+	send "The feast and bonus feast have a ton of gear, so make sure not to miss them!" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Choose your kit now! Type /choosekit" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+
+function sethgworld():
+	loop all worlds:
+		if "%loop-value%" is equal to "hungergames":
+			set {hgworld} to loop-value
+
+
+function hgwin(p: player):
+	add 1 to {hg.wins.%{_p}%}
+	#ach({_p}, 301)
+	if {hg.wins.%{_p}%} is greater than or equal to 3:
+		#ach({_p}, 302)
+	if {hg.wins.%{_p}%} is greater than or equal to 10:
+		#ach({_p}, 303)
+
+
+function hgsecond(p: player):
+	add 1 to {hg.seconds.%{_p}%}
+	#ach({_p}, 304)
+	if {hg.seconds.%{_p}%} is greater than or equal to 3:
+		#ach({_p}, 305)
+
+
+function hgstartgame():
+	set {hg.starting} to false
+	set {hg.ongoing} to true
+	set {hg.time} to 0
+	set {hg.numplayers} to 0
+	loop all players:
+		if {hg.playing.%loop-player%} is true:
+			saveloc(loop-player)
+			add 1 to {hg.numplayers}
+			execute console command "/mvtp %loop-player% hungergames"
+			#ach(loop-player, 300)
+			if {hg.kitsplayed.%loop-player%::*} does not contain {kit.%loop-player%}:
+				add {kit.%loop-player%} to {hg.kitsplayed.%loop-player%::*}
+				if {hg.kitsplayed.%loop-player%::18} is set:
+					#ach(loop-player, 398)
+			if "%loop-player's world%" is equal to "hungergames":
+				clear the loop-player's inventory
+				give a compass of curse of vanishing named "<gold>Tracking Compass" to the loop-player	
+				set {targeting.%loop-player%} to false
+				set the loop-player's health to 10
+				set the loop-player's food level to 10
+				set the loop-player's saturation to 10
+				set the loop-player's level to 0
+				set level progress of the loop-player to 0
+				set {hg.gamekills.%loop-player%} to 0
+				set {hg.ingame.%loop-player%} to true
+	execute console command "/givehgkits"
+	delete {demomanlocations::*}
+
+
+on login:
+	if {hg.ongoing} is false:
+		set {hg.ingame.%player%} to false
+		set {hg.playing.%player%} to false
+	else:
+		if {hg.playing.%player%} is true:
+			if "%player's world%" is not equal to "hungergames":
+				set {hg.playing.%player%} to false
+				set {hg.ingame.%player%} to false
+				subtract 1 from {hg.numplayers}
+
+on damage:
+	if {hg.ingame.%victim%} is true:
+		if {hg.time} is less than 120:
+			cancel event
+
+on death:
+	if {hg.ingame.%victim%} is true:
+		set death message to "<light blue>%death message%"
+		set {_wasover} to mcchggameover()
+		set {hg.playing.%victim%} to false
+		clear the victim's scoreboard
+		set {hg.ingame.%victim%} to false
+		subtract 1 from {hg.numplayers}
+		wait 0.5 seconds
+		if {hg.numplayers} is not equal to 1:		
+			execute console command "/hgb %{hg.numplayers}% players remaining!"
+		else:
+			execute console command "/hgb 1 player remaining!"
+			hgsecond(victim)
+		loop all players:
+			if {hg.playing.%loop-player%} is true:
+				bac(loop-player, 20, "Survived 1 place")
+		if attacker is a player:
+			if {mcc.team.%attacker%} is not equal to {mcc.team.%victim%}:
+				ac(attacker, 150, "You killed %victim%!", false)
+			add 1 to {hg.kills.%attacker%}
+			add 1 to {hg.gamekills.%attacker%}
+			#ach(attacker, 311)
+			if {hg.kills.%attacker%} is greater than or equal to 5:
+				#ach(attacker, 312)
+			if {hg.kills.%attacker%} is greater than or equal to 20:
+				#ach(attacker, 313)
+		if {_wasover} is false:
+			if mcchggameover() is true:
+				mcchgendgame()
+
+on skript start:
+	set {hg.starting} to false
+	set {hg.reloading} to false
+	set {hg.ongoing} to false
+	set {hg.numplayers} to 0
+	set {hg.time} to 0
+
+on disconnect:
+	if {hg.playing.%player%} is true:
+		wait 60 seconds
+		if player is online:
+			exit trigger
+		execute console command "/hgb %player% has disconnected for too long, and has forfeit!"
+		subtract 1 from {hg.numplayers}
+		execute console command "/hgb %{hg.numplayers}% players remaining!"
+
+on join:
+	if {hg.ongoing} is false:
+		if {hg.playing.%player%} is true:
+			set {hg.playing.%player%} to false
+			execute console command "/baack %player%"
+		set {hg.ingame.%player%} to false
+	else:
+		if "%player's world%" is not equal to "hungergames":
+			set {hg.playing.%player%} to false
+			set {hg.ingame.%player%} to false
+	
+
+command /generatefeastplatform <number> <number>:
+	usage: /generatefeast <x> <z>
+	permission: op
+	trigger:
+		set {hg.flaafy} to 64.5
+		set {hg.good} to false
+		loop 64 times:
+			set {hg.feastloc} to the location at arg 1, {hg.flaafy}, arg 2 of the world {hgworld} 
+			if the block at {hg.feastloc} is air:
+				set {hg.good} to true
+			if {hg.good} is false:
+				add 1 to {hg.flaafy}
+		set {hg.good} to false
+		loop blocks in radius 25.5 of {hg.feastloc}:
+			if the y-coordinate of loop-block is equal to {hg.flaafy}:
+				set loop-block to grass block
+			else if the y-coordinate of loop-block is greater than {hg.flaafy}:
+				set loop-block to air
+
+
+command /generatefeast <number> <number>:
+	usage: /generatefeast <x> <z>
+	permission: op
+	trigger:
+		set {hg.flaafy} to y-coordinate of {hg.feastloc} + 1
+		set {hg.feastloc} to the location at arg 1, {hg.flaafy}, arg 2 of the world {hgworld} 
+		#loop 64 times:
+		#	set {hg.feastloc} to the location at arg 1, {hg.flaafy}, arg 2 of the world {hgworld} 
+		#	if the block at {hg.feastloc} is air:
+		#		set {hg.good} to true
+		#	if {hg.good} is false:
+		#		add 1 to {hg.flaafy}
+		set {hg.good} to false
+		#set {hg.feastloc} to the block above {hg.feastloc}
+		loop blocks in radius 5 of {hg.feastloc}:
+			if the y-coordinate of loop-block is equal to {hg.flaafy}:
+				set {hg.blab} to x-coordinate of loop-block - x-coordinate of {hg.feastloc}
+				set {hg.blab} to abs({hg.blab})
+				set {hg.balb} to z-coordinate of loop-block - z-coordinate of {hg.feastloc}
+				set {hg.balb} to abs({hg.balb})
+				if {hg.blab} + {hg.balb} is equal to 0:
+					set loop-block to minecraft:enchanting_table
+				else if {hg.blab}+{hg.balb} is equal to 2:
+					if {hg.balb} is not equal to 2:
+						set loop-block to a chest
+						add the loop-block to {lootchests::*}
+				execute console command "/fillchests feast1"
+				if {hg.balb} is equal to 2:
+					if {hg.blab} is equal to 0:
+						set the loop-block to a chest
+						add the loop-block to {lootchests::*}
+					else if {hg.blab} is equal to 2:
+						set the loop-block to a chest
+						add the loop-block to {lootchests::*}
+				execute console command "/fillchests feast2"
+
+
+command /spawnminifeast <world>:
+	permission: op
+	trigger:
+		set {hg.xcord} to a random integer between -495 and 495
+		set {hg.zcord} to a random integer between -495 and 495
+		set {hg.flaafy} to 64
+		set {hg.good} to false
+		loop 64 times:
+			set {hg.minifeastloc} to the location at {hg.xcord}+0.5, {hg.flaafy}+0.5, {hg.zcord}+0.5 of the world arg 1 
+			if the block at {hg.minifeastloc} is air:
+				set {hg.good} to true
+			if {hg.good} is false:
+				add 1 to {hg.flaafy}
+		set {hg.good} to false
+		execute console command "/minifeast %arg 1% %{hg.xcord}% %{hg.flaafy}% %{hg.zcord}%" 
+		execute console command "/hgb A mini feast has spawned between x: (%round({hg.xcord}/100-0.5)*100% and %round({hg.xcord}/100-0.5)*100+100%) and z: (%round({hg.zcord}/100-0.5)*100% and %round({hg.zcord}/100-0.5)*100+100%)"
+
+
+on tab complete of "/hg":
+	set tab completions for position 1 to "start", "join", "leave", "reload", and "abort"
+
+command /hg <string>:
+	permission: op
+	usage: /hg start, /hg join, /hg leave, /hg reload
+	trigger:
+		if arg 1 is equal to "start":
+			if {hg.starting} is true:
+				message "There is already a Hunger Games starting soon! Join with /hg join"
+				exit trigger
+			if {hg.ongoing} is true:
+				message "There is a Humger Games already going on!"
+				exit trigger
+			else:
+				broadcast "<purple>Hunger Games is starting in 30 seconds! Type /hg join to join!"
+				set {hg.playing.%player%} to true
+				set {hg.numplayers} to 1
+				execute console command "/hg reload"
+				set {hg.starting} to true
+				wait 30 seconds
+				if {hg.numplayers} is less than 2:
+					broadcast "<purple>At least 2 people are needed to start the Hunger Games! Game cancelled."
+					set {hg.starting} to false
+					loop all players:
+						set {hg.playing.%player%} to false
+					set {hg.numplayers} to 0
+					exit trigger
+				hgstartgame()
+		else if arg 1 is equal to "join":
+			if {hg.starting} is true:
+				if {hg.playing.%player%} is false:
+					broadcast "<purple>%player% is now registered to play in the next Hunger Games!"
+					message "<purple> Now use /kit to choose your kit!"
+					set {hg.playing.%player%} to true
+					add 1 to {hg.numplayers}
+				else:
+					message "<purple> You are already registered to play!"
+			else:
+				message "<purple>No Hunger Games game about to start! Start one with /hg start"
+		else if arg 1 is equal to "leave":
+			if {hg.playing.%player%} is false:
+				message "<purple>You aren't playing this Hunger Games!"
+				exit trigger
+			if {hg.ongoing} is true:
+				kill the player
+			else:
+				message "<purple>You are no longer signed up for the Hunger Games!"
+				set {hg.playing.%player%} to false
+				subtract 1 from {hg.numplayers}
+		else if arg 1 is equal to "reload":
+			if command sender is a player:
+				if {superop.%player%} is false:
+					message "<purple> You do not have permission to run this command!"
+					exit trigger
+			if {hg.reloading} is true:
+				message "<purple> Already reloading!"
+				exit trigger
+			if {hg.starting} is true:
+				message "<purple>You may not run this command at this time!"
+				exit trigger
+			if {hg.ongoing} is true:
+				message "<purple>You may not run this command at this time!"
+				exit trigger
+			message "<purple>Reloading the Hunger Games world..."
+			set {hg.reloading} to true	
+			loop all players:
+				if loop-player is in world {hgworld}:
+					teleport player to {lastloc.%loop-player%}
+					send "<purple>The Hunger Games world is being reloaded, so you were kicked!" to loop-player
+			
+			execute console command "/mvdelete hungergames"
+			wait 0.25 seconds
+			execute console command "/mvconfirm"
+			wait 0.25 seconds
+			execute console command "/mvcreate hungergames normal"
+			wait 0.25 seconds
+			sethgworld()
+			set {hg.good} to false	
+			loop numbers from 64.5 to 128.5:
+				if {hg.good} is false:
+					set {hg.spawn} to the location 0, loop-number, 0 in the world {hgworld} 
+					if the block at {hg.spawn} is air:
+						set {hg.good} to true
+						execute console command "/mv setspawn hungergames 0 %loop-number% 0" 			
+			execute console command "/mvmodify set respawnWorld world hungergames"
+			message "<purple>Reload complete!"
+			set {hg.reloading} to false
+		else if arg 1 is equal to "abort":
+			if command sender is a player:
+				if {superop.%player%} is false:
+					message "<purple>You do not have permission to run this command!"
+					exit trigger
+			set {hg.ongoing} to false
+			set {hg.starting} to false
+			set {hg.time} to 0
+			loop all players:
+				set {hg.playing.%loop-player%} to false
+				set {hg.ingame.%loop-player%} to false
+			if command sender is a player:
+				broadcast "<red>Hunger Games aborted!"
+		else:
+			message "<purple> Usage: /hg <start|join|leave>"
+		
+command /hgb <text>:
+	permission: op
+	trigger:
+		loop all players:
+			if "%loop-player's world%" is equal to "hungergames":
+				send "<pink>%arg 1%" to loop-player
+
+
+
+every second:
+	if {hg.ongoing} is false:
+		exit trigger
+	if {mcc.paused} is true:
+		exit trigger
+	add 1 to {hg.time}
+	if {hg.time} is less than 120:
+		set {_event} to "Invincibility gone"
+		set {_time} to 120
+	else if {hg.time} is less than 300:
+		set {_event} to "Mini feast"
+		set {_time} to 300
+	else if {hg.time} is less than 600:
+		set {_event} to "Mini feast"
+		set {_time} to 600
+	else if {hg.time} is less than 1080:
+		set {_event} to "Feast"
+		set {_time} to 1080
+	else if {hg.time} is less than 1200:
+		set {_event} to "Mini feast"
+		set {_time} to 1200
+	else if {hg.time} is less than 1500:
+		set {_event} to "Bonus feast"
+		set {_time} to 1500
+	else if {hg.time} is less than 2000:
+		set {_event} to "Deathmatch"
+		set {_time} to 2000
+	if mod({hg.time},60) is equal to 0:
+		if {hg.time} is greater than 120:
+			loop all players:
+				if {hg.playing.%loop-player%} is true:
+					bac(loop-player, 3, "Survived 1 minute")
+	set {_tim} to {_time} - {hg.time}	
+	loop all players:
+		if {hg.playing.%loop-player%} is true:
+			if {mcc.inprogress} is false:
+				set title of loop-player's scoreboard to "<purple>Hunger Games"
+				set line 15 of loop-player's scoreboard to ""
+		
+				if mod({_tim}, 60) is less than 10:
+					set line 14 of loop-player's scoreboard to "%{_event}% in <lime>%floor({_tim}/60)%:0<lime>%mod({_tim},60)%"	
+				else:
+					set line 14 of loop-player's scoreboard to "%{_event}% in <lime>%floor({_tim}/60)%:<lime>%mod({_tim},60)%"	
+				set line 13 of loop-player's scoreboard to ""
+				set line 12 of loop-player's scoreboard to "<yellow>Players remaining: %{hg.numplayers}%"
+	if {hg.numplayers} is less than or equal to 1:
+		loop all players:
+			if {hg.playing.%loop-player%} is true:
+				broadcast "<red>%loop-player% has won the Hunger Games!"
+				hgwin(loop-player)
+				if {hg.kitswon.%loop-player%::*} does not contain {kit.%loop-player%}:
+					add {kit.%loop-player%} to {hg.kitswon.%loop-player%::*}
+					if {hg.kitswon.%loop-player%::18} is set:
+						#ach(loop-player, 399)	
+		set {hg.ongoing} to false
+		set {hg.numplayers} to 0
+		set {hg.time} to 0
+		loop all players:
+			if {hg.playing.%loop-player%} is true:
+				set {hg.playing.%loop-player%} to false
+				set {hg.ingame.%loop-player%} to false
+				clear the loop-player's scoreboard
+				wait 5 seconds
+				teleport loop-player to {lastloc.%loop-player%}
+	if {hg.time} is equal to 2:
+		execute console command "/hgb The Hunger Games have begun. May the odds be ever in your favor!"
+	if {hg.time} is equal to 60:
+		execute console command "/hgb Invincibility wears off in 1 minute."
+	if {hg.time} is equal to 90:
+		execute console command "/hgb Invincibility wears off in 30 seconds."
+	if {hg.time} is equal to 105:
+		execute console command "/hgb Invincibility wears off in 15 seconds."
+	if {hg.time} is equal to 110:
+		execute console command "/hgb Invincibility wears off in 10 seconds."
+	if {hg.time} is equal to 115:
+		execute console command "/hgb Invincibility wears off in 5 seconds."
+	if {hg.time} is equal to 116:
+		execute console command "/hgb Invincibility wears off in 4 seconds."
+	if {hg.time} is equal to 117:
+		execute console command "/hgb Invincibility wears off in 3 seconds."
+	if {hg.time} is equal to 118:
+		execute console command "/hgb Invincibility wears off in 2 seconds."
+	if {hg.time} is equal to 119:
+		execute console command "/hgb Invincibility wears off in 1 second."
+	if {hg.time} is equal to 120:
+		execute console command "/hgb You are no longer invincible."
+	if {hg.time} is equal to 300:
+		execute console command "/spawnminifeast hungergames"
+	if {hg.time} is equal to 600:
+		execute console command "/spawnminifeast hungergames"
+	if {hg.time} is equal to 780:
+		set {hg.feastx} to a random integer between -99 and 99
+		add 0.5 to {hg.feastx}
+		set {hg.feastz} to a random integer between -99 and 99
+		add 0.5 to {hg.feastz}
+		execute console command "/generatefeastplatform %{hg.feastx}% %{hg.feastz}%"
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 5 minutes."
+	if {hg.time} is equal to 900:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 3 minutes."
+		loop all players:
+			if {hg.playing.%loop-player%} is true:
+				if {kit.%loop-player%} is equal to "chemist":
+					give a splash potion of strong harming to the loop-player
+					give a splash potion of strong poison to the loop-player
+					give a splash potion of extended weakness to the loop-player
+	if {hg.time} is equal to 1020:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 1 minute."
+	if {hg.time} is equal to 1050:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 30 seconds."
+	if {hg.time} is equal to 1065:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 15 seconds."
+	if {hg.time} is equal to 1070:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 10 seconds."
+	if {hg.time} is equal to 1075:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 5 seconds."
+	if {hg.time} is equal to 1076:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 4 seconds."
+	if {hg.time} is equal to 1077:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 3 seconds."
+	if {hg.time} is equal to 1078:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 2 seconds."
+	if {hg.time} is equal to 1079:
+		execute console command "/hgb Feast will begin at %{hg.feastloc}% in 1 second."
+	if {hg.time} is equal to 1080:
+		execute console command "/generatefeast %{hg.feastx}% %{hg.feastz}%"
+		execute console command "/hgb The Feast has begun!"
+	if {hg.time} is equal to 1200:
+		execute console command "/spawnminifeast hungergames"
+	if {hg.time} is equal to 1500:
+		execute console command "/hgb A bonus feast has spawned! It can appear anywhere on the map."
+		set {hg.feastx} to a random integer between -470 and 470
+		add 0.5 to {hg.feastx}
+		set {hg.feastz} to a random integer between -470 and 470
+		add 0.5 to {hg.feastz}
+		execute console command "/generatefeastplatform %{hg.feastx}% %{hg.feastz}%"
+		wait 0.5 seconds
+		execute console command "/generatefeast %{hg.feastx}% %{hg.feastz}%"
+	if {hg.time} is equal to 1940:
+		execute console command "/hgb Deathmatch will in 1 minute."
+
+every 2 seconds:
+	loop all players:
+		if "%loop-player's world%" is equal to "hungergames":
+			if the loop-player's x-coordinate is greater than 500:
+				send "You are in the forcefield! Make sure you're between -500 and 500!" to the loop-player
+				damage the loop-player by 2 hearts	
+			else if the loop-player's x-coordinate is less than -500:
+				send "You are in the forcefield! Make sure you're between -500 and 500!" to the loop-player
+				damage the loop-player by 2 hearts	
+			else if the loop-player's z-coordinate is greater than 500:
+				send "You are in the forcefield! Make sure you're between -500 and 500!" to the loop-player
+				damage the loop-player by 2 hearts	
+			else if the loop-player's z-coordinate is less than -500:
+				send "You are in the forcefield! Make sure you're between -500 and 500!" to the loop-player
+				damage the loop-player by 2 hearts
+			else if the loop-player's x-coordinate is greater than 475:
+				send "Warning: you are approaching the forcefield!" to the loop-player
+			else if the loop-player's x-coordinate is less than -475:
+				send "Warning: you are approaching the forcefield!" to the loop-player
+			else if the loop-player's z-coordinate is greater than 475:
+				send "Warning: you are approaching the forcefield!" to the loop-player
+			else if the loop-player's z-coordinate is less than -475:
+				send "Warning: you are approaching the forcefield!" to the loop-player
+
+
+on respawn:
+	if "%player's world%" is equal to "hungergames":
+		message "<pink>You died! You are now a spectator."
+		wait 1 tick 
+		execute console command "/baack %player%"
+		set {immune.%player%} to false
+		wait a tick
+		set the player's game mode to spectator
+
+function mcchggameover() :: boolean:
+        set {_team} to 0
+        loop all players:
+                if {hg.playing.%loop-player%} is true:
+                        if {_team} is not equal to 0:
+                                if {mcc.team.%loop-player%} is not equal to {_team}:
+                                        return false
+                        set {_team} to {mcc.team.%loop-player%}
+        return true
+
+function mcchgendgame():
+	loop all players:
+		if {mcc.team.%loop-player%} is not equal to 0:
+			send title "<pink>Game over!" to loop-player for 3 seconds
+			if {hg.playing.%loop-player%} is true:
+				ac(loop-player, 150, "You survived the entire round!", true)
+	execute console command "/hg abort"
+	set {hg.backtohub} to 30
+	execute console command "/mccstandings"
+
+
+
+command /mcchg:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/mccnewgame"
+		set {mcc.currentevent} to "hungergames"
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				set {hg.playing.%loop-player%} to true
+				add 1 to {hg.numplayers}
+				send "[<gold><bold>Hunger Games<white>] Hunger Games is about to begin! Choose your kit using /choosekit." to loop-player
+		set {hg.choosingkit} to 90
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				mcchgtutorial(loop-player)
+
+
+every second:
+	if {mcc.paused} is true:
+		exit trigger
+	subtract 1 from {hg.choosingkit}
+	subtract 1 from {hg.backtohub}
+	if {hg.choosingkit} is equal to 0:
+		hgstartgame()	
+	else if {hg.backtohub} is equal to 0:
+		execute console command "/mccbreak"

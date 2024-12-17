@@ -1,0 +1,86 @@
+
+
+command /practicersr:
+	trigger:
+		if {mcc.currentevent} is "none":
+			if {mcc.inprogress} is false:
+				execute console command "/mccrsrpod true"
+				execute console command "/mvtp %player% rocketspleefrush"
+				execute console command "/rsr %player%"
+				set {mcc.rsr.cooldown.%player%} to false
+				set player's gamemode to adventure
+				set {_feather} to book named "&2Join Game"
+				set slot 8 of player to {_feather}
+			else:
+				message "<red>MMCC is in progress right now!"
+		else:
+			message "<red>Something else is happening, sit tight!"
+            
+function genterrain2(x: number, y: number, z: number):
+	set {_stage} to 4
+	set {_bla} to {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%}
+	if {_bla} is not equal to 3:
+		if {_stage} is equal to 4:
+			if {_bla} is less than 4:
+				set {_bla} to 4
+	#set {_rand} to a random integer between 1 and {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%}
+	set {_rand} to a random integer between 1 and {_bla}
+	set {_count} to 1
+	while {mcc.rsr.already::*} contains {_rand}:
+		#set {_rand} to a random integer between 1 and {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%}
+		set {_rand} to a random integer between 1 and {_bla}
+		add 1 to {_count}
+		if {_count} is greater than 30:
+			delete {mcc.rsr.already::*}	
+	execute console command "/schempaste rsr_%{mcc.rsr.map.1}%_%{_stage}%_%{_rand}% rocketspleefrush %{_x}% %{_y}% %{_z}%"
+
+	if {_stage} is equal to {mcc.rsr.oldstage}:
+		add {_rand} to {mcc.rsr.already::*}
+	else:
+		set {mcc.rsr.oldstage} to {_stage}
+		delete {mcc.rsr.already::*}
+
+function mccrsrdisintegrate2(x: number, y: number, z: number):
+	set {_l} to the location at {_x}, {_y}, {_z} of world "rocketspleefrush"
+	loop 7 times:
+		loop blocks in radius {mcc.rsr.radius.%{mcc.rsr.map.1}%} of {_l}:
+			if {mcc.rsr.suddendeath} is true:
+				chance of 80%:
+					set loop-block to air
+			else:
+				chance of 33%:
+					set loop-block to air
+		wait 0.5 seconds
+	
+	loop blocks in radius {mcc.rsr.radius.%{mcc.rsr.map.1}%} of {_l}:
+		set loop-block to air
+
+on rightclick:
+    world is "rocketspleefrush"
+    if player's held item is a book named "&2Join Game":
+        teleport player to the location 4 blocks below the player's position
+
+
+every 10 seconds:
+	set {_count} to 0
+	loop all players in world "rocketspleefrush":
+		add 1 to {_count}
+	if {_count} is 0:
+		exit trigger
+	if {mcc.inprogress} is false:
+		genterrain2(0,-30,0)
+		wait 5 seconds
+		mccrsrdisintegrate2(0,-41,0)
+
+command /testviewdata:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            set custom model data of player's tool to 3
+
+every 0.5 seconds:
+	if {mcc.inprogress} is false:
+		if {mcc.currentevent} is not "rocketspleefrush":
+			loop all players in "rocketspleefrush":
+				if loop-player's y-coordinate is less than -66:
+					teleport loop-player to the location 0, 2, 0 of world "rocketspleefrush"
+

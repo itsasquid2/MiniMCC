@@ -1,0 +1,328 @@
+
+variables:
+	{kit.%player%} = "none" 
+	{cangamble.%player%} = true
+	{stealing.%player%} = false
+	{canfly.%player%} = true
+	{landed.%player%} = true
+	{jumps.%player%} = 2
+	{canfreeze.%player%} = true
+	{canfire.%player%} = true
+
+on join:
+	if {hg.ongoing} is false:
+		set {cangamble.%player%} to true
+		set {canfly.%player%} to true
+		set {canfreeze.%player%} to true
+		set {canfire.%player%} to true
+
+command /kit [<string>]:
+	trigger:
+		if arg 1 is not set:
+			make player execute command "/choosekit"
+			exit trigger
+		if {hg.ongoing} is true:
+			message "<light blue>The game has already started!"
+			exit trigger
+		set {kit.%player%} to arg 1 in lowercase
+		message "<green>Selected the kit %arg 1%"
+		
+
+on damage of a player:
+	damage was caused by fall
+	if {hg.playing.%victim%} is false:
+		stop
+	if {kit.%victim%} is equal to "stomper":
+		set {sd.%victim%} to damage
+		if damage is greater than 2:
+			set damage to 2		
+		loop entities in radius 2.5 of victim:
+			if loop-entity is not the victim:
+				if the loop-entity is sneaking:
+					if {sd.%victim%} is less than 2:
+						damage the loop-entity by {sd.%victim%}
+					else:
+						damage the loop-entity by 2	
+				else:
+					damage the loop-entity by {sd.%victim%}
+				if loop-entity is a player:
+					if loop-entity's health is less than or equal to 0:
+						#ach(victim, 309)
+	if {kit.%victim%} is equal to "kangaroo":
+		if {landed.%victim%} is false:
+			if damage is greater than 3.5:
+				set damage to 3.5
+
+
+
+on rightclick:
+	player's tool is a leather horse armor of curse of vanishing named "Kangaroo Jump"
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "kangaroo":
+			if {jumps.%player%} is greater than 0:
+				push the player upwards at speed 0.8
+				push the player forwards at speed 0.2 
+				subtract 1 from {jumps.%player%}
+				set {landed.%player%} to false
+
+on damage:
+	attacker is a player
+	victim is a player
+	attacker's tool is a blaze rod of curse of vanishing named "Monk Rod" 
+	if {hg.playing.%attacker%} is true:
+		if {hg.playing.%victim%} is true:
+			if {kit.%attacker%} is equal to "monk":
+				set {tmpmonk.%victim%} to the victim's tool
+				set {tmpmonkslot.%victim%} to a random number between 9 and 35
+				set the victim's tool to slot {tmpmonkslot.%victim%} of victim
+				set slot {tmpmonkslot.%victim%} of the victim to {tmpmonk.%victim%}
+
+on damage:
+	attacker is a player
+	if {hg.playing.%attacker%} is true:
+		if {kit.%attacker%} is equal to "cannibal":
+			add 0.5 to the attacker's hunger
+			if the victim is a player:
+				apply hunger 2 to the victim for 15 seconds
+
+
+on rightclick:
+	player's tool is a feather of curse of vanishing named "Phantom Feather"
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "phantom":
+			if {canfly.%player%} is true:
+				set {canfly.%player%} to false
+				play sound "minecraft:entity.wither.death" with volume 5 from location of player 
+				make the player fly
+				wait 5 seconds
+				force the player to stop flying
+				set {landed.%player%} to false
+				wait 55 seconds
+				set {canfly.%player%} to true
+			else:
+				message "<red>You must wait to fly again!" to event-player
+				
+on damage:
+	attacker is a player
+	victim is a player
+	if {hg.playing.%attacker%} is true:
+		if {kit.%attacker%} is equal to "viper":
+			apply poison 1 to the victim for 5 seconds replacing the existing effect
+
+on rightclick on a player:
+	player's tool is a blaze rod of curse of vanishing named "Pickpocket Rod"
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "pickpocket":	
+			open the target's inventory to the player	
+			set {stealing.%player%} to true
+			#ach(player, 307)
+
+on inventory click:
+	if index of event-slot is less than 9:
+		if {stealing.%player%} is true:
+			message "<red>You can't steal from a player's hotbar! They'll notice!" to event-player
+			cancel event
+	if inventory action is collect to cursor: 
+		if {stealing.%player%} is true:
+			message "<red>You can't pickup all while stealing!" to event-player
+			cancel event
+on inventory close:
+	set {stealing.%player%} to false
+
+
+on rightclick on button:
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "gambler":
+			if {cangamble.%player%} is false:
+				message "<red>You cannot gamble again yet!" to event-player
+				exit trigger
+			set {gam.%player%} to a random integer between 1 and 100
+			if {gam.%player%} is equal to 1:
+				message "<gold>You win: instant death!" to event-player
+				#ach(player, 306)
+				kill the player
+			else if {gam.%player%} is equal to 100:
+				message "<gold>You win: full diamond armor!" to event-player	
+				give a diamond helmet to the player
+				give a diamond leggings to the player
+				give a diamond chestplate to the player
+				give a diamond boots to the player
+				give a diamond axe to the player
+			else if {gam.%player%} is less than 10:
+				message "<gold>You win: starvation!" to event-player
+				apply hunger 100 to the player for 10 seconds
+			else if {gam.%player%} is less than 25:
+				message "<gold>You win: poison!" to event-player
+				apply poison 2 to the player for 15 seconds
+			else if {gam.%player%} is less than 50:
+				message "<gold>You win: slowness!" to event-player
+				apply slowness to the player for 90 seconds
+			else if {gam.%player%} is less than 75:
+				message "<gold>You win: speed!" to event-player
+				apply speed to the player for 90 seconds
+			else if {gam.%player%} is less than 90:
+				message "<gold>You win: regen!" to event-player
+				apply regeneration 2 to the player for 30 seconds
+			else:
+				message "<gold>You win: strength!" to event-player
+				apply strength to the player for 90 seconds
+			set {cangamble.%player%} to false
+			wait 60 seconds
+			set {cangamble.%player%} to true
+
+
+on tool break:
+	event-item is leather helmet of unbreaking 1 and curse of binding named "Viking Helmet"
+	if {hg.playing.%player%} is true:
+		#ach(player, 308)
+
+on place of stone pressure plate:
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "demoman":
+			if the block under event-location is equal to gravel:
+				add event-location to {demomanlocations::*}
+
+on stepping on a pressure plate:
+	if {demomanlocations::*} contains event-location:
+		if the block under event-location is equal to gravel:
+			create an explosion of force 4 
+		remove event-location from {demomanlocations::*}
+
+on leftclick on dirt:
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "worm":
+			break the block using the player's tool
+
+on damage:
+	victim is a player
+	damage cause is fall
+	block below the victim is dirt
+	if {hg.playing.%victim%} is true:
+		if {kit.%victim%} is equal to "worm":
+			set the damage to 0.5
+
+on shoot:
+	projectile is a snowball
+	shooter is a player
+	shooter's tool is a snowball of curse of vanishing named "Switcher Ball"
+	if {hg.playing.%shooter%} is true:
+		if {kit.%shooter%} is equal to "switcher":
+			add "switch" to the scoreboard tags of the event-projectile
+
+on damage:
+	projectile exists
+	attacker is a player
+	victim is a player
+	if the event-projectile has the scoreboard tag "switch":
+		set {hg.temploc} to the attacker's location
+		teleport the attacker to the victim
+		teleport the victim to {hg.temploc}
+
+on damage:
+	damage cause is fall
+	if {hg.playing.%victim%} is true:
+		if {kit.%victim%} is equal to "phantom":
+			if {landed.%victim%} is false:
+				set damage to 2*damage
+
+
+
+
+#every 0.5 seconds in "hungergames":
+	#loop all players:
+		#if "%loop-player's world%" is equal to "hungergames":
+			#if {landed.%loop-player%} is false:
+				#if loop-player's y-coordinate is equal to floor(loop-player's y-coordinate):
+					#set {landed.%loop-player%} to true
+					#set {jumps.%loop-player%} to 2
+
+on rightclick:
+	player's tool is a diamond hoe of curse of vanishing named "Freeze Ray"
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "gru":
+			if {canfreeze.%player%} is true:	
+				set {canfreeze.%player%} to false
+				loop 12 times:
+					shoot a snowball 
+					wait 2 ticks
+				wait 59 seconds
+				set {canfreeze.%player%} to true
+			else:
+				message "<light blue>Your Freeze Ray is still on cooldown!" to event-player
+
+on rightclick:
+	player's tool is a golden hoe of curse of vanishing named "Fire Gun"
+	if {hg.playing.%player%} is true:
+		if {kit.%player%} is equal to "gru":
+			if {canfire.%player%} is true:	
+				set {canfire.%player%} to false
+				loop 12 times:
+					shoot a small fireball 
+					wait 2 ticks
+				wait 59 seconds
+				set {canfire.%player%} to true
+			else:
+				message "<pink>Your Fire Gun is still on cooldown!" to event-player
+on shoot:
+	projectile is a snowball
+	shooter's tool is a diamond hoe of curse of vanishing named "Freeze Ray"
+	if {hg.playing.%shooter%} is true:
+		if {kit.%shooter%} is equal to "gru":
+			add "freezeray" to the scoreboard tags of the event-projectile
+
+on damage:
+	projectile exists
+	if the event-projectile has the scoreboard tags "freezeray":
+		loop blocks in radius 2 of victim:
+			if loop-block is air:
+				set loop-block to ice
+		loop blocks in radius 1 of victim:
+			set loop-block to air
+		wait 3 seconds
+		loop blocks in radius 3 of victim:
+			if loop-block is ice:
+				set loop-block to air
+		if victim is a player:
+			#ach(shooter of event-projectile, 310)
+command /givehgkits:
+	trigger:
+		loop all players:
+			if {hg.playing.%loop-player%} is true:
+				if {kit.%loop-player%} is not equal to "none":
+					send "<green>Received your %{kit.%loop-player%}% kit!" to the loop-player
+				if {kit.%loop-player%} is equal to "pickpocket":
+					give a blaze rod of curse of vanishing named "Pickpocket Rod" to the loop-player
+				if {kit.%loop-player%} is equal to "monk":
+					give a blaze rod of curse of vanishing named "Monk Rod" to the loop-player
+				if {kit.%loop-player%} is equal to "viking":
+					give an iron axe to the loop-player
+					equip the loop-player with a leather helmet of unbreaking 1 and curse of binding named "Viking Helmet"
+					equip the loop-player with a leather tunic of unbreaking 1 and curse of binding named "Viking Vest"
+					dye loop-player's helmet gray
+					dye loop-player's chestplate gray
+				if {kit.%loop-player%} is equal to "grandpa":
+					give a wood axe of sharpness 1 and knockback 2 to the loop-player	
+				if {kit.%loop-player%} is equal to "archer":
+					give a bow of power 1 and curse of vanishing to the loop-player
+					give 20 arrows to the loop-player
+				if {kit.%loop-player%} is equal to "demoman":
+					give 10 gravel to the loop-player
+					give 10 stone pressure plates to the loop-player
+				if {kit.%loop-player%} is equal to "gambler":
+					give a stone button to the loop-player
+				if {kit.%loop-player%} is equal to "phantom":
+					give a feather of curse of vanishing named "Phantom Feather" to the loop-player					
+				if {kit.%loop-player%} is equal to "chemist":
+					give a splash potion of strong poison to the loop-player
+					give a splash potion of strong harming to the loop-player
+					give a splash potion of extended weakness to the loop-player
+				if {kit.%loop-player%} is equal to "switcher":
+					give 10 snowballs of curse of vanishing named "Switcher Ball" to the loop-player 
+				if {kit.%loop-player%} is equal to "kangaroo":
+					give a leather horse armor of curse of vanishing named "Kangaroo Jump" to the loop-player 
+				if {kit.%loop-player%} is equal to "glider":
+					give an elytra of curse of vanishing to the loop-player
+					give a firework rocket to the loop-player
+				if {kit.%loop-player%} is equal to "gru":
+					give a diamond hoe of curse of vanishing named "Freeze Ray" to the loop-player
+					give a golden hoe of curse of vanishing named "Fire Gun" to the loop-player

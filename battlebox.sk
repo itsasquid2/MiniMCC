@@ -1,0 +1,355 @@
+variables:
+	{battlebox.team.%player%} = "none"
+	{battlebox.playing.%player%} = false
+	{battlebox.kit.%player%} = 0
+	{battlebox.inprogress} = false
+	{battlebox.ready.%player%} = false
+	{battlebox.timeleft} = 60
+
+
+
+on skript start:
+	set {battlebox.inprogress} to false
+
+function bbopencages():
+	execute console command "/schempaste emptycage world 16 95 -305"
+	execute console command "/schempaste emptycage world 48 95 -305"
+
+function bbclosecages():
+	execute console command "/schempaste greenwall world 16 96 -305"
+	execute console command "/schempaste blackwall world 48 96 -305"
+
+
+function bbkit(p:player, n:number):
+	loop all players:
+		if {battlebox.team.%loop-player%} is equal to {battlebox.team.%{_p}%}:
+			if {battlebox.kit.%loop-player%} is equal to {_n}:
+				send "<light blue>[Battle Box] <pink>This kit has already been chosen!" to {_p}
+				exit
+	set {battlebox.kit.%{_p}%} to {_n}
+	if {_n} is equal to 1:
+		send "<light blue>[Battle Box] <gray>You will receive <white>Crossbow<gray> when the game starts." to {_p}
+	if {_n} is equal to 2:
+		send "<light blue>[Battle Box] <gray>You will receive <white>8 arrows<gray> when the game starts." to {_p}
+	if {_n} is equal to 3:
+		send "<light blue>[Battle Box] <gray>You will receive <white>Depth Strider III Boots<gray> when the game starts." to {_p}
+	if {_n} is equal to 4:
+		send "<light blue>[Battle Box] <gray>You will receive <white>Knockback II Sword<gray> when the game starts." to {_p}
+
+
+function bbgivekit(p:player):
+	if {_p} is in world "world":
+		clear {_p}'s inventory
+		if {battlebox.kit.%{_p}%} is equal to 4:
+			give {_p} a stone sword of knockback 2
+		else:
+			give {_p} a stone sword
+	set {_p}'s boots to leather boots
+	if {battlebox.team.%{_p}%} is equal to "dream":
+		dye {_p}'s boots lime
+	if {battlebox.team.%{_p}%} is equal to "bad":
+		dye {_p}'s boots black 
+
+	if {battlebox.kit.%{_p}%} is equal to 3:
+		enchant {_p}'s boots with depth strider 3
+	give a bow to {_p}
+	give a shears to {_p}
+	if {battlebox.team.%{_p}%} is equal to "dream":
+		give 64 lime wool to {_p}
+	if {battlebox.team.%{_p}%} is equal to "bad":
+		give 64 black wool to {_p}	
+	give 8 arrows to {_p}
+	if {battlebox.kit.%{_p}%} is equal to 2:
+		give 8 arrows to {_p}
+	if {battlebox.kit.%{_p}%} is equal to 1:
+		give a crossbow to {_p}
+	 
+function bballready() :: boolean:
+	set {_good1} to false
+	set {_good2} to false
+	loop all players:
+		if {battlebox.playing.%loop-player%} is true:
+			if {battlebox.ready.%loop-player%} is false:
+				return false
+			else:
+				if {battlebox.team.%loop-player%} is equal to "dream":
+					set {_good1} to true
+				else:
+					set {_good2} to true
+	if {_good1} is false:
+		return false
+	if {_good2} is false:
+		return false
+	return true
+
+function bbstartgame():
+	loop all players:
+		if {battlebox.playing.%loop-player%} is true:
+			clear the loop-player's inventory
+			bbgivekit(loop-player)
+			set loop-player's health to 10
+			set loop-player's hunger to 10
+			set loop-player's game mode to survival
+			clear the loop-player's scoreboard
+			set title of loop-player's scoreboard to "<light blue>Battle Box"
+			set line 14 of loop-player's scoreboard to ""
+			set line 13 of loop-player's scoreboard to "<lime>Get ready!"	
+			if {battlebox.team.%loop-player%} is equal to "dream":
+				teleport loop-player to location at 11, 96, -304 of world "world" 
+			else:
+				teleport loop-player to location at 51, 96, -304 of world "world" 
+	bbclosecages()
+	loop all players:
+		if {battlebox.playing.%loop-player%} is true:
+			execute console command "/note 6 %loop-player%"
+			send title "<light blue> Starting in" with subtitle "<red>3" to the loop-player for 1 second
+	wait 1 second
+	loop all players:
+		if {battlebox.playing.%loop-player%} is true:
+			execute console command "/note 6 %loop-player%"
+			send title "<light blue> Starting in" with subtitle "<yellow>2" to the loop-player for 1 second
+	wait 1 second
+	loop all players:
+		if {battlebox.playing.%loop-player%} is true:
+			execute console command "/note 6 %loop-player%"
+			send title "<light blue> Starting in" with subtitle "<green>1" to the loop-player for 1 second
+	wait 1 second
+	loop all players:
+		if {battlebox.playing.%loop-player%} is true:
+			execute console command "/note 18 %loop-player%"
+	drop a splash potion of strong harming at {bbpot1} without velocity
+	drop a splash potion of strong harming at {bbpot2} without velocity 
+	set {battlebox.timeleft} to 60
+	bbopencages()
+	set {battlebox.inprogress} to true
+
+
+
+
+function bbgameover() :: number:
+	set {_green} to 0
+	set {_black} to 0
+	loop blocks in radius 2.5 of {bbwoolloc}:
+		if loop-block is black wool:
+			add 1 to {_black}
+		else if loop-block is lime wool:
+			add 1 to {_green}
+	if {_black} is equal to 9:
+		return 1 
+	if {_green} is equal to 9:
+		return 2 
+	return 0 
+
+command /setbbstuff:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {bbwoolloc} to the location 31, 101, -305 in world "world"
+
+function bbendgame(n: number):
+	if {_n} is equal to -1:
+		broadcast "<light blue>[Battle Box] <yellow>Battle Box ended in a tie because everyone died."
+	if {_n} is equal to 0:
+		broadcast "<light blue>[Battle Box] <yellow>Battle Box ended in a tie because time ran out."
+	else if {_n} is equal to 2:
+		broadcast "<light blue>[Battle Box] <lime>Green Dreams<yellow> have won Battle Box!"	
+	else if {_n} is equal to 1:
+		broadcast "<light blue>[Battle Box] <gray>Black BadBoyHalos<yellow> have won Battle Box!"	
+	set {battlebox.inprogress} to false
+	wait 3 seconds
+	loop all dropped items in "world":
+		if x-coordinate of loop-entity is between 59 and 3:
+			if y-coordinate of loop-entity is between 122 and 87:
+				if z-coordinate of loop-entity is between -329 and -278:
+					delete the loop-entity
+	loop blocks in radius 2.5 of {bbwoolloc}:
+		if block below loop-block is bedrock:
+			set loop-block to white wool
+	loop all players:
+		if {battlebox.playing.%loop-player%} is true:
+			teleport loop-player to {bbwaitingloc}
+			clear the loop-player's scoreboard
+			set the loop-player's game mode to adventure
+		set {battlebox.playing.%loop-player%} to false
+		set {battlebox.ready.%loop-player%} to false
+		set {battlebox.team.%loop-player%} to "none"
+		set {battlebox.kit.%loop-player%} to 0
+	set {battlebox.timeleft} to 0	
+
+
+
+on rightclick on button:
+	if {battlebox.playing.%player%} is true:
+		if x-coordinate of event-location is equal to 6.5:
+			bbkit(player, 1)		
+		if x-coordinate of event-location is equal to 8.5:
+			bbkit(player, 2)		
+		if x-coordinate of event-location is equal to 10.5:
+			bbkit(player, 3)		
+		if x-coordinate of event-location is equal to 12.5:
+			bbkit(player, 4)		
+		if x-coordinate of event-location is equal to 56.5:
+			bbkit(player, 1)		
+		if x-coordinate of event-location is equal to 54.5:
+			bbkit(player, 2)		
+		if x-coordinate of event-location is equal to 52.5:
+			bbkit(player, 3)		
+		if x-coordinate of event-location is equal to 50.5:
+			bbkit(player, 4)		
+
+
+on rightclick on button:
+	if "%player's world%" is equal to "world":
+		if event-block's z coordinate is -231.5:
+			if {mcc.currentevent} is not equal to "none":
+				message "<pink>You cannot do this now!" to event-player
+				exit trigger
+			
+			if {battlebox.playing.%player%} is false:
+				if {battlebox.inprogress} is false:
+					broadcast "<light blue>[Battle Box] <white>%player% has joined team <gray>Black BadBoyHalos!"
+					teleport player to the location at 53, 102, -305 of world "world"
+					clear the player's inventory
+					set slot 4 of player's inventory to gunpowder named "<lime>Ready"
+					set slot 8 of player's inventory to red dye named "<pink>Leave"
+					set {battlebox.team.%player%} to "bad"
+					set {battlebox.playing.%player%} to true
+				else:
+					message "<light blue>[Battle Box] <pink>This arena is in use!" to event-player
+			else:
+				message "<light blue>[Battle Box] <pink>You are already in this game!" to event-player
+
+
+on rightclick on button:
+	if "%player's world%" is equal to "world":
+		if event-block's z coordinate is -232.5:
+			if {mcc.currentevent} is not equal to "none":
+				message "<pink>You cannot do this now!" to event-player
+				exit trigger
+			if {battlebox.playing.%player%} is false:
+				if {battlebox.inprogress} is false:
+					broadcast "<light blue>[Battle Box] <white>%player% has joined team <lime>Green Dreams!"
+					teleport player to the location at 9, 102, -305 of world "world"
+					clear the player's inventory
+					set slot 4 of player's inventory to gunpowder named "<lime>Ready"
+					set slot 8 of player's inventory to red dye named "<pink>Leave"
+					set {battlebox.team.%player%} to "dream"
+					set {battlebox.playing.%player%} to true
+				else:
+					message "<light blue>[Battle Box] <pink>This arena is in use!" to event-player
+			else:
+				message "<light blue>[Battle Box] <pink>You are already in this game!" to event-player
+
+on rightclick:
+	if {battlebox.playing.%player%} is true:
+		if player's tool is red dye named "<pink>Leave":
+			set {battlebox.playing.%player%} to false
+			set {battlebox.ready.%player%} to false
+			set {battlebox.team.%player%} to "none"
+			set {battlebox.kit.%player%} to 0
+			set player's game mode to adventure
+			teleport player to {bbdeadspawn}
+		else if player's tool is gunpowder named "<lime>Ready":
+			set {battlebox.ready.%player%} to true
+			if bballready() is true:
+				bbstartgame()
+			else:
+				set player's tool to lime dye named "<gray>Unready"
+		else if player's tool is lime dye named "<gray>Unready":
+			set {battlebox.ready.%player%} to false 
+			set player's tool to gunpowder named "<lime>Ready"
+	
+
+on join:
+	if {battlebox.playing.%player%} is true:
+		set {battlebox.playing.%player%} to false
+		set {battlebox.ready.%player%} to false
+		set {battlebox.team.%player%} to "none"
+		set {battlebox.kit.%player%} to 0
+		set player's game mode to adventure
+		teleport player to {bbdeadspawn}
+
+on damage:
+	victim is a player
+	damage is greater than or equal to victim's health
+	if {battlebox.playing.%victim%} is true: 
+		if attacker is a player:
+			if {battlebox.team.%victim%} is equal to "dream":
+				broadcast "<light blue>[Battle Box] <lime>%victim%<yellow> was killed by <gray>%attacker%"
+			else:
+				broadcast "<light blue>[Battle Box] <gray>%victim%<yellow> was killed by <lime>%attacker%"
+		set {battlebox.playing.%victim%} to false
+		set {battlebox.ready.%victim%} to false
+		set {battlebox.team.%victim%} to "none"
+		set {battlebox.kit.%victim%} to 0
+		teleport victim to {bbdeadspawn}
+		set the victim's game mode to adventure
+		send "<light blue>[Battle Box] <pink>You died!" to the victim		
+		clear the victim's scoreboard
+		set victim's health to 10
+		cancel event
+
+on damage:
+	victim is a player
+	attacker is a player
+	if {battlebox.playing.%attacker%} is true:
+		if {battlebox.playing.%victim%} is true:
+			if {battlebox.team.%victim%} is equal to {battlebox.team.%attacker%}:
+				if attacker is not equal to victim:
+					send "<pink>You cannot attack teammates!" to attacker
+					cancel event
+
+on break:
+	if {battlebox.playing.%player%} is true:
+		if block is not wool:
+			cancel event
+
+on place:
+	if {battlebox.playing.%player%} is true:
+		
+		if block is not wool:
+			cancel event
+		set {bb.good} to false
+		if x-coordinate of event-location is between 30.5 and 32.5:
+			if y-coordinate of event-location is equal to 101.5:
+				if z-coordinate of event-location is between -303.5 and -305.5:
+					set {bb.good} to true			
+		if {bb.good} is false:
+			cancel event
+		else:
+			if bbgameover() is greater than 0:
+				bbendgame(bbgameover())	
+
+on hunger meter change:
+	if {battlebox.playing.%player%} is true:
+		cancel event
+
+
+every second in "world":
+	if {battlebox.inprogress} is true:
+		set {_dream} to 0
+		set {_bad} to 0
+		if {battlebox.timeleft} is greater than 0:
+			subtract 1 from {battlebox.timeleft}
+		else:
+			bbendgame(0)
+			stop
+		loop all players:
+			if {battlebox.playing.%loop-player%} is true:
+				if {battlebox.team.%loop-player%} is equal to "dream":
+					add 1 to {_dream}
+				else:
+					add 1 to {_bad}
+		if {_dream} is equal to 0:
+			if {_bad} is equal to 0:
+				bbendgame(-1)
+		loop all players:
+			if {battlebox.playing.%loop-player%} is true:
+				if {battlebox.timeleft} is greater than 9:
+					set line 13 of loop-player's scoreboard to "<pink>Time left: <white>00:%{battlebox.timeleft}%"	
+				else:
+					set line 13 of loop-player's scoreboard to "<pink>Time left: <white>00:0%{battlebox.timeleft}%"	
+				set line 12 of loop-player's scoreboard to ""
+				set line 11 of loop-player's scoreboard to "<lime>Green Dreams: %{_dream}%"
+				set line 10 of loop-player's scoreboard to "<gray>Black BadBoyHalos: %{_bad}%"
+
+

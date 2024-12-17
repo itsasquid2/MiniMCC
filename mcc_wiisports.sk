@@ -1,0 +1,557 @@
+
+#
+#      NOTE TO SELF: IF WII SPORTS COMES BACK IT NEEDS TO BE MOVED OUT OF LOBBYWORLD
+#
+#
+#
+
+
+
+
+variables:
+	{mcc.wii.kills.%player%} = 0
+	{mcc.wii.ingame.%player%} = false
+	{mcc.wii.frozen.%player%} = false
+	{mcc.wii.wins.1} = 0
+	{mcc.wii.wins.2} = 0
+	{mcc.wii.wins.3} = 0
+	{mcc.wii.wins.4} = 0
+	{mcc.wii.wins.5} = 0
+	{mcc.wii.wins.6} = 0
+	{mcc.wii.wins.7} = 0
+	{mcc.wii.wins.8} = 0
+	{mcc.wii.wins.9} = 0
+	{mcc.wii.wins.10} = 0
+	{mcc.wii.totalwins.1} = 0
+	{mcc.wii.totalwins.2} = 0
+	{mcc.wii.totalwins.3} = 0
+	{mcc.wii.totalwins.4} = 0
+	{mcc.wii.totalwins.5} = 0
+	{mcc.wii.totalwins.6} = 0
+	{mcc.wii.totalwins.7} = 0
+	{mcc.wii.totalwins.8} = 0
+	{mcc.wii.totalwins.9} = 0
+	{mcc.wii.totalwins.10} = 0
+	{mcc.wii.finale.1} = false
+	{mcc.wii.finale.2} = false
+	{mcc.wii.finale.3} = false
+	{mcc.wii.finale.4} = false
+	{mcc.wii.finale.5} = false
+	{mcc.wii.ffa} = false
+	{mcc.wii.stage} = 0
+
+
+on sneak toggle:
+	player is not sneaking
+	if {mcc.wii.ingame.%player%} is true:
+		cancel event
+
+function mccwiisportstutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Wii Sports Swordplay" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Wii Sports Swordplay!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>In Wii Sports Swordplay, knock your opponents off the platform and stay on yourself to win!" to {_p}
+	send "" to {_p}
+	send "You can also eliminate opponents by killing them." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Each player is given a wooden sword with knockback 1, and a shield." to {_p}
+	send "" to {_p}
+	send "Your shield doesn't take many hits, so don't play too defensively!" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Each team plays round-robin against each other team in a best out of 3." to {_p}
+	send "" to {_p}
+	send "Your team is awarded coins based on kills and placement, where placement is determined based on total rounds won." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>At the end, if teams are tied, the tie is broken with one last free-for-all!" to {_p}
+	send "" to {_p}
+	send "Stay on the platform for longer to win the tiebreaker!" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+function mccwiidead(p:player, delay:boolean):
+	if {mcc.wii.hitby.%{_p}%} is set:
+		if {mcc.team.%{mcc.wii.hitby.%{_p}%}%} is not equal to {mcc.team.%{_p}%}:
+			set {_coins} to 8 
+			if {mcc.wii.finale.%{mcc.wii.arena.%{mcc.team.%{_p}%}%}%} is true:
+				set {_coins} to 16
+			ac({mcc.wii.hitby.%{_p}%}, {_coins}, "You killed %{_p}%!", false) 
+			add 1 to {mcc.wii.kills.%{_p}%}
+	set {mcc.wii.ingame.%{_p}%} to false
+	set {_good} to false
+	loop all players:
+		if {mcc.team.%loop-player%} is equal to {mcc.team.%{_p}%}:
+			if {mcc.wii.ingame.%loop-player%} is true:
+				set {_good} to true
+	if {_good} is false:
+		if {mcc.wii.ffa} is true:
+			broadcast "%{mcc.teams::%{mcc.team.%{_p}%}%}% <white>have all been eliminated!"
+			add 0.01 to {mcc.wii.totalwins.%{mcc.team.%{_p}%}%}
+			loop 10 times:
+				set {_hasperson} to false
+				loop all players:
+					if {mcc.team.%loop-player%} is equal to loop-number:
+						if {mcc.wii.ingame.%loop-player%} is true:
+							set {_hasperson} to true
+				if {_hasperson} is true:
+					add 0.1 to {mcc.wii.totalwins.%loop-number%}
+			set {_team} to 0
+			set {_over} to true
+			loop all players:
+				if {mcc.wii.ingame.%loop-player%} is true:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						if {_team} is equal to 0:
+							set {_team} to {mcc.team.%loop-player%}
+						else if {_team} is not equal to {mcc.team.%loop-player%}:
+							set {_over} to false
+			if {_over} is true:
+				set {mcc.wii.ffa} to false
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						send title "<pink>Game over!" to loop-player for 3 seconds	
+						set {mcc.wii.ingame.%loop-player%} to false
+						if loop-player is not equal to {_p}:
+							teleport loop-player to {mccwiideadspawn}
+				delete {_totalwins::*}
+				loop 10 times:
+					if {mcc.wii.totalwins.%loop-number%} is not equal to 0:	
+						add {mcc.wii.totalwins.%loop-number%} to {_totalwins::*}	
+				set {_totalwins::*} to sorted {_totalwins::*}
+				set {_totalwins::*} to reversed {_totalwins::*}
+				set {_reward::1} to 1200
+				set {_reward::2} to 1000
+				set {_reward::3} to 750
+				set {_reward::4} to 500
+				set {_reward::5} to 300
+				set {_reward::6} to 200
+				set {_reward::7} to 100
+				loop 6 times:
+					loop 10 times:
+						if {mcc.wii.totalwins.%loop-number-2%} is equal to {_totalwins::%loop-number-1%}:
+							set {_numplayers} to 0
+							loop all players:
+								if {mcc.team.%loop-player%} is equal to loop-number-2:
+									add 1 to {_numplayers}
+							loop all players:
+								if {mcc.team.%loop-player%} is equal to loop-number-2:
+									ac(loop-player, ceil({_reward::%loop-number-1%}/{_numplayers}), "Your team finished in %nth(loop-number-1)% place!", false)
+				wait 3 seconds
+				execute console command "/mccstandings"
+				wait 30 seconds
+				execute console command "/mccbreak"
+		else:
+			add 1 to {mcc.wii.wins.%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%}
+			add 1 to {mcc.wii.totalwins.%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%}
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to {mcc.team.%{_p}%} or {mcc.wii.opponent.%{mcc.team.%{_p}%}%}:
+					send title "Round over" to loop-player for 3 seconds	
+					set {mcc.wii.ingame.%loop-player%} to false
+			if {mcc.wii.wins.%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%} is greater than or equal to 2:
+				broadcast "[<gold><bold>Wii Sports Swordplay<white>] %{mcc.teams::%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%}% <white>have defeated %{mcc.teams::%{mcc.team.%{_p}%}%}%!"
+				loop all players:
+					if loop-player is not equal to {_p}:
+						if {mcc.team.%loop-player%} is equal to {mcc.team.%{_p}%} or {mcc.wii.opponent.%{mcc.team.%{_p}%}%}:
+							set {mcc.wii.ingame.%loop-player%} to false
+							teleport loop-player to {mccwiideadspawn}
+				set {mcc.wii.wins.%{mcc.team.%{_p}%}%} to 0
+				set {mcc.wii.wins.%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%} to 0
+				delete {mcc.wii.arena.%{mcc.team.%{_p}%}%}
+				delete {mcc.wii.arena.%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%}
+				delete {mcc.wii.opponent.%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%}
+				delete {mcc.wii.opponent.%{mcc.team.%{_p}%}%}
+				set {_over} to true
+				loop 10 times:
+					if {mcc.wii.opponent.%loop-number%} is set:
+						set {_over} to false
+				if {_over} is true:
+					set {mcc.wii.ready} to true
+				
+	if {_delay} is true:
+		wait 2 seconds
+	teleport {_p} to {mccwiideadspawn}
+	if {_good} is false:
+		if {mcc.wii.ffa} is false:
+			if {mcc.wii.wins.%{mcc.wii.opponent.%{mcc.team.%{_p}%}%}%} is less than 2:
+				execute console command "/mccwiiround %{mcc.team.%{_p}%}% %{mcc.wii.opponent.%{mcc.team.%{_p}%}%}% %{mcc.wii.arena.%{mcc.team.%{_p}%}%}%"
+
+
+
+function mccwiisportsreset(n:number):
+	if {_n} is equal to 1:
+		set {_x} to -500
+		set {_z} to 0	
+	else if {_n} is equal to 2:
+		set {_x} to -500
+		set {_z} to -25	
+	else if {_n} is equal to 3:
+		set {_x} to -500
+		set {_z} to 25	
+	else if {_n} is equal to 4:
+		set {_x} to -475
+		set {_z} to 0	
+	else if {_n} is equal to 5:
+		set {_x} to -525
+		set {_z} to 0	
+	execute console command "/schempaste wii_0 lobbyworld %{_x}% 21 %{_z}%"
+	set {mcc.wii.finale.%{_n}%} to false 
+
+function mccwiisportsfinale(n:number):
+	set {mcc.wii.finale.%{_n}%} to true
+	if {_n} is equal to 1:
+		set {_x} to -500
+		set {_z} to 0	
+	else if {_n} is equal to 2:
+		set {_x} to -500
+		set {_z} to -25	
+	else if {_n} is equal to 3:
+		set {_x} to -500
+		set {_z} to 25	
+	else if {_n} is equal to 4:
+		set {_x} to -475
+		set {_z} to 0	
+	else if {_n} is equal to 5:
+		set {_x} to -525
+		set {_z} to 0	
+	loop all players:
+		if {mcc.wii.arena.%{mcc.team.%loop-player%}%} is equal to {_n}: 
+			execute console command "/wiisportsfinalemusic %loop-player%"
+	loop 12 times:
+		execute console command "/schempaste wii_%loop-number% lobbyworld %{_x}% 21 %{_z}%"
+		wait 0.4 seconds
+
+
+command /mccwiiffa:
+	permission: op
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"	
+				exit trigger
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				send title "Final free-for-all" to loop-player for 3 seconds
+				teleport loop-player to {mcc.wii.platforms::1}
+				set {mcc.wii.ingame.%loop-player%} to true
+				set {mcc.wii.frozen.%loop-player%} to true
+				clear the loop-player's inventory
+				set slot 0 of loop-player's inventory to wooden sword of knockback 1 and unbreaking 10
+				set loop-player's off hand tool to shield 
+				damage loop-player's off hand tool by 300
+				set loop-player's health to 10
+				set loop-player's hunger to 10
+				set loop-player's saturation to 5
+				set loop-player's game mode to survival 
+		mccwiisportsreset(1)
+		set {mcc.wii.ffa} to true
+		wait 3 seconds
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				send title "<pink>Fight!" to loop-player for 1 second
+				set {mcc.wii.frozen.%loop-player%} to false 
+		
+		
+
+command /mccwiiround <number> <number> <number>:
+	permission: op
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"	
+				exit trigger
+		set {mcc.wii.opponent.%arg 1%} to arg 2
+		set {mcc.wii.opponent.%arg 2%} to arg 1
+		set {mcc.wii.arena.%arg 1%} to arg 3
+		set {mcc.wii.arena.%arg 2%} to arg 3
+		set {_roundnum} to {mcc.wii.wins.%arg 1%} + {mcc.wii.wins.%arg 2%} + 1
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to arg 1 or arg 2:
+				send title "Round %{_roundnum}%" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
+				teleport loop-player to {mcc.wii.platforms::%arg 3%}
+				set {mcc.wii.ingame.%loop-player%} to true
+				set {mcc.wii.frozen.%loop-player%} to true
+				delete {mcc.wii.hitby.%loop-player%}
+				clear the loop-player's inventory
+				set slot 0 of loop-player's inventory to wooden sword of knockback 1 and unbreaking 10
+				set loop-player's off hand tool to shield
+				damage loop-player's off hand tool by 300
+				set loop-player's health to 10
+				set loop-player's hunger to 10
+				set loop-player's saturation to 5
+				set loop-player's game mode to survival 
+		mccwiisportsreset(arg 3)
+		wait 3 seconds
+		if {_roundnum} is equal to 3:
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to arg 1 or arg 2:
+					teleport loop-player to {mcc.wii.platforms::%arg 3%}
+			mccwiisportsfinale(arg 3)
+			wait 5 seconds
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to arg 1 or arg 2:
+				send title "<pink>Fight!" to loop-player for 1 second
+				set {mcc.wii.frozen.%loop-player%} to false 
+				
+
+			
+on damage:
+	attacker is a player
+	victim is a player
+	if {mcc.wii.frozen.%attacker%} is true:
+		send "<pink>The round hasn't started yet!" to attacker
+		cancel event
+	if {mcc.wii.ingame.%victim%} is true:
+		set {mcc.wii.hitby.%victim%} to attacker
+		if damage is greater than or equal to victim's health:
+			set damage to 0
+			mccwiidead(victim, false)
+			set victim's health to 10
+
+on walking on water:
+	if {mcc.wii.ingame.%player%} is true:
+		mccwiidead(player, true)	
+
+on break:
+	if {mcc.wii.ingame.%player%} is true:
+		message "<pink>You cannot break blocks in Wii Sports Swordplay!"
+		cancel event
+
+command /mccwiisports:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"	
+				exit trigger
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				set {immune.%loop-player%} to false
+				set loop-player's game mode to spectator
+				teleport loop-player to {mccwiideadspawn}
+				clear loop-player's inventory
+				mccwiisportstutorial(loop-player)
+		wait 30 seconds
+		execute console command "/mccnewgame"
+		loop 10 times:
+			set {mcc.wii.wins.%loop-number%} to 0
+			set {mcc.wii.totalwins.%loop-number%} to 0
+			delete {mcc.wii.arena.%loop-number%}
+			delete {mcc.wii.opponent.%loop-number%}
+		set {_teams} to 0
+		loop 10 times:
+			set {_good} to false
+			loop all players:
+				if {mcc.team.%loop-player%} is equal to loop-number:
+					set {_good} to true
+			if {_good} is true:
+				add 1 to {_teams}
+		set {mcc.wii.round} to 0
+		set {_bla} to {_teams}
+		if mod({_teams},2) is equal to 0:
+			subtract 1 from {_bla}
+		loop {_bla} times:
+			broadcast "[<gold><bold>Wii Sports Swordplay<white>] Matchup %loop-number% starting now!"
+			add 1 to {mcc.wii.round}
+			mccwiisportsround(loop-number, {_teams})
+			wait 1 second
+			while {mcc.wii.ready} is false:
+				wait 1 second
+			broadcast "[<gold><bold>Wii Sports Swordplay<white>] Matchup %loop-number% complete!"
+			wait 5 seconds
+		#standings
+		broadcast "[<gold><bold>Wii Sports Swordplay<white>] Round-robin phase complete!"
+		wait 3 seconds
+		broadcast "[<gold><bold>Wii Sports Swordplay<white>] Standings:"
+		loop 10 times:
+			add {mcc.wii.totalwins.%loop-number%} to {_teamgamecoins::*}
+			add loop-number to {_already::*}
+		set {_teamgamecoins::*} to sorted {_teamgamecoins::*}
+		loop numbers from 10 to 1:
+			if {_teamgamecoins::%loop-number%} is not equal to 0:
+				set {_good} to false
+				loop 10 times:
+					if {_good} is false:
+						if {_already::*} contains loop-number-2:
+							if {mcc.wii.totalwins.%loop-number-2%} is equal to {_teamgamecoins::%loop-number-1%}:
+								set {_team} to loop-number-2
+								set {_good} to true
+								remove loop-number-2 from {_already::*}
+				set {_bla} to the length of "%11-(loop-number)%. %{mcc.teams::%{_team}%}% %{mcc.wii.totalwins.%{_team}%}%"
+				loop 40-{_bla} times:
+					add " " to {_blabla::*}
+				set {_ba} to join {_blabla::*}
+				broadcast "%11-(loop-number)%. %{mcc.teams::%{_team}%}% %{_ba}% <yellow>%ceil({mcc.wii.totalwins.%{_team}%})%"
+				delete {_blabla::*}
+		wait 5 seconds
+		broadcast "[<gold><bold>Wii Sports Swordplay<white>] Tiebreaker FFA commencing!"
+		execute console command "/mccwiiffa"
+
+		
+function mccwiisportsround(n:number, t:number):
+	set {mcc.wii.ready} to false
+	delete {_tl::*}
+	loop 10 times:
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to loop-number:
+				if {_tl::*} does not contain loop-number:
+					add loop-number to {_tl::*}
+	if {_t} is equal to 2:
+		execute console command "/mccwiiround %{_tl::1}% %{_tl::2}% 1"
+	else if {_t} is equal to 3: 
+		if {_n} is equal to 1:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::2}% 1"
+		else if {_n} is equal to 2:
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::3}% 1"
+		else if {_n} is equal to 3:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::3}% 1"
+	else if {_t} is equal to 4: 
+		if {_n} is equal to 1:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::2}% 1"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::4}% 2"
+		else if {_n} is equal to 2:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::3}% 1"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::4}% 2"
+		else if {_n} is equal to 3:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::4}% 1"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::2}% 2"
+	else if {_t} is equal to 5:
+		if {_n} is equal to 1:
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::3}% 1"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::5}% 2"
+		else if {_n} is equal to 2:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::4}% 1"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::5}% 2"
+		else if {_n} is equal to 3:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::5}% 1"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::2}% 2"
+		else if {_n} is equal to 4:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::3}% 1"
+			execute console command "/mccwiiround %{_tl::5}% %{_tl::2}% 2"
+		else if {_n} is equal to 5:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::2}% 1"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::4}% 2"
+	else if {_t} is equal to 6:
+		if {_n} is equal to 1:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::4}% 1"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::5}% 2"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::6}% 3"
+		else if {_n} is equal to 2:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::5}% 1"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::6}% 2"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::3}% 3"
+		else if {_n} is equal to 3:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::6}% 1"
+			execute console command "/mccwiiround %{_tl::5}% %{_tl::3}% 2"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::2}% 3"
+		else if {_n} is equal to 4:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::3}% 1"
+			execute console command "/mccwiiround %{_tl::6}% %{_tl::2}% 2"
+			execute console command "/mccwiiround %{_tl::5}% %{_tl::4}% 3"
+		else if {_n} is equal to 5:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::2}% 1"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::3}% 2"
+			execute console command "/mccwiiround %{_tl::5}% %{_tl::6}% 3"
+	else if {_t} is equal to 7:
+		if {_n} is equal to 1:
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::7}% 1"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::6}% 2"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::5}% 3"
+		else if {_n} is equal to 2:
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::1}% 1"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::7}% 2"
+			execute console command "/mccwiiround %{_tl::5}% %{_tl::6}% 3"
+		else if {_n} is equal to 3:
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::4}% 1"
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::5}% 2"
+			execute console command "/mccwiiround %{_tl::7}% %{_tl::6}% 3"
+		else if {_n} is equal to 4:
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::5}% 1"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::6}% 2"
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::7}% 3"
+		else if {_n} is equal to 5:
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::6}% 1"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::7}% 2"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::1}% 3"
+		else if {_n} is equal to 6:
+			execute console command "/mccwiiround %{_tl::7}% %{_tl::5}% 1"
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::4}% 2"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::3}% 3"
+		else if {_n} is equal to 7:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::6}% 1"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::5}% 2"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::4}% 3"
+	else if {_t} is equal to 8:
+		if {_n} is equal to 1:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::8}% 1"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::7}% 2"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::6}% 3"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::5}% 4"
+		else if {_n} is equal to 2:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::7}% 1"
+			execute console command "/mccwiiround %{_tl::8}% %{_tl::6}% 2"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::5}% 3"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::4}% 4"
+		else if {_n} is equal to 3:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::6}% 1"
+			execute console command "/mccwiiround %{_tl::7}% %{_tl::5}% 2"
+			execute console command "/mccwiiround %{_tl::8}% %{_tl::4}% 3"
+			execute console command "/mccwiiround %{_tl::2}% %{_tl::3}% 4"
+		else if {_n} is equal to 4:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::5}% 1"
+			execute console command "/mccwiiround %{_tl::6}% %{_tl::4}% 2"
+			execute console command "/mccwiiround %{_tl::7}% %{_tl::3}% 3"
+			execute console command "/mccwiiround %{_tl::8}% %{_tl::2}% 4"
+		else if {_n} is equal to 5:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::4}% 1"
+			execute console command "/mccwiiround %{_tl::5}% %{_tl::3}% 2"
+			execute console command "/mccwiiround %{_tl::6}% %{_tl::2}% 3"
+			execute console command "/mccwiiround %{_tl::7}% %{_tl::8}% 4"
+		else if {_n} is equal to 6:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::3}% 1"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::2}% 2"
+			execute console command "/mccwiiround %{_tl::5}% %{_tl::8}% 3"
+			execute console command "/mccwiiround %{_tl::6}% %{_tl::7}% 4"
+		else if {_n} is equal to 7:
+			execute console command "/mccwiiround %{_tl::1}% %{_tl::2}% 1"
+			execute console command "/mccwiiround %{_tl::3}% %{_tl::8}% 2"
+			execute console command "/mccwiiround %{_tl::4}% %{_tl::7}% 3"
+			execute console command "/mccwiiround %{_tl::6}% %{_tl::5}% 4"
+
+on swim toggle:
+	"%player's world%" is equal to "lobbyworld"
+	player's x-coordinate is between -400 and -600
+	player's z-coordinate is between -100 and 100
+	cancel event

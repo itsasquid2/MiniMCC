@@ -1,0 +1,257 @@
+variables:
+	{mcmonday.parkourwarrior.timeleft} = -1
+	{mcc.parkourwarrior.stage} = 0
+	{fliptrapdoors} = false
+
+function mccparkourwarriortutorial(p:player):
+	wait 3 seconds
+	send title "<yellow>Parkour Warrior" to {_p} for 5 seconds
+	wait 5 seconds
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow>Welcome to Parkour Warrior!" to {_p}
+	send "" to {_p}
+	send "<italics>Here's how you play..." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 3 seconds
+
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Ever wanted to compete in Ninja Warrior? Here's your chance!" to {_p}
+	send "" to {_p}
+	send "Your aim is to get through as much of the course as possible in 10 minutes." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>You are awarded coins for each stage and substage you complete." to {_p}
+	send "" to {_p}
+	send "If you fall, you'll return to the last checkpoint you've reached." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 5 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Extra tips:" to {_p}
+	send "" to {_p}
+	send "- Many of these jumps have tricks to them. Share these with your teammates!" to {_p}
+	send "- Try grunting each time you jump (like in tennis), it really helps, and totally won't annoy your team!" to {_p}
+	send "<pink> - Do not press shift or space on slime blocks! This will screw you up." to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+
+
+
+command /mccparkourwarrior:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "You are poo"
+				exit trigger
+		if {mcmonday.parkourwarrior} is true:
+			set {mcmonday.parkourwarrior} to false
+			message "Parkour warrior is now over."
+			execute console command "/team empty parkour"
+			exit trigger
+		set {mcc.currentevent} to "parkourwarrior"
+		execute console command "/mccnewgame"
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				teleport loop-player to {mccparkourwarrior.start}
+				if "%loop-player's world%" is "parkourwarrior":
+					clear the loop-player's inventory
+					set the loop-player's health to 10
+					set the loop-player's hunger to 10
+					set the loop-player's saturation to 20
+					set {immune.%loop-player%} to false
+					wait a tick
+					set loop-player's game mode to adventure
+					mccparkourwarriortutorial(loop-player)
+			set {mcmonday.parkourwarrior.checkpoint.%loop-player%} to 0
+			loop all players:
+				if loop-player-2 is not equal to loop-player-1:
+					hide loop-player-1 from loop-player-2
+		set {mcc.parkourwarrior.stage} to 0
+		set {mcmonday.parkourwarrior.timeleft} to 45
+		message "Started Parkour warrior!"
+		loop {mcc.parkourwarrior.barriers::*}:
+			set block at loop-value to barrier
+
+
+
+
+every 1 seconds:
+	if {mcmonday.parkourwarrior.timeleft} is greater than 0:
+		loop all players:
+			if loop-player's y-coordinate is less than -64:
+				if {mcmonday.parkourwarrior.checkpoint.%loop-player%} is equal to 0:
+					teleport loop-player to {mccparkourwarrior.start}
+				else:
+					teleport loop-player to {mcmonday.checkpoints::%{mcmonday.parkourwarrior.checkpoint.%loop-player%}%}
+				send "<pink>You fell! Returning to the latest checkpoint." to loop-player
+
+
+on damage:
+	if "%victim's world%" is equal to "parkourwarrior":
+		cancel event
+
+every 1 seconds:
+	if {mcc.paused} is true:
+		exit trigger
+	if {mcmonday.parkourwarrior.timeleft} is greater than 0:
+		subtract 1 from {mcmonday.parkourwarrior.timeleft}
+		if {mcmonday.parkourwarrior.timeleft} is equal to 3:
+			if {mcc.parkourwarrior.stage} is equal to 0:
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						execute console command "/boopboopboopbeep %loop-player%"
+		else if {mcmonday.parkourwarrior.timeleft} is equal to 0:
+			if {mcc.parkourwarrior.stage} is equal to 0:
+				loop {mcc.parkourwarrior.barriers::*}:
+					set block at loop-value to air
+				set {mcmonday.parkourwarrior.timeleft} to 600
+				set {mcmonday.parkourwarrior} to true
+				set {mcc.parkourwarrior.stage} to 1
+			else if {mcc.parkourwarrior.stage} is equal to 1:
+				loop all players:
+					if {mcc.team.%loop-player%} is not equal to 0:
+						send title "<pink>Game over!" to loop-player for 3 seconds
+					set {mcmonday.parkourwarrior} to false
+					loop all players:
+						reveal loop-player-2 to loop-player-1
+				execute console command "/mccstandings"
+				set {mcc.parkourwarrior.stage} to 2
+				set {mcmonday.parkourwarrior.timeleft} to 30
+			else if {mcc.parkourwarrior.stage} is equal to 2:
+				set {mcmonday.parkourwarrior.timeleft} to -1
+				execute console command "/mccbreak"
+			
+
+command /mcmondaycheckpoint <number> <player>:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "You cannot do this!"
+				exit trigger
+		if {mcmonday.parkourwarrior.checkpoint.%arg 2%} is less than arg 1:
+			set {mcmonday.parkourwarrior.checkpoint.%arg 2%} to arg 1
+			#if arg 1 is equal to 1:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <yellow>Stage 1-1 (The Lofty Leap)!"
+			#if arg 1 is equal to 2:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <yellow>Stage 1-2 (The Switchsteps)!"
+			if arg 1 is equal to 3:
+				#broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <yellow>Stage 1-3 (The Pillar Path)!"
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <yellow>Stage 1 (Mesa)!"
+			#if arg 1 is equal to 4:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <magenta>Stage 2-1 (The Barrel Hop)!"
+			#if arg 1 is equal to 5:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <magenta>Stage 2-2 (The Ledge Walk)!"
+			if arg 1 is equal to 6:
+				#broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <magenta>Stage 2-3 (The Switchback)!"
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <magenta>Stage 2 (Garden)!"
+			#if arg 1 is equal to 7:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <lime>Stage 3-1 (The Ladder Hop)!"
+			#if arg 1 is equal to 8:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <lime>Stage 3-2 (The Triple Bounce)!"
+			if arg 1 is equal to 9:
+				#broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <lime>Stage 3-2 (The Ladder Cling)!"
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <lime>Stage 3 (Jungle)!"
+			#if arg 1 is equal to 10:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <gray>Stage 4-1 (The Hanging Panes)!"
+			#if arg 1 is equal to 11:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <gray>Stage 4-2 (The Holey Moley)!"
+			if arg 1 is equal to 12:
+				#broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <gray>Stage 4-3 (The Tuning Forks)!"
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <gray>Stage 4 (Space)!"
+			#if arg 1 is equal to 13:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <blue>Stage 5-1 (The Cliffhanger)!"
+			#if arg 1 is equal to 14:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <blue>Stage 5-2 (The Skeppy Jump)!"
+			if arg 1 is equal to 15:
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <blue>Stage 5 (Blue)!"
+			#if arg 1 is equal to 16:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <light blue>Stage 6-1 (The Fish Bones)!"
+			#if arg 1 is equal to 17:
+			#	broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <light blue>Stage 6-2 (The Ladder Flip)!"
+			if arg 1 is equal to 18:
+				#broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <light blue>Stage 6-3 (The Ice Rings)!"
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <##9e4f0d>Stage 6 (Mushroom)!"
+			if arg 1 is equal to 21:
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <light blue>Stage 7 (Ice)!"
+			if arg 1 is equal to 22:
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <red>Stage 8-1 (Take the L)!"
+			if arg 1 is equal to 23:
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <red>Stage 8-2 (The Sneaky Jumper)!"
+			if arg 1 is equal to 24:
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <gold>has completed <red>Stage 8-3 (The Final Tower)!"
+				broadcast formatted "<%mcccolor({mcc.team.%arg 2%})%>%arg 2% <lime>has completed the entire course!"
+			set {_numcoins} to ceil(arg 1/3)*4+6
+			if mod(arg 1, 3) is equal to 0:
+				add 8*ceil(arg 1/3) to {_numcoins} 
+			if arg 1 is equal to 24:
+				ac(arg 2, {_numcoins}+300, "You completed the entire course!", true)
+			else if mod(arg 1, 3) is equal to 0:
+				ac(arg 2, {_numcoins}, "You completed a stage!", true) 
+			else:
+				ac(arg 2, {_numcoins}, "You completed a substage!",false)
+
+
+on region enter:
+	if {mcc.parkourwarrior.stage} is equal to 2:
+		exit trigger
+	if {mcmonday.parkourwarrior.timeleft} is greater than 0:
+		if the first 2 characters of "%region%" is equal to "pk":
+			set {_bla} to the first index of " " in "%region%"
+			set {_ba} to the last (length of "%region%"-2) characters of "%region%"
+			set {_cpnum} to the first {_bla}-3 characters of {_ba}
+			execute console command "/mcmondaycheckpoint %{_cpnum} parsed as integer% %player%"
+
+on hunger meter change:
+	"%player's world%" is equal to "parkourwarrior"
+	cancel event
+
+on join:
+	if {mcmonday.parkourwarrior} is true:
+		loop all players:
+			if loop-player is not equal to player:
+				hide loop-player from player
+				hide player from loop-player
+	else:
+		loop all players:
+			reveal loop-player to player	
+			reveal player to loop-player
+
+command /trapdoors:
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		if {fliptrapdoors} is true:
+			set {fliptrapdoors} to false
+			message "Now not flipping trapdoors"
+		else:
+			set {fliptrapdoors} to true
+			message "Now flipping trapdoors"
+
+on place of iron trapdoor:
+	if {fliptrapdoors} is true:
+		toggle the event-block
+
+
+
+
+
+
+

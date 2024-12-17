@@ -1,0 +1,219 @@
+on shoot:
+    if event-projectile is snowball:
+        if {spleef.playing.%shooter%} isn't true:
+            if amount of snowball in shooter's inventory is 1:
+                give shooter 15 snowballs
+                set item cooldown of snowball for shooter to 5 seconds
+
+
+
+on join:
+    if player's world is "world":
+        give player 16 snowballs
+
+command /getsnowballs:
+    trigger:
+        if player's world is "world":
+            if {mcc.inprogress} isn't true:
+                if {spleef.playing.%player%} isn't true:
+                    if amount of snowballs in player's inventory is less than 1:
+                        give player 16 snowballs
+
+on projectile collide:
+    if projectile is snowball:
+        if world is "world":
+            if {spleef.playing.%player%} isn't true:
+                damage event-entity by 1 heart
+                knockback event-entity (vector from event-projectile to event-entity)
+            else:
+                cancel event
+
+on projectile hit:
+    if projectile is snowball:
+        if world is "world":
+            if {spleef.inprogress} is true:
+                if event-block is snow block:
+                    set event-block to air
+
+on region enter:
+    # prevents players from bringing in snowballs/elytra into the arena
+    if the first 9 characters of "%region%" are "pvp_arena":
+        if gamemode of player is adventure: # OP players in creative/spectator dont get cleared
+            clear player's inventory
+            apply resistance 255 to player for 5 seconds
+
+on region leave:
+    if the first 9 characters of "%region%" are "pvp_arena":
+        if gamemode of player is adventure: # OP players in creative/spectator dont get cleared
+            clear player's inventory
+
+on death:
+    victim is a player
+    attacker is a player
+    if the first 9 characters of "%region at attacker%" are "pvp_arena":
+        set {_health} to health of victim
+        if {_health} is less than 20:
+            set attacker's health to 20
+        clear victim's inventory
+        give victim 16 snowballs
+        
+        force victim to respawn
+        wait 1 tick
+        teleport victim to {spawn_pvp_arena_loc}
+
+#spleef-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+on rightclick on button:
+    if "%player's world%" is equal to "world":
+        if event-block's z coordinate is -230.5:
+            if {mcc.currentevent} is not equal to "none":
+                message "<pink>You cannot do this now!" to event-player
+                exit trigger
+            if {spleef.playing.%player%} is false:
+                if {spleef.inprogress} is false:
+                    broadcast "<light blue>[Spleef] <white>%player% has joined Spleef!"
+                    teleport player to the location at 160, 87, -224 of world "world"
+                    clear the player's inventory
+                    set slot 4 of player's inventory to gunpowder named "<lime>Ready"
+                    set slot 8 of player's inventory to red dye named "<pink>Leave"
+                    set {spleef.playing.%player%} to true
+                else:
+                    message "<light blue>[Spleef] <pink>This arena is in use!" to event-player
+            else:
+                message "<light blue>[Spleef] <pink>You are already in this game!" to event-player
+
+on join:
+    set {spleef.playing.%player%} to false
+    set player's gamemode to adventure
+
+on rightclick:
+	if {spleef.playing.%player%} is true:
+		if player's tool is red dye named "<pink>Leave":
+			set {spleef.playing.%player%} to false
+			set {spleef.ready.%player%} to false
+			set player's game mode to adventure
+			teleport player to {pktout}
+		else if player's tool is gunpowder named "<lime>Ready":
+			set {spleef.ready.%player%} to true
+			if spleefallready() is true:
+				spleefstartgame()
+			else:
+				set player's tool to lime dye named "<gray>Unready"
+		else if player's tool is lime dye named "<gray>Unready":
+			set {spleef.ready.%player%} to false 
+			set player's tool to gunpowder named "<lime>Ready"
+        
+function spleefallready() :: boolean:
+    set {_good1} to 0
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            if {spleef.ready.%loop-player%} isn't true:
+                return false
+            else:
+                add 1 to {_good1}
+    if {_good1} is less than 2:
+        return false
+    else:
+        return true
+
+on break of snow block:
+    if {spleef.playing.%player%} is true:
+        clear drops
+        give player 1 snowball
+
+on place:
+    if {spleef.playing.%player%} is true:
+        cancel event
+
+on block break:
+    if {spleef.playing.%player%} is true:
+        if event-block is not snow block:
+            cancel event
+
+function spleefstartgame():
+    set {spleef.inprogress} to true
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            clear the loop-player's inventory
+            give loop-player unbreakable iron shovel of efficiency 5
+            set loop-player's health to 10
+            set loop-player's hunger to 10
+            set loop-player's game mode to adventure
+            clear the loop-player's scoreboard
+            set title of loop-player's scoreboard to "<light blue>Spleef"
+            set line 14 of loop-player's scoreboard to ""
+            set line 13 of loop-player's scoreboard to "<lime>Get ready!"	
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            execute console command "/note 6 %loop-player%"
+            send title "<light blue> Starting in" with subtitle "<red>3" to the loop-player for 1 second
+    wait 1 second
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            execute console command "/note 6 %loop-player%"
+            send title "<light blue> Starting in" with subtitle "<yellow>2" to the loop-player for 1 second
+    wait 1 second
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            execute console command "/note 6 %loop-player%"
+            send title "<light blue> Starting in" with subtitle "<green>1" to the loop-player for 1 second
+    wait 1 second
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            execute console command "/note 18 %loop-player%"
+            set loop-player's gamemode to survival
+    set {spleef.timeleft} to 120
+	
+
+every second in "world":
+    if {spleef.inprogress} is true:
+        set {_spleefplayers} to 0
+        if {spleef.timeleft} is greater than 0:
+            subtract 1 from {spleef.timeleft}
+        else:
+            spleefendgame(0)
+            stop
+        loop all players:
+            if {spleef.playing.%loop-player%} is true:
+                add 1 to {_spleefplayers}
+        if {_spleefplayers} is less than 2:
+            spleefendgame(1)
+        loop all players:
+            if {spleef.playing.%loop-player%} is true:
+                set line 13 of loop-player's scoreboard to "<pink>Time left: <white>%time({spleef.timeleft})%"	
+                set line 12 of loop-player's scoreboard to ""
+                set line 11 of loop-player's scoreboard to "<lime>Players left: %{_spleefplayers}%"
+            
+function spleefendgame(n:number):
+    execute console command "/schempaste spleefmap world 160 87 -224"
+    if {_n} is equal to 0:
+        broadcast "<light blue>[Spleef] <yellow>Spleef ended because time ran out"
+    else if {_n} is equal to 1:
+        loop all players:
+            if {spleef.playing.%loop-player%} is true:
+                broadcast "<light blue>[Spleef] <cyan> %loop-player% won spleef!"	
+    set {spleef.inprogress} to false
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            set loop-player's game mode to adventure
+    wait 1 second
+    loop all players:
+        if {spleef.playing.%loop-player%} is true:
+            teleport loop-player to {pktout}
+            clear the loop-player's scoreboard
+            set the loop-player's game mode to adventure
+        set {spleef.playing.%loop-player%} to false
+        set {spleef.ready.%loop-player%} to false
+    set {spleef.timeleft} to 0	
+
+on damage:
+    if {spleef.inprogress} is true:
+        if {spleef.playing.%victim%} is true:
+            if damage cause is an attack:
+                set damage to 0
+            else if damage cause is lava:
+                teleport victim to {pktout}
+                set {spleef.playing.%victim%} to false
+                set {spleef.ready.%victim%} to false
+                clear the victim's scoreboard
+                set the victim's game mode to adventure

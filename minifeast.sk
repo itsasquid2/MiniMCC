@@ -1,0 +1,17 @@
+
+
+command /minifeast <world> <number> <number> <number>:
+	permission: op
+	trigger:
+		execute console command "/schempaste minifeast %arg 1% %arg 2% %arg 3% %arg 4%"
+		set {hg.minifeastloc} to the location at 0.5+arg 2, arg 3, 0.5+arg 4 of the world arg 1 
+		loop blocks in radius 2 of {hg.minifeastloc}:
+			if the loop-block is a chest:
+				if the y-coordinate of the loop-block is greater than arg 3:
+					if the y-coordinate of the loop-block is less than 1+arg 3:
+						add the loop-block to {lootchests::*}
+		execute console command "/fillchests minifeast"
+
+
+
+

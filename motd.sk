@@ -1,0 +1,17 @@
+variables:
+	{motd} = "test"
+
+
+command /motd <text> [<color>]:
+	trigger:
+		if {superop.%player%} is false:
+			message "<pink>You do not have permission to execute this command!"
+			exit trigger
+		if arg 2 is not set:
+			set {motd} to arg 1
+		else:
+			set {motd} to formatted "<%arg 2%>%arg 1%"
+		message "Set the MOTD to %{motd}%"
+
+on server list ping:
+	set the motd to {motd}

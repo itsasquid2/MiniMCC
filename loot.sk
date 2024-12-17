@@ -1,0 +1,146 @@
+variables:
+	{placingchests.%player%} = false
+
+
+on join:
+	set {placinglootchests.%player%} to false
+
+
+command /deltype <string>:
+	permission: op
+	trigger: 
+		if {mcc.hg.loot.%arg 1%::*} is not set:
+			message "<magenta>%arg 1%<reset> is not a loot type yet!"
+		else:
+			delete {mcc.hg.loot.%arg 1%::*}
+			message "Deleted loot type <magenta>%arg 1%.<reset>"
+
+command /viewtype <string>:
+	permission: op
+	trigger:
+		open chest inventory with 6 row named "HG loot gui, type: <light cyan>%arg%" to player
+		set {_items::*} to {mcc.hg.loot.%arg%::*}
+		loop {_items::*}:
+			if player's current inventory doesn't contain loop-value:
+				add loop-value to player's current inventory
+			else:
+				loop all loop-value in player's current inventory:
+					add 1 to item amount of loop-value-2
+		add player to {editingloot::*}
+		set {loottype.%player%} to arg
+
+
+on inventory click:
+	if {editingloot::*} contains event-player:
+		if event-inventory is player's current inventory:
+			cancel event
+			message event-item to event-player
+			if event-inventoryaction is pickup half:
+				set player's tool to event-item
+				remove 1 from item amount of player's tool
+				set event-slot to player's tool
+			else:
+				set player's tool to event-item
+				add 1 to item amount of player's tool
+				set event-slot to player's tool
+		
+on inventory close:
+	if {editingloot::*} contains event-player:
+
+		set {_type} to {loottype.%player%}
+		
+		delete {mcc.hg.loot.%{_type}%::*}
+		loop items in event-inventory:
+			loop amount of loop-item in event-inventory times:
+				add 1 of loop-item to {mcc.hg.loot.%{_type}%::*}
+			# message "%amount of loop-item in {mcc.hg.loot.%{_type}%::*}% %1 of loop-item%" to event-player
+		remove player from {editingloot::*}
+
+command /setamountofitemsheld <number>:
+	permission: op
+	trigger:
+		set player's tool to arg of player's tool
+
+command /placelootchests:
+	permission: op
+	trigger:
+		if {placingchests.%player%} is false:
+			message "<gold>You are now placing loot chests!"
+			set {placingchests.%player%} to true
+		else:
+			message "<gold>You are no longer placing loot chests!"
+			set {placingchests.%player%} to false
+
+
+
+on place of chest:
+	if {placingchests.%player%} is true:
+		add the event-location to {lootchests::*}
+		message "<gold>Placed a loot chest at %event-location%" to event-player
+
+
+
+command /fillchests <string>:
+	permission: op
+	trigger:
+		if arg 1 is equal to "none":
+			delete {lootchests::*}
+			message "<gold>Deleted all loot chests!"
+			exit trigger
+		if {mcc.hg.loot.%arg 1%::*} is empty:
+			message "<magenta>%arg 1%<reset> is not a type of loot!"
+			exit trigger
+		if "%{mcc.hg.loot.%arg 1%::*}%" is "<none>":
+			message "<magenta>%arg 1%<reset> is not a type of loot!"
+			exit trigger
+		loop {lootchests::*}:
+			if block at loop-value is a chest:
+				loop 27 times:
+
+					set slot (loop-value-2) - 1 of inventory of the block at loop-value-1 to a random element out of {mcc.hg.loot.%arg 1%::*}
+					chance of 55%:
+						set slot (loop-value-2) - 1 of inventory of the block at loop-value-1 to air
+					chance of 2%:
+						set slot (loop-value-2) - 1 of inventory of the block at loop-value-1 to cobweb
+					#add a random element out of {pools.%loop-value-2%::*} to the inventory of the block at loop-value-1
+		message "Filled all loot chests with type <magenta>%arg 1%!<reset>"
+		delete {lootchests::*}
+
+command /fillchestskiwi <string>:
+	permission: op
+	trigger:
+		if arg 1 is equal to "none":
+			delete {lootchestskiwi::*}
+			message "<gold>Deleted all loot chests!"
+			exit trigger
+		if {mcc.hg.loot.%arg 1%::*} is empty:
+			message "<magenta>%arg 1%<reset> is not a type of loot!"
+			exit trigger
+		if "%{mcc.hg.loot.%arg 1%::*}%" is "<none>":
+			message "<magenta>%arg 1%<reset> is not a type of loot!"
+			exit trigger
+		loop {lootchestskiwi::*}:
+			set {_loc} to loop-value
+			set {_loc}'s world to {sgworld}
+			#broadcast {_loc}
+			if block at {_loc} is a chest:
+				loop 27 times:
+					# set {_bla} to a random integer between 1 and (length of {mcc.hg.loot.%arg 1%::*} parsed as integer)
+					set slot (loop-value-2) - 1 of inventory of the block at loop-value-1 to a random element out of {mcc.hg.loot.%arg 1%::*}
+					chance of 55%:
+						set slot (loop-value-2) - 1 of inventory of the block at {_loc} to air
+					chance of 2%:
+						set slot (loop-value-2) - 1 of inventory of the block at {_loc} to cobweb
+					#add a random element out of {pools.%loop-value-2%::*} to the inventory of the block at loop-value-1
+		message "Filled all loot chests with type <magenta>%arg 1%!<reset>"
+
+
+
+command /logchestskiwi <number>:
+	permission: op
+	trigger:
+		loop blocks in radius arg around player:
+			if loop-block is a chest:
+				if {lootchestskiwi::*} doesn't contain location of loop-block:
+					add loop-block's location to {lootchestskiwi::*}
+					message "added %loop-block's location%"

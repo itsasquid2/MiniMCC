@@ -1,0 +1,27 @@
+
+
+on target:
+	event-entity is a creeper
+	entity's target is a player
+	set {_bla} to the first index of "'" in "%name of event-entity%"
+	set {_attackername} to the first {_bla}-1 characters of name of event-entity
+	if {mcc.team.%entity's target%} is not equal to 0:
+		if {mcc.team.%entity's target%} is equal to {mcc.team.%{_attackername}%}:
+			cancel event
+
+on pickup of creeper spawn egg:
+	world is "skybattle"			
+	wait a tick
+	loop items in player's inventory:
+		if "%loop-item%" contains "creeper":
+			set the name of the loop-item to "%player%'s creeper"
+
+on inventory click:
+	world is "skybattle"			
+	if "%event-item%" contains "creeper":
+		wait a tick
+		loop items in player's inventory:
+			if "%loop-item%" contains "creeper":
+				set the name of the loop-item to "%player%'s creeper"
+
+

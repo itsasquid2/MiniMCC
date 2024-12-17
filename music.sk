@@ -1,0 +1,142 @@
+variables:
+	{bla} = 0
+	{canplaylevels.%player%} = true
+	{quartz.%player%} = 0
+
+
+command /playmusic <text>:
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		if arg 1 is "none":
+			execute console command "/stopsound @a"
+		else:
+			loop all players:
+				play sound "custom:%arg%" in voice category to loop-player 
+
+
+command /togglemusic:
+	trigger:
+		if {music.%player%} is true:
+			set {music.%player%} to false
+			message "<lime>Toggled music off!"
+			execute console command "/stopsound %player%"
+		else:
+			set {music.%player%} to true
+			message "<lime>Toggled music on!"
+
+command /sendpack [<player>]:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger	
+		if arg 1 is set:
+			send the resource pack from "https://www.dropbox.com/sh/8m0s2uy6y121r31/AAC_qfABkJGNeWMo20E_xX8la?dl=1" to arg 1 
+			#send the resource pack from "https://www.dropbox.com/sh/sjudrhxibdafft6/AACKEyGNqP0me8_Rm_uad9zYa?dl=1" to arg 1
+		else:
+			loop all players:
+				send the resource pack from "https://www.dropbox.com/sh/8m0s2uy6y121r31/AAC_qfABkJGNeWMo20E_xX8la?dl=1" to loop-player
+				#send the resource pack from "https://www.dropbox.com/sh/sjudrhxibdafft6/AACKEyGNqP0me8_Rm_uad9zYa?dl=1" to the loop-player 
+
+
+command /getpack:
+	trigger:
+	#	send the resource pack from "https://www.dropbox.com/sh/rbsqwu4v1m5koxh/AABYRI03XzL8szZRxUQKMtpOa?dl=1" to player
+		send the resource pack from "https://www.dropbox.com/sh/8m0s2uy6y121r31/AAC_qfABkJGNeWMo20E_xX8la?dl=1" to player
+
+
+
+command /getpacksmp:
+	trigger:
+	#	send the resource pack from "https://www.dropbox.com/sh/rbsqwu4v1m5koxh/AABYRI03XzL8szZRxUQKMtpOa?dl=1" to player
+		send the resource pack from "https://www.dropbox.com/scl/fi/6easnz9f65os7wwjpebt4/Smp-Texture-Pack.zip?rlkey=0hn102tnvbmr9120kmtj75c78&dl=1" to player
+
+function noteall(n: number):
+	loop all players:
+		note({_n}, loop-player)
+
+command /note <number> [<player>]:
+	trigger:
+		set {bla} to arg 1
+		subtract 12 from {bla}
+		set {bla} to {bla}/12
+		set {bla} to {bla}*ln(2)
+		set {bla} to exp({bla})
+		if arg 2 is set:
+			play sound "BLOCK_NOTE_BLOCK_PLING" with volume 5 at pitch {bla} for arg 2 from location of arg 2
+		else:
+			loop all players:
+				play sound "BLOCK_NOTE_BLOCK_PLING" with volume 5 at pitch {bla} for loop-player from location of loop-player 
+			
+function note(n: number, p: player):
+	set {_bla} to exp(({_n} - 12)*ln(2)/12) 
+	play sound "BLOCK_NOTE_BLOCK_PLING" with volume 5 at pitch {_bla} for {_p} from location of {_p} 
+
+
+command /boopboopboopbeepall:
+	permission: op
+	trigger:
+		if command sender is not the console:
+			if {mmcc.hoster.%command sender%} isn't true:
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		loop all players:
+			execute console command "/boopboopboopbeep %loop-player%"
+
+command /boopboopboopbeep <player>:
+	executable by: console
+	trigger:
+		note(6, arg 1)
+		send title "<light blue> Starting in" with subtitle "<red>3" to arg 1 for 1 second
+		wait 1 second
+		note(6, arg 1)
+		send title "<light blue> Starting in" with subtitle "<yellow>2" to arg 1 for 1 second
+		wait 1 second
+		note(6, arg 1)
+		send title "<light blue> Starting in" with subtitle "<lime>1" to arg 1 for 1 second
+		wait 1 second
+		note(18, arg 1)
+
+command /bwoop <player>:
+	permission: op
+	trigger:
+		note(8, arg 1)
+		wait 0.1 seconds
+		note(9, arg 1)
+
+command /playlevels <player>:
+	trigger:
+		if arg 1 is not equal to player:
+			message "<pink>You can only play levels for yourself!"
+			exit trigger
+		loop {levelsnotes::*}:
+			if loop-value is not equal to 0:
+				note(loop-value, arg 1)
+			wait 0.225 seconds
+
+
+command /wiisportsfinalemusic [<player>]:
+	executable by: console
+	trigger:
+		note(11, arg 1)
+		wait 0.4 seconds
+		note(11, arg 1)
+		wait 0.4 seconds
+		note(11, arg 1)
+		wait 0.4 seconds
+		note(11, arg 1)
+		wait 0.4 seconds
+		note(11, arg 1)
+		wait 0.6 seconds
+		note(11, arg 1)
+
+
+
+
+
+
+
+
+	

@@ -1,0 +1,147 @@
+# Each stage has: id
+# {mcc.pkwnew.id.name}: name of level
+# {mcc.pkwnew.id.length}: length in blocks
+# {mcc.pkwnew.id.height}: height off the ground, default is 0
+# ID number determines difficulty: 0 = easy, 1 = medium, 2 = hard
+
+command /pkwreg <number> <text> <number> <number>:
+	usage: /pkwreg <id> <name> <length> <height>
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		set {mcc.pkwnew.%arg 1%.name} to arg 2
+		set {mcc.pkwnew.%arg 1%.length} to arg 3
+		set {mcc.pkwnew.%arg 1%.height} to arg 4
+		message "Registered new Parkour Warrior stage with ID %arg 1%, name %arg 2%, length %arg 3%, and height %arg 4%"
+
+# {mcc.pkwnew.idof.(stage)}: ID of stage: Mx-y for main stage x-y, Bx-y for bonus stage x-y, D--x for ending
+# of difficulty D, substage x
+
+command /setpkwid <text> <number>:
+	trigger:
+		if player's name is "itsasquid2":
+			set {mcc.pkwnew.idof.%arg 1%} to arg 2
+
+# {mcc.pkwnew.spawnloc.%player%}: respawn location of player
+# {mcc.pkwnew.lastdojo.%player%}: last dojo checkpoint of player (where they go when they use a teleportation scroll)
+# {mcc.pkwnew.stagesdone.%player%::*}: list of substages completed by player, in string format
+
+# Region Mx-y is the ending of main stage x, substage y
+# Region Bx-y is the ending of bonus stage x, substage y
+# Region D--x is the ending of the difficulty D ending, substage x
+
+# schematics:
+# pkw_dojo: the dojo
+# pkw_entrance: the entrance
+# pkw_fork: the ending fork
+# pkw_bonus_easy_n, pkw_bonus_medium_n, pkw_bonus_hard_n: the nth variation of transition platform. 1 \leq n \leq 3
+# pkw_stageid: stage of a certain id
+# pkw_return_portal: return portal
+# pkw_transition_n: transition platform before each substage of stage n in the main path. length: 14 blocks
+
+
+function pkwregiondefine(p: player, n: text, x1: number, x2: number, y1: number, y2: number, z1: number, z2: number):
+	make {_p} execute command "//pos1 %{_x1}%,%{_y1}%,%{_z1}%"
+	make {_p} execute command "//pos2 %{_x2}%,%{_y2}%,%{_z2}%"
+	make {_p} execute command "/region redefine %{_n}%"
+
+command /settransitionlength <number> <number>:
+	trigger:
+		if command sender is "itsasquid2" or the console:
+			set {mcc.pkwnew.transitionlength.%arg 1%} to arg 2
+
+command /pkwnewgencourse:
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/schempaste pkw_entrance parkourwarriornew 0 -50 0"
+		set {pkw.zcord} to 0 
+		delete {_bonuspathzcords::*}
+
+		# main path
+
+		loop 5 times:
+			execute console command "/schempaste pkw_dojo parkourwarriornew 0 -50 %{pkw.zcord}%"
+			set {mcc.pkwnew.dojospawn.%(loop-number)-1%} to the location at -7, -50, {pkw.zcord}+7 of world "parkourwarriornew"
+			if loop-number is not equal to 1:
+				pkwregiondefine(player, "M%(loop-number) - 1%-3", -4, 4, -51, -45, {pkw.zcord}+1, {pkw.zcord}+4)
+				set {mcc.pkwnew.respawnloc.M%(loop-number) - 1%-3} to the location at 0, -50, {pkw.zcord}+2 of world "parkourwarriornew"
+			add {pkw.zcord}+12 to {_bonuspathzcoords::*}
+			add 28 to {pkw.zcord}
+			loop 3 times:
+				execute console command "/schempaste pkw_transition_%loop-number-1% parkourwarriornew 0 -50 %{pkw.zcord}%"
+				pkwregiondefine(player, "M%loop-number-1%-%(loop-number-2)-1%", -4, 4, -51, -45, {pkw.zcord}+1, {pkw.zcord}+4)
+				set {mcc.pkwnew.respawnloc.M%loop-number-1%-%(loop-number-2)-1%} to the location at 0, -50, {pkw.zcord}+2 of world "parkourwarriornew"
+				add {mcc.pkwnew.transitionlength.%loop-number-1%} to {pkw.zcord}
+				set {_stagenum} to "M%loop-number-1%-%loop-number-2%"
+				message "%{mcc.pkwnew.idof.%{_stagenum}%}%"
+				execute console command "/schempaste pkw_%{mcc.pkwnew.idof.%{_stagenum}%}% parkourwarriornew 0 -50 %{pkw.zcord}%"
+				add {mcc.pkwnew.%{mcc.pkwnew.idof.%{_stagenum}%}%.length} to {pkw.zcord}
+
+					
+		# bonus paths	
+
+		message "%{_bonuspathzcoords::*}%"
+		loop 5 times:
+			set {_xcord} to -12
+			set {_ycord} to -50
+			loop 3 times:
+				set {_stagenum} to "B%loop-number-1%-%loop-number-2%"
+				set {_id} to {mcc.pkwnew.idof.%{_stagenum}%}
+				message "%{_id}%"
+				if {_id} is less than 200:
+					set {_diff} to "easy"
+				else if {_id} is less than 300:
+					set {_diff} to "medium"
+				else:
+					set {_diff} to "hard"		
+				set {_rand} to a random integer between 1 and 3
+				execute console command "/schempaste pkw_bonus_%{_diff}%_%{_rand}% parkourwarriornew %{_xcord}% %{_ycord}% %{_bonuspathzcoords::%loop-number-1%}%"
+				pkwregiondefine(player, "B%loop-number-1%-%(loop-number-2)-1%", {_xcord}-1, {_xcord}-4, {_ycord}-1, {_ycord}+5, {_bonuspathzcoords::%loop-number-1%}-4, {_bonuspathzcoords::%loop-number-1%}+4) 
+				set {mcc.pkwnew.respawnloc.B%loop-number-1%-%(loop-number-2)-1%} to the location at {_xcord}-4, {_ycord}, {_bonuspathzcoords::%loop-number-1%} of world "parkourwarriornew"
+				set yaw of {mcc.pkwnew.respawnloc.B%loop-number-1%-%(loop-number-2)-1%} to 90
+				
+				subtract 10 from {_xcord}
+				message "%{_stagenum}%"
+				message "pkw_%{mcc.pkw.idof.%{_stagenum}%}%"
+				message "%{mcc.pkwnew.%{mcc.pkwnew.idof.%{_stagenum}%}%.length}%"
+				execute console command "/schempaste pkw_%{mcc.pkwnew.idof.%{_stagenum}%}% parkourwarriornew %{_xcord}% %{_ycord}% %{_bonuspathzcoords::%loop-number-1%}%"
+				subtract {mcc.pkwnew.%{mcc.pkwnew.idof.%{_stagenum}%}%.length} from {_xcord}
+				add {mcc.pkwnew.%{mcc.pkwnew.idof.%{_stagenum}%}%.height} to {_ycord}	
+			execute console command "/schempaste pkw_return_portal parkourwarriornew %{_xcord}% %{_ycord}% %{_bonuspathzcoords::%loop-number-1%}%"
+			pkwregiondefine(player, "B%loop-number-1%-3", {_xcord}-13, {_xcord}-15, {_ycord}+3, {_ycord}+8, {_bonuspathzcoords::%loop-number-1%}-4, {_bonuspathzcoords::%loop-number-1%}+4) 
+			# If the last region a player entered is a B-3, rather than respawning at respawnloc.B-3, they respawn at the last dojo
+
+		# ending
+	
+		execute console command "/schempaste pkw_ending parkourwarriornew 0 -50 %{pkw.zcord}%"
+		pkwregiondefine(player, "M5-3", -4, 4, -51, -45, {pkw.zcord}+1, {pkw.zcord}+4)
+		set {mcc.pkwnew.respawnloc.M5-3} to the location at 0, -50, {pkw.zcord}+2 of world "parkourwarriornew"
+		set {mcc.pkwnew.dojospawn.5} to the location at 0, -50, {pkw.zcord}+2 of world "parkourwarriornew" 
+		loop 5 times:
+			set {mcc.pkwnew.respawnloc.B%loop-number%-3} to {mcc.pkwnew.dojospawn.%(loop-number)-1%} 
+		pkwregiondefine(player, "1--0", 30, 37, -47, -39, {pkw.zcord}+27, {pkw.zcord}+30)
+		set {mcc.pkwnew.respawnloc.1--0} to the location at 34, -45, {pkw.zcord}+30 of world "parkourwarriornew"
+		pkwregiondefine(player, "1--3", 34, 40, -34, -28, {pkw.zcord}+78, {pkw.zcord}+81)
+		pkwregiondefine(player, "2--0", -4, 3, -52, -44, {pkw.zcord}+29, {pkw.zcord}+32)
+		set {mcc.pkwnew.respawnloc.2--0} to the location at 0, -50, {pkw.zcord}+32 of world "parkourwarriornew"
+		pkwregiondefine(player, "2--1", -3, 4, -54, -46, {pkw.zcord}+67, {pkw.zcord}+70)
+		set {mcc.pkwnew.respawnloc.2--1} to the location at 1, -52, {pkw.zcord}+70 of world "parkourwarriornew"
+		pkwregiondefine(player, "2--2", -3, 4, -50, -43, {pkw.zcord}+101, {pkw.zcord}+104)
+		set {mcc.pkwnew.respawnloc.2--2} to the location at 1, -48, {pkw.zcord}+104 of world "parkourwarriornew"
+		pkwregiondefine(player, "2--3", -1, 5, -47, -41, {pkw.zcord}+132, {pkw.zcord}+135)
+		pkwregiondefine(player, "3--0", -37, -31, -47, -39, {pkw.zcord}+27, {pkw.zcord}+30)
+		set {mcc.pkwnew.respawnloc.3--0} to the location at -33, -45, {pkw.zcord}+30 of world "parkourwarriornew"
+		pkwregiondefine(player, "3--1", -39, -32, -54, -47, {pkw.zcord}+56, {pkw.zcord}+59)
+		set {mcc.pkwnew.respawnloc.3--1} to the location at -34, -52, {pkw.zcord}+59 of world "parkourwarriornew"
+		pkwregiondefine(player, "3--2", -38, -32, -52, -44, {pkw.zcord}+94, {pkw.zcord}+97)
+		set {mcc.pkwnew.respawnloc.3--1} to the location at -34, -50, {pkw.zcord}+97 of world "parkourwarriornew"
+		pkwregiondefine(player, "3--3", -37, -31, -32, -26, {pkw.zcord}+116, {pkw.zcord}+119)
+		
+		# offsets: easy (34, 4, 25), med (0, 0, 25), hard (-34, 4, 25)
+
+			
