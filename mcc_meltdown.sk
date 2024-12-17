@@ -424,6 +424,7 @@ command /mccmeltdown:
 			execute console command "/mccnewgame"
 			set {mcc.currentevent} to {meltdownworld}
 			set {mcc.meltdown.timeleft} to 80
+			delete {mcc.meltdown.arrowsshot::*}
 			loop all players:
 				meltdowntutorial(loop-player)
 		else:
@@ -442,10 +443,26 @@ command /mccmeltdown:
 		loop 4 times:
 			execute console command "/closedoor %loop-number%"
 		
-			
+on shoot:
+	world is "meltdown"
+	if {mcc.meltdown.trackarrowsshot} is true:
+		add 1 to {mcc.meltdown.arrowsshot::%player%}
 
-	
-		
+command /meltdowntogglearrowtracker <boolean>:
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			set {mcc.meltdown.trackarrowsshot} to arg
+			message "Toggled arrow tracking in meltdown to %arg%"
+
+command /meltdownviewarrowsshot:
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			set {mcc.meltdown.arrowsshot::*} to sorted {mcc.meltdown.arrowsshot::*}
+			loop {mcc.meltdown.arrowsshot::*}:
+				loop all players:
+					if {mcc.meltdown.arrowsshot::%loop-player%} is equal to loop-value-1:
+						message "%loop-player% - %loop-value-1%"
+
 
 every second:
 	if {mcc.meltdown.timeleft} is equal to 0:
