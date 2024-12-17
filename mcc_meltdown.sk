@@ -27,7 +27,7 @@ function meltdowntutorial(p:player):
 
     send "<lime>--------------------------------------------------" to {_p}
     send "" to {_p}
-    send "To collected <gold>Coin Crates<reset>, take your team's telepickaxe by rightclicking, and mine it!" to {_p}
+    send "To collect <gold>Coin Crates<reset>, take your team's telepickaxe by rightclicking, and mine it!" to {_p}
     send "" to {_p}
     send "<bold>Coin crate coins are shared across your team." to {_p}
     send "" to {_p}
@@ -38,9 +38,9 @@ function meltdowntutorial(p:player):
 
     send "<lime>--------------------------------------------------" to {_p}
     send "" to {_p}
-    send "Every once in a while, the <gold><bold>gold rush <reset>will occur!" to {_p}
+    send "At certain times in each round, rooms will start to melt." to {_p}
     send "" to {_p}
-    send "During this time, everyone must scramble to get as much gold as possible from the gold mine before they are teleported back." to {_p}
+    send "During this time, everyone in the room needs to scramble to get out, or they will be trapped inside!" to {_p}
     send "" to {_p}
     send "" to {_p}
     send "<lime>--------------------------------------------------" to {_p}
@@ -49,7 +49,7 @@ function meltdowntutorial(p:player):
 
     send "<lime>--------------------------------------------------" to {_p}
     send "" to {_p}
-    send "Don't forget to watch for secrete caches of ores locked away behind copper walls! Remember, these walls are too strong for dynamite to explode, use the tnt minecart instead." to {_p}
+    send "Don't forget to pay attention to the chat so you don't get stuck in a melting room!" to {_p}
     send "" to {_p}
     send "Work together, communicate, and good luck!" to {_p}
     send "" to {_p}
@@ -423,8 +423,14 @@ command /mccmeltdown:
 			set {meltdownworld} to "meltdown"
 			execute console command "/mccnewgame"
 			set {mcc.currentevent} to {meltdownworld}
+			set {mcc.meltdown.timeleft} to 80
+			loop all players:
+				meltdowntutorial(loop-player)
+		else:
+			set {mcc.meltdown.timeleft} to 15
+			
 		set {mcc.meltdown.stage} to 0
-		set {mcc.meltdown.timeleft} to 80
+		
 		
 		loop all players:
 			teleport loop-player to {mcc.meltdown.spawnloc.%{mcc.team.%loop-player's name%}%}
