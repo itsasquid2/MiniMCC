@@ -379,6 +379,7 @@ on place of red candle:
     set event-block to air
     set explosion yield of last spawned entity to 1
     add "dynamite" to scoreboard tags of last spawned entity
+    add "%player's name%" to scoreboard tags of last spawned entity
     instantly explode last spawned entity
 
 on explode:
@@ -427,14 +428,17 @@ on explode:
                 set loop-block to air
                 drop raw gold at loop-block's location
     else:
-        create a safe explosion of force 2.5 at event-location
-        loop exploded blocks:
+        loop scoreboard tags of event-entity:
+            if loop-value isn't "dynamite":
+                set {_player} to loop-value parsed as player
+        create a safe explosion of force 4 at event-location
+        loop blocks in radius 5 of event-location:
             if loop-block is cobblestone:
                 set loop-block to gravel
             else if loop-block is concrete:
                 if loop-block isn't black concrete or light gray concrete:
                     set loop-block to air
-                    drop loop-block at loop-block's location
+                    give 1 of type of loop-block to {_player}
             else if loop-block is gravel:
                 set loop-block to air
             else if loop-block is cracked stone brick:
@@ -443,7 +447,7 @@ on explode:
                 set loop-block to cracked stone brick
             else if loop-block is gold ore:
                 set loop-block to air
-                drop raw gold at loop-block's location
+                give raw gold to {_player}
 
 # on explode:
 #     world is "railroadrush"
@@ -527,7 +531,10 @@ on break:
                             if event-block isn't cobblestone:
                                 if event-block isn't gravel:
                                     if event-block isn't raw gold block:
-                                        cancel event
+                                        if event-block isn't brown wool:
+                                            cancel event
+    if event-block is brown wool:
+        clear drops
     if event-block is cobblestone or gravel:
         clear drops
     if event-block is black concrete:
@@ -538,7 +545,12 @@ on break:
         cancel event
     if event-block is light gray concrete:
         cancel event
-                                
+
+on leftclick on brown wool:
+    world is "railroadrush"
+    player's gamemode is survival
+    set event-block to air
+
 on place:
     world is "railroadrush"
     player's gamemode is survival
@@ -546,7 +558,11 @@ on place:
         if event-block isn't rail:
             if event-block isn't golden rail:
                 if event-block isn't red candle:
-                    cancel event
+                    if event-block isn't brown wool:
+                        cancel event
+    if event-block is brown wool:
+        wait 5 seconds
+        set event-block to air
     
 command /mccrailroadrush:
     trigger:
@@ -577,6 +593,7 @@ command /mccrailroadrush:
             dye loop-player's helmet mcccolor({mcc.team.%loop-player's name%})
             set loop-player's boots to {mcc.rrr.boots}
             dye loop-player's boots mcccolor({mcc.team.%loop-player's name%})
+            give loop-player 320 brown wool named "Temporary Block" with lore "It decays after 5 seconds!"
             railroadrushtutorial(loop-player)
         wait 1 second
         loop all players:
@@ -599,10 +616,22 @@ every second:
         else if {mcc.rrr.timeleft} is 3:
             execute console command "/boopboopboopbeepall"
     else if {mcc.rrr.stage} is 1:
-        if {mcc.rrr.timeleft} is 220:
+        if {mcc.rrr.timeleft} is 230:
+            loop 10 times:
+                broadcast "<gold><bold>Gold Rush<reset><light cyan> starts in <cyan>%11-loop-number% <light cyan>seconds."
+                wait 1 second
+        else if {mcc.rrr.timeleft} is 220:
             rrrgoldrush(3)
+        else if {mcc.rrr.timeleft} is 460:
+            loop 10 times:
+                broadcast "<gold><bold>Gold Rush<reset><light cyan> starts in <cyan>%11-loop-number% <light cyan>seconds."
+                wait 1 second
         else if {mcc.rrr.timeleft} is 450:
             rrrgoldrush(2)
+        else if {mcc.rrr.timeleft} is 670:
+            loop 10 times:
+                broadcast "<gold><bold>Gold Rush<reset><light cyan> starts in <cyan>%11-loop-number% <light cyan>seconds."
+                wait 1 second
         else if {mcc.rrr.timeleft} is 660:
             rrrgoldrush(1)
         else if {mcc.rrr.timeleft} is 418:
@@ -699,26 +728,26 @@ on hunger bar change:
 command /spawnrrrvillager <text>:
     permission: op
     trigger:
-        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%arg%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,tag:{display:{Name:'{""text"":""Dynamite"",""color"":""red""}'}}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
-        #spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:1},sell:{id:rail,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:3},sell:{id:%arg%_concrete,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:5},sell:{id:powered_rail,Count:1}},{maxUses:999,buy:{id:raw_gold,Count:3},sell:{id:red_candle,Count:1,tag:{display:{Name:'{""text"":""Dynamite"",""color"":""red""}'}}}}]},Invulnerable:1b,PersistenceRequired:1b}"
+        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%arg%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+        #spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:1},sell:{id:rail,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:3},sell:{id:%arg%_concrete,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:5},sell:{id:powered_rail,Count:1}},{maxUses:999,buy:{id:raw_gold,Count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,PersistenceRequired:1b}"
         set spawned entity's name to "<gold>Golden Gabriel"
 
 command /spawnrrrvillager_in_all_lanes:
     permission: op
     trigger:
-        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,tag:{display:{Name:'{""text"":""Dynamite"",""color"":""red""}'}}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
         set spawned entity's name to "<gold>Golden Gabriel"
         loop 9 times:
             if "%mcccolor(loop-number + 1)%" is "light cyan":
                 set {_color} to "cyan"
 
-                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,tag:{display:{Name:'{""text"":""Dynamite"",""color"":""red""}'}}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
             else if "%mcccolor(loop-number + 1)%" is "light green":
                 set {_color} to "lime"
 
-                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,tag:{display:{Name:'{""text"":""Dynamite"",""color"":""red""}'}}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
             else:
-                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number + 1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,tag:{display:{Name:'{""text"":""Dynamite"",""color"":""red""}'}}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number + 1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
             set spawned entity's name to "<gold>Golden Gabriel"
 
 command /maxlvlrrrvillagers:

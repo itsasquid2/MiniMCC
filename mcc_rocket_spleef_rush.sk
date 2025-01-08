@@ -271,10 +271,8 @@ on rightclick:
 		if {mcc.rsr.cooldown.%player's name%} is false:
 			
 			shoot a fireball
-			if {mcc.inprogress} is false:
-				
-				set the explosion radius of shot fireball to {roguelike.fireball.%player's name%}/2
-			
+			if {mcc.rocketspleefrush.trackarrowsshot} is true:
+				add 1 to {mcc.rocketspleefrush.arrowsshot::%player%}
 			subtract 3 from {mcc.rsr.ammo.%player's name%}
 			set {mcc.rsr.cooldown.%player's name%} to true
 			wait 1 second
@@ -448,6 +446,7 @@ command /mccrocketspleefrush:
 		set {mcc.rsr.oldstage} to 0
 		#execute console command "/resetrsrworld"
 		genterrain(0, -30, 0)
+		delete {mcc.rocketspleefrush.arrowsshot::*}
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.3}%} to 30
@@ -471,6 +470,22 @@ command /mccrocketspleefrush:
 		
 	
 
+
+
+command /rocketspleefrushtoggleshottracker <boolean>:
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			set {mcc.rocketspleefrush.trackarrowsshot} to arg
+			message "Toggled rocket tracking in rocketspleefrush to %arg%"
+
+command /rocketspleefrushviewrocketsshot:
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			set {mcc.rocketspleefrush.arrowsshot::*} to sorted {mcc.rocketspleefrush.arrowsshot::*}
+			loop {mcc.rocketspleefrush.arrowsshot::*}:
+				loop all players:
+					if {mcc.rocketspleefrush.arrowsshot::%loop-player%} is equal to loop-value-1:
+						message "%loop-player% - %loop-value-1%"
 
 every second:
 	if {mcc.paused} is true:

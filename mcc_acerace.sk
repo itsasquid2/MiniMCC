@@ -26,6 +26,14 @@ command /setbarrieracerace:
 					add loop-block to {mcc.acerace.barriers::*}
 					broadcast "barriered"
 
+command /removebarrieracerace <text>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			loop {mcc.acerace.barriers::*}:
+				if "%world of loop-value%" is arg:
+					remove loop-value from {mcc.acerace.barriers::*}
+			message "unbarriered"	
+
 function mccaceracenextcp(p:player) :: location:
 	set {_n} to mod({mcc.acerace.checkpoint.%{_p}%} + 2, 12)
 	if {_p}'s world is "acerace":
@@ -104,6 +112,9 @@ every tick:
 			loop {_regions::*}:
 				if the first 5 characters of "%loop-value-2%" are "windw":
 					push loop-value-1 west with speed 0.05
+					#set {_v} to velocity of loop-value-1
+					#set {_v} to {_v} ++ vector(-0.5,0,0)
+					#set velocity of loop-value-1 to {_v}
 		else:
 			remove loop-value from {mcc.acerace.windwest::*}
 
@@ -563,6 +574,22 @@ every second:
 					subtract 1 from {mcc.acerace.checkpoint.%loop-player's name%}
 					set loop-player's chestplate to air
 
+on rightclick with paper:
+	"%event-player's world%" starts with "acerace"
+	add 1 to {mcc.acerace.checkpoint.%event-player's name%}
+	if "%event-player's world%" is equal to "acerace":
+		teleport event-player to {mcc.acerace.checkpoints::%{mcc.acerace.checkpoint.%event-player's name%}%}
+	else if "%event-player's world%" is equal to "acerace2":
+		teleport event-player to {mcc.acerace2.checkpoints::%{mcc.acerace.checkpoint.%event-player's name%}%}
+	else if "%event-player's world%" is equal to "acerace3":
+		teleport event-player to {mcc.acerace3.checkpoints::%{mcc.acerace.checkpoint.%event-player's name%}%}
+	else if "%event-player's world%" is equal to "acerace4":
+		teleport event-player to {mcc.acerace4.checkpoints::%{mcc.acerace.checkpoint.%event-player's name%}%}
+	else if "%event-player's world%" is equal to "acerace5":
+		teleport event-player to {mcc.acerace5.checkpoints::%{mcc.acerace.checkpoint.%event-player's name%}%}
+	subtract 1 from {mcc.acerace.checkpoint.%event-player's name%}
+	set event-player's chestplate to air
+
 on walking on lava:
 	if player's world is "acerace4":
 		add 1 to {mcc.acerace.checkpoint.%player's name%}
@@ -606,6 +633,7 @@ command /mccacerace:
 				set loop-player's game mode to adventure
 				clear the loop-player's inventory
 				give a trident of riptide 3 and unbreaking 10 to the loop-player
+				give a paper named "<gold>Teleport Scroll" with lore "right click to return to your checkpoint!" to loop-player
 				set the loop-player's boots to leather boots
 				dye the loop-player's boots mcccolor({mcc.team.%loop-player's name%})
 				set {mcc.acerace.checkpoint.%loop-player's name%} to 0
@@ -613,6 +641,7 @@ command /mccacerace:
 				set {bouncepadcooldown.%loop-player's name%} to false
 				mccaceracetutorial(loop-player)
 				hide loop-player from all players
+				set loop-player's gamemode to adventure
 		set {mcc.currentevent} to "acerace"
 		set {mcc.acerace.playersdone} to 0	
 		set {mcc.acerace.timeleft} to 60 
@@ -624,6 +653,7 @@ command /mccacerace:
 		if {mcc.acerace.mapnum} is equal to 2:
 			execute console command "/kc keeprail coords -84 68 -93 acerace2"
 		execute console command "/resetaceraceflycooldowns"
+		set gamemode of all players to adventure
 
 on join:
 	wait 2 seconds

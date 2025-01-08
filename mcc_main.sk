@@ -960,8 +960,9 @@ command /psa <text>:
 		if {mmcc.hoster.%command sender%} isn't true:
 			if command sender is not "MiniMCC":
 				if command sender is not "notcbop":
-					message "<pink>You do not have permission to run this command!"
-					exit trigger
+					if {mmcc.hosts::*} doesn't contain the command sender:
+						message "<pink>You do not have permission to run this command!"
+						exit trigger
 		
 		if arg 1 is equal to "bored2":
 			broadcast "<cyan>--------------------------------------------------"
@@ -1029,25 +1030,27 @@ command /endbreak:
 	trigger:
 		if command sender is not the console:
 			if {mmcc.hoster.%command sender%} isn't true:
-				if command sender is not "notcbop":
-					message "<pink>You do not have the permission to run this command!"
-					exit trigger
+				if {mmcc.hosters::*} doesn't contain the command sender:
+					if command sender is not "notcbop":
+						message "<pink>You do not have the permission to run this command!"
+						exit trigger
 		set {mcc.break.timeleft} to 1
 	
 command /endbreakandreset:
 	trigger:
 		if command sender is not the console:
 			if {mmcc.hoster.%command sender%} isn't true:
-				if command sender is not "notcbop":
-					message "<pink>You do not have the permission to run this command!"
-					exit trigger
+				if {mmcc.hosters::*} doesn't contain the command sender:
+					if command sender is not "notcbop":
+						message "<pink>You do not have the permission to run this command!"
+						exit trigger
 		set {mcc.break.timeleft} to -1
 		set {mcc.currentevent} to "none"
 		set {mcc.inprogress} to false
 	
 command /randomlygivemegachicken:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hoster.%command sender%} is true:
 			loop all players:
 				if loop-player's world is "mini_mcc_town":
 					add loop-player to {_random::*}

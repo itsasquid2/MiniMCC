@@ -75,16 +75,16 @@ function skbrad(time:number) :: number:
 	set {_t} to {_time}+20
 	if {_t} is greater than or equal to 180:
 		set {_e} to 240-{_t}
-		return 85-floor({_e}/3)
+		return 115-floor({_e}/3)
 	else if {_t} is greater than or equal to 120:
 		set {_e} to 180-{_t}
-		return 65-floor({_e}/4)
+		return 95-floor({_e}/2)
 	else if {_t} is greater than or equal to 90:
 		set {_e} to 120-{_t}
-		return 50-floor({_e}/3)
+		return 65-floor({_e}/2)
 	else if {_t} is greater than or equal to 14:
 		set {_e} to 90-{_t}
-		return 40-floor({_e}/2)
+		return 50-floor({_e}/1.5)
 
 function skbheight(time:number) :: number:
 	set {_t} to {_time}+20
@@ -94,18 +94,6 @@ function skbheight(time:number) :: number:
 	else:
 		set {_e} to 30-{_t}
 		return 75 - floor({_e}/3)	
-
-function eff(l:location):
-	draw 1 dust using dustOption(red, 5) at {_l}
-	#play {_v} at {_l} to all players 
-
-command /dusty:
-	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
-			set {loc2} to the location 2, 2, 0
-			draw 20 of dust using dustOption(red, 5) at {loc2}
-			execute console command "/say %{loc2}%"
-
 
 
 function skbover() :: boolean:
@@ -123,7 +111,6 @@ function skbover() :: boolean:
 
 
 function skbislands():
-	set size of world border of world "skybattle" to 400
 	delete {skbperm::*}
 	loop numbers from 1 to 10:
 		add loop-number to {skbperm::*}
@@ -152,7 +139,6 @@ function skbislands():
 			give a bow to the loop-player
 			set loop-player's level to 0
 			set loop-player's level progress to 0
-	shrink world border of world "skybattle" to 10 in 180 seconds
 
 on rightclick with popped chorus fruit:
 	player's world is "skybattle"
@@ -168,6 +154,21 @@ on rightclick with popped chorus fruit:
 
 
 
+command /skybattletoggleblockstracker <boolean>:
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			set {mcc.skybattle.trackarrowsshot} to arg
+			message "Toggled block tracking in skybattle to %arg%"
+
+command /skybattleviewblocksplaced:
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			set {mcc.skybattle.arrowsshot::*} to sorted {mcc.skybattle.arrowsshot::*}
+			loop {mcc.skybattle.arrowsshot::*}:
+				loop all players:
+					if {mcc.skybattle.arrowsshot::%loop-player%} is equal to loop-value-1:
+						message "%loop-player% - %loop-value-1%"
+
 
 command /mccskbresetmap:
 	trigger:
@@ -176,12 +177,12 @@ command /mccskbresetmap:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		
-		#execute console command "/schempaste skybattle skybattle 0 103 0"
+		execute console command "/schempaste skybattle5 skybattle 0 24 0"
 		#execute console command "/schempaste skybattle2 skybattle 0 103 0"
 		
 		
 		#execute console command "/schempaste skbleredux skybattle 0 103 0"
-		execute console command "/schempaste skybattle4 skybattle 0 103 0"
+		#execute console command "/schempaste skybattle4 skybattle 0 103 0"
 		loop all dropped items in "skybattle":
 			delete the loop-entity
 		loop all creepers in "skybattle":
@@ -201,7 +202,7 @@ command /mccskybattle:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
-		set size of world border of world "skybattle" to 400
+		set {mcc.skybattle.borderradius} to 140
 		set {mcc.skybattle.timeleft} to 120
 		set {mcc.skybattle.stage} to 0
 		set {mcc.skybattle.roundnum} to 1
@@ -251,20 +252,37 @@ on place of concrete:
 	"%player's world%" is equal to "skybattle" 
 	player's gamemode is survival
 	
-	if event-block's y coordinate is less than 142:
-		if event-block's y coordinate is more than 84:
+	if event-block's y coordinate is less than 68:
+		if event-block's y coordinate is more than 0:
+			if {mcc.skybattle.trackarrowsshot} is true:
+				add 1 to {mcc.skybattle.arrowsshot::%player%}
 			wait 1 tick
 			if type of player's off hand tool is concrete:
 				add 1 to item amount of player's off hand tool
 			else:
 				give 1 of event-item to player
+			
 		else:
 			cancel event
 			send action bar "Sorry, but you can't build there!" to event-player
 	else:
 		cancel event
-		send action bar "Build height for skybattle is 142" to event-player
+		send action bar "Build height for skybattle is 68" to event-player
 	
+function skbgenparticlecircle(radius:number, amount:number):
+	loop {_amount} times:
+		set {_angle} to 360/{_amount}*(loop-number - 1)
+		#broadcast location({_radius}*sin({_angle}), 23, {_radius}*cos({_angle}), world "skybattle")
+		loop 15 times:
+			draw 5 of dust using dustOption(red,20) at location({_radius}*sin({_angle}), loop-number-2 * 5, {_radius}*cos({_angle}), world "skybattle")
+
+function skbshouldplayertakeborderdamage(p:player) :: boolean:
+	set {_loc} to {_p}'s location
+	set y-coord of {_loc} to 0
+	if distance between {_loc} and location(0,0,0,world "skybattle") is greater than {mcc.skybattle.borderradius}:
+		return true
+	else:
+		return false
 
 on damage of player:
 	"%victim's world%" is equal to "skybattle"
@@ -384,8 +402,7 @@ every second:
 		if {mcc.skybattle.stage} is equal to 1:
 			set {mcc.skybattle.borderradius} to skbrad({mcc.skybattle.timeleft})
 			set {mcc.skybattle.borderheight} to skbheight({mcc.skybattle.timeleft})
-			
-	
+			skbgenparticlecircle({mcc.skybattle.borderradius},({mcc.skybattle.borderradius}*2*3.1415)/3+10)
 		loop all players:
 			if loop-player's game mode is survival or adventure:
 				if {mcc.team.%loop-player's name%} is not equal to 0:
@@ -395,6 +412,8 @@ every second:
 								damage loop-player by 100 hearts 
 							else:
 								teleport loop-player to {mcc.skybattle.startinglocs.%{skbperm::%{mcc.team.%loop-player's name%}%}%}
+						if skbshouldplayertakeborderdamage(loop-player) is true:
+							damage loop-player by 1 heart
 						
 				if {mcc.team.%loop-player's name%} is not equal to 0:
 					if {skb.ctimer.%loop-player's name%} is greater than 0:

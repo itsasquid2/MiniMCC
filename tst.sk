@@ -57,7 +57,14 @@ command /vanishallreal:
                 loop all players:
                     hide loop-player-1 from loop-player-2
 
-
+command /copymeltdownmap:
+    trigger:
+        if {mmcc.hoster.%command sender%} is true:
+            execute console command "/mvtp %player% meltdownmap"
+            wait 2 seconds
+            make player execute command "//pos1 -1227,33,-1227"
+            make player execute command "//pos2 -770,-65,-770"
+            make player execute command "//copy"
         
 command /unvanishall:
     trigger:

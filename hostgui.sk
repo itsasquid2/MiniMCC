@@ -19,6 +19,7 @@ command /hostpanel:
 			set slot 14 of player's current inventory to diamond block named "<green>Start Parkour Warrior"
 			set slot 15 of player's current inventory to golden shovel named "<green>Start Rocket Spleef Rush"
 			set slot 16 of player's current inventory to rail named "<green>Start Railroad Rush"
+			set slot 17 of player's current inventory to bow named "<green>Start Dodgebolt"
 		if command sender is "itsasquid2" or "pokemaster404" or "notcbop":
 			open chest inventory named "<orange>MMCC hosting Panel" to player 
 			set slot 0 of player's current inventory to white concrete named "Pause/Unpause"
@@ -38,6 +39,7 @@ command /hostpanel:
 			set slot 14 of player's current inventory to diamond block named "<green>Start Parkour Warrior"
 			set slot 15 of player's current inventory to golden shovel named "<green>Start Rocket Spleef Rush"
 			set slot 16 of player's current inventory to rail named "<green>Start Railroad Rush"
+			set slot 17 of player's current inventory to bow named "<green>Start Dodgebolt"
 
 command /tpalltominimcctown:
 	trigger:
@@ -47,73 +49,147 @@ command /tpalltominimcctown:
 on inventory click:
 	if inventory name of event-inventory is "<orange>MMCC hosting Panel":
 		cancel event
-		if event-item is white concrete named "Pause/Unpause":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccpause"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is lime concrete named "Pre-event setup":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccstartingsoon"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is green concrete named "Start Event":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccnewevent"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is trident named "<green>Start Ace Race":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccacerace"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is trident named "<red>End Ace Race":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/endar"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is paper named "<green>Start Bingo":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccbingobutfast"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is stone sword named "<green>Start Skybattle":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccskybattle"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is wooden sword named "<green>Start Survival Games":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mcchungergames"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is wooden sword named "<green>Reset Survival Games Map 1":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/sgreload"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is wooden sword named "<green>Reset Survival Games Map 2":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/sgreload2"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is gold block named "<green>Start Meltdown":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccmeltdown"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is emerald block named "<green>Start tgttosawaf":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mcctgttosawaf"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is coal block named "<green>Start gridrunners":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccgridrunners"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is coal block named "<red>End gridrunners":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/endgrid"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is diamond block named "<green>Start Parkour Warrior":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccpkwnew"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is golden shovel named "<green>Start Rocket Spleef Rush":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccrocketspleefrush"
-			set {mmcc.hoster.%player's name%} to false
-		if event-item is rail named "<green>Start Railroad Rush":
-			set {mmcc.hoster.%player's name%} to true
-			make event-player execute command "/mccrailroadrush"
-			set {mmcc.hoster.%player's name%} to false
+		if {mmcc.hoster.%player's name%} isn't true:
+			if event-item is white concrete named "Pause/Unpause":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccpause"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is lime concrete named "Pre-event setup":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccstartingsoon"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is green concrete named "Start Event":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccnewevent"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is trident named "<green>Start Ace Race":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccacerace"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is trident named "<red>End Ace Race":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/endar"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is paper named "<green>Start Bingo":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccbingobutfast"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is stone sword named "<green>Start Skybattle":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccskybattle"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is wooden sword named "<green>Start Survival Games":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mcchungergames"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is wooden sword named "<green>Reset Survival Games Map 1":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/sgreloadkiwi"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is wooden sword named "<green>Reset Survival Games Map 2":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/sgreloadkiwi2"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is gold block named "<green>Start Meltdown":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccmeltdown"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is emerald block named "<green>Start tgttosawaf":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mcctgttosawaf"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is coal block named "<green>Start gridrunners":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccgridrunners"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is coal block named "<red>End gridrunners":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/endgrid"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is diamond block named "<green>Start Parkour Warrior":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccpkwnew"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is golden shovel named "<green>Start Rocket Spleef Rush":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccrocketspleefrush"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is rail named "<green>Start Railroad Rush":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccrailroadrush"
+				set {mmcc.hoster.%player's name%} to false
+			if event-item is bow named "<green>Start Dodgebolt":
+				execute console command "/dodgebolttest"
+		else:
+			if event-item is white concrete named "Pause/Unpause":
+				
+				make event-player execute command "/mccpause"
+				
+			if event-item is lime concrete named "Pre-event setup":
+				
+				make event-player execute command "/mccstartingsoon"
+				
+			if event-item is green concrete named "Start Event":
+				
+				make event-player execute command "/mccnewevent"
+				
+			if event-item is trident named "<green>Start Ace Race":
+				
+				make event-player execute command "/mccacerace"
+				
+			if event-item is trident named "<red>End Ace Race":
+				
+				make event-player execute command "/endar"
+				
+			if event-item is paper named "<green>Start Bingo":
+				
+				make event-player execute command "/mccbingobutfast"
+				
+			if event-item is stone sword named "<green>Start Skybattle":
+				
+				make event-player execute command "/mccskybattle"
+				
+			if event-item is wooden sword named "<green>Start Survival Games":
+				
+				make event-player execute command "/mcchungergames"
+				
+			if event-item is wooden sword named "<green>Reset Survival Games Map 1":
+				
+				make event-player execute command "/sgreloadkiwi"
+				
+			if event-item is wooden sword named "<green>Reset Survival Games Map 2":
+				
+				make event-player execute command "/sgreloadkiwi2"
+				
+			if event-item is gold block named "<green>Start Meltdown":
+				
+				make event-player execute command "/mccmeltdown"
+				
+			if event-item is emerald block named "<green>Start tgttosawaf":
+				
+				make event-player execute command "/mcctgttosawaf"
+				
+			if event-item is coal block named "<green>Start gridrunners":
+				
+				make event-player execute command "/mccgridrunners"
+				
+			if event-item is coal block named "<red>End gridrunners":
+				
+				make event-player execute command "/endgrid"
+				
+			if event-item is diamond block named "<green>Start Parkour Warrior":
+				
+				make event-player execute command "/mccpkwnew"
+				
+			if event-item is golden shovel named "<green>Start Rocket Spleef Rush":
+				
+				make event-player execute command "/mccrocketspleefrush"
+				
+			if event-item is rail named "<green>Start Railroad Rush":
+				
+				make event-player execute command "/mccrailroadrush"
+				
+			if event-item is bow named "<green>Start Dodgebolt":
+				execute console command "/dodgebolttest"
 
 

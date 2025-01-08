@@ -225,6 +225,8 @@ function dbdead(p:player):
 	set {db.team.%{_p}%} to "none"
 	set {db.ready.%{_p}%} to false
 	teleport {_p} to {dbdeadspawn}
+	set glowing of {_p} to false
+	remove darkness from {_p}
 	if {db.inprogress} is true:
 		if dbover() is greater than 0:
 			if {db.mccofficial} is true:
@@ -267,6 +269,8 @@ function dbendgame(n:number):
 			teleport loop-player to {dbdeadspawn}
 			set {db.formerteam.%loop-player's name%} to {db.team.%loop-player's name%}
 			set {db.team.%loop-player's name%} to "none"
+			set glowing of loop-player to false
+			remove darkness from loop-player
 	if {_n} is equal to 1:
 		broadcast "<yellow>[Dodgebolt] %{mcc.teams::%{db.color1}%}%<yellow> win Dodgebolt!"
 		loop all players:
@@ -295,6 +299,8 @@ function dbendround(n:number):
 			set {db.playing.%loop-player's name%} to false
 			set {db.formerteam.%loop-player's name%} to {db.team.%loop-player's name%}
 			set {db.team.%loop-player's name%} to "none"
+			set glowing of loop-player to false
+			remove darkness from loop-player
 	wait 1 tick 
 	loop all dropped arrows in "world":
 		if y-coordinate of loop-entity is between 60 and 80:
@@ -359,9 +365,13 @@ on break:
 
 function givetealarrow():
 	drop an arrow at {db.tealarrow} without velocity
+	loop entities in radius 0.5 of {db.tealarrow}:
+		set glowing of loop-entity to true
 
 function giveorangearrow():
 	drop an arrow at {db.orangearrow} without velocity
+	loop entities in radius 0.5 of {db.orangearrow}:
+		set glowing of loop-entity to true
 
 
 function dballready() :: boolean:
@@ -390,7 +400,9 @@ function dbstartgame():
 	loop all players:
 		if {db.playing.%loop-player's name%} is true:
 			clear the loop-player's inventory
-			give a bow to the loop-player
+			give loop-player bow 
+			apply infinite potion of darkness of tier 200 to loop-player
+			set glowing of loop-player to true
 			set the loop-player's health to 10
 			set the loop-player's hunger to 10
 			set {db.ready.%loop-player's name%} to false
@@ -509,9 +521,11 @@ on shoot:
                 add "dodgebolt" to the scoreboard tags of the event-projectile
 
 on projectile hit:
-        if the event-projectile has the scoreboard tag "dodgebolt":
-                delete the event-projectile
-                drop an arrow at the event-location 
+	if the event-projectile has the scoreboard tag "dodgebolt":
+		delete the event-projectile
+		drop an arrow at the event-location 
+		loop entities in radius 0.5 of event-location:
+			set glowing of loop-entity to true
 
 on damage:
 	attacker is a player

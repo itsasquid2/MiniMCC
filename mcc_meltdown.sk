@@ -72,10 +72,8 @@ command /freeze <player>:
 				apply slowness 255 to arg 1 for 1000 seconds
 				apply mining fatigue 255 to arg 1 for 1000 seconds
 				set total experience of arg 1 to 0
-				if block at the location 1 block above arg 1's location is air:
-					set block at the location 1 block above arg 1's location to blue ice
-				if block at arg 1's location is air:
-					set block at arg 1's location to blue ice
+				spawn block display at the location 0.8 block above the location 0.5 blocks west of the location 0.5 blocks north of arg's location with nbt from "{Rotation:[0f,0f],block_state:{Name:packed_ice}}"
+				spawn block display at the location 0.5 blocks north of the location 0.5 blocks west of arg's location with nbt from "{Rotation:[0f,0f],block_state:{Name:packed_ice}}"
 				set {_count} to 0
 				loop all players in world {meltdownworld}:
 					if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
@@ -83,6 +81,7 @@ command /freeze <player>:
 							if {frozen.%loop-player's name%} is false:
 								add 1 to {_count}
 				if {_count} is 0:
+					set {_count1} to 0
 					loop all players in world {meltdownworld}:
 						if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
 							send title "<red><bold>Team Frozen!" to loop-player
@@ -98,13 +97,16 @@ command /freeze <player>:
 function teamkill(n:number):
 	loop all players in world {meltdownworld}:
 		if {mcc.team.%loop-player's name%} is equal to {_n}:
-			if block at the location 1 block above loop-player's location is blue ice:
-				set block at the location 1 block above loop-player's location to air
-			if block at loop-player's location is blue ice:
-				set block at loop-player's location to air
+			loop entities in radius 1 of the location 0.8 blocks above loop-player's location:
+				if loop-entity-2 is a block display:
+					kill loop-entity-2
+			loop entities in radius 1 of loop-player's location:
+				if loop-entity-2 is a block display:
+					kill loop-entity-2
 			set gamemode of loop-player to spectator
 			set {frozen.%loop-player's name%} to false
 			clear all potion effects of loop-player
+			apply infinite potion of night vision without any particles whilst hiding the potion icon to loop-player
 			#ac({meltdown.hitby.%loop-player's name%},25,"Killed a player",false)
 
 command /teamkill <number>:
@@ -113,7 +115,33 @@ command /teamkill <number>:
 			exit trigger
 		teamkill(arg)
 
-
+command /meltdowntestteamkill <text>:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<red>no"
+			exit trigger
+		message "started"
+		set {_count} to 0
+		loop all players in world {meltdownworld}:
+			if {mcc.team.%loop-player's name%} is equal to {mcc.team.%arg%}:
+				if loop-player's gamemode is adventure:
+					if {frozen.%arg%} is false:
+						add 1 to {_count}
+		if {_count} is 0:
+			message "detected frozen team"
+			loop all players in world {meltdownworld}:
+				if {mcc.team.%arg's name%} is equal to {mcc.team.%arg%}:
+					send title "<red><bold>Team Frozen!" to loop-player
+			wait 10 seconds
+			message "10 second wait done"
+			set {_count1} to 0
+			loop all players in world {meltdownworld}:
+				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%arg%}:
+					if loop-player's gamemode is adventure:
+						if {frozen.%arg%} is false:
+							add 1 to {_count1}
+			if {_count1} is 0:
+				message "killed"
 
 command /adddoormeltdown <number>:
 	trigger:
@@ -125,6 +153,12 @@ command /deletedoorsmeltdown <number>:
 	trigger:
 		{mmcc.hoster.%command sender%} is true
 		delete {meltdowndoors.%arg%::*}
+
+command /deletedoormeltdown <number> <number>:
+	trigger:
+		{mmcc.hoster.%command sender%} is true
+		delete {meltdowndoors.%arg 1%::%arg 2%}
+		message "deleted door %arg 2% in room %arg 1%"
 
 command /closedoor <number>:
 	trigger:
@@ -143,6 +177,14 @@ command /closedoor <number>:
 						#set block at the location loop-value-3 east of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks west of the location 1 block north of loop-value-2 to gray concrete
 						#set block at the location loop-value-3 east of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks west of the location 1 block south of loop-value-2 to gray concrete
 			wait 1 second
+
+command /meltdowndoortp <number> <number>:
+	permission: op
+	trigger:
+		set {_loc} to {meltdowndoors.%arg 1%::%arg 2%}
+		set {_loc}'s world to world "meltdownmap"
+		teleport player to {_loc}
+
 
 command /fixmeltdowndoors:
 	permission: op
@@ -187,6 +229,60 @@ command /opendoormeltdown <number>:
 						#set block at the location loop-value-3 east of the location loop-value-1 blocks below the location 4 blocks above the location 3 blocks west of the location 1 block south of loop-value-2 to air
 			wait 1 second
 
+function meltdownsequence(n:number):
+	while {mcc.meltdown.room%{_n}%.done} is false:
+		set {mcc.meltdown.blocks%{_n}%::*} to shuffled {mcc.meltdown.blocks%{_n}%::*}
+		set {_n2} to size of {mcc.meltdown.blocks%{_n}%::*}
+		set {_n3} to 60 - (0.04*({_n2}^1.4))
+		#broadcast {_n3}
+		loop {mcc.meltdown.blocks%{_n}%::*}:
+			set {_done1} to true
+			loop blocks in radius 1 around loop-value:
+				if loop-block isn't air or iron trapdoor or light block or structure void:
+					if {mcc.meltdown.blocks%{_n}%::*} doesn't contain loop-block:
+						if loop-block's location is within bound bound with id "meltdownroom%{_n}%":
+							chance of 25%:
+								add loop-block to {mcc.meltdown.blocks%{_n}%::*}
+								set loop-block to gray concrete
+							set {_done1} to false
+			if {_done1} is true:
+				set block at loop-value's location to air
+				remove loop-value from {mcc.meltdown.blocks%{_n}%::*}
+			
+			if {_n3} is more than 5:
+				chance of {_n3}%:
+					wait 1 tick
+			else:
+				chance of 5%:
+					wait 1 tick
+			
+function meltdowncentersequence(n:number):
+	while {mcc.meltdown.room%{_n}%.done} is false:
+		set {mcc.meltdown.blocks%{_n}%::*} to shuffled {mcc.meltdown.blocks%{_n}%::*}
+		set {_n2} to size of {mcc.meltdown.blocks%{_n}%::*}
+		set {_n3} to 60 - (0.04*({_n2}^1.2))
+		#broadcast {_n3}
+		loop {mcc.meltdown.blocks%{_n}%::*}:
+			set {_done1} to true
+			loop blocks in radius 1 around loop-value:
+				if loop-block isn't air or iron trapdoor or light block or structure void or lava:
+					if {mcc.meltdown.blocks%{_n}%::*} doesn't contain loop-block:
+						if loop-block's location is within bound bound with id "meltdownroom%{_n}%":
+							chance of 25%:
+								add loop-block to {mcc.meltdown.blocks%{_n}%::*}
+								set loop-block to gray concrete
+							set {_done1} to false
+			if {_done1} is true:
+				set block at loop-value's location to air
+				remove loop-value from {mcc.meltdown.blocks%{_n}%::*}
+			
+			if {_n3} is more than 5:
+				chance of {_n3}%:
+					wait 1 tick
+			else:
+				chance of 5%:
+					wait 1 tick
+
 command /meltdownroom <number>:
 	trigger:
 		if {mmcc.hoster.%command sender%} is false: 
@@ -195,153 +291,99 @@ command /meltdownroom <number>:
 		loop all entities within bound bound with id "meltdownroom%arg%":
 			if loop-entity is a player:
 				send formatted "<red><bold>ROOM MELTDOWN ALERT! <reset><yellow>Melting has begun." to loop-entity
+		delete {mcc.meltdown.blocks%arg%::*}
 		if arg is not 0:
-			loop all blocks within bound bound with id "meltdownroom%arg%":
-				if loop-block is red concrete or orange concrete:
-					set loop-block to gray concrete
 			set {_loc} to the location at greater x coord of bound with id "meltdownroom%arg%", lesser y coord of bound with id "meltdownroom%arg%", greater z coord of bound with id "meltdownroom%arg%" of the world {meltdownworld}
-			set {_loc2} to the location 30 blocks north of the location 30 blocks west of {_loc}
+			set {_loc2} to the location (a random number between 25 and 35) blocks north of the location (a random number between 25 and 35) blocks west of {_loc}
 			set {_counter} to 0
 			while {_done} is not true:
 				if block at the location {_counter} blocks above {_loc2} is not air:
-					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc2}
-					set block at the location {_counter} blocks above {_loc2} to red concrete
+					
+					set block at the location {_counter} blocks above {_loc2} to gray concrete
+					add block at the location {_counter} blocks above {_loc2} to {mcc.meltdown.blocks%arg%::*}
 					
 					set {_done} to true
 				else:
 					add 1 to {_counter}
-				
-			loop 33 times:
-				loop entities in bound bound with id "meltdownroom%arg%":
-					
-					if loop-entity is a marker:
-						
-						if block at loop-entity's location is red concrete:
-						
-							loop blocks in radius 1 around block at loop-entity's location:
-								if loop-block is not air or iron trapdoor or orange concrete or red concrete:
-									set loop-block to orange concrete
-									summon marker at loop-block's location
-								else if loop-block is iron trapdoor:
-									if block below loop-block is not sea lantern or black concrete:
-										set loop-block to orange concrete
-										summon marker at loop-block's location
-				wait 1 second
-				loop entities in bound bound with id "meltdownroom%arg%":
-					if loop-entity is a marker:
-						if block at loop-entity's location is red concrete:
-							
-							set block at loop-entity's location to air
-							kill loop-entity
-						if block at loop-entity's location is orange concrete:
-							
-							set block at loop-entity's location to red concrete
-				if loop-value-1 is 30:
-					loop all entities in bound bound with id "meltdownroom%arg%":
-						if loop-entity is a player:
-							send formatted "<red><bold>FULL MELTDOWN IMMINENT! <reset><yellow>Blast doors are closing." to loop-entity
-					loop all markers in bound bound with id "meltdownroom%arg%":
-						kill loop-entity
-				if loop-value-1 is 33:
-					execute console command "/closedoor %arg%"
-					wait 1 tick
-					set all blocks within bound bound with id "meltdownroom%arg%" to air
-				wait 1 second
+			set {mcc.meltdown.room%arg%.done} to false
+			meltdownsequence(arg)
+			wait 60 seconds
+			loop all entities in bound bound with id "meltdownroom%arg%":
+				if loop-entity is a player:
+					send formatted "<red><bold>FULL MELTDOWN IMMINENT! <reset><yellow>Blast doors are closing." to loop-entity
+			execute console command "/closedoor %arg%"
+			wait 3 seconds
+			set {mcc.meltdown.room%arg%.done} to true
+			delete {mcc.meltdown.blocks%arg%::*}
+
 		else:
-			loop all blocks within bound bound with id "meltdownroom%arg%":
-				if loop-block is red concrete or orange concrete:
-					set loop-block to gray concrete
-			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") - 1, lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") - 1 of the world {meltdownworld}
+			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") - 3, lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") - 3 of the world {meltdownworld}
 			set {_done} to false
 			set {_counter} to 0
 			while {_done} is not true:
 				if block at the location {_counter} blocks above {_loc} is not air:
-					set block at the location {_counter} blocks above {_loc} to red concrete
-					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set block at the location {_counter} blocks above {_loc} to gray concrete
+					add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				if {_counter} is more than 30:
 					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
 						if loop-block is not air:
-							set loop-block to red concrete
-							spawn marker at loop-block's location
+							set block at the location {_counter} blocks above {_loc} to gray concrete
+							add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				else:
 					add 1 to {_counter}
-			set {_loc} to the location at lesser x coord of bound with id "meltdownroom%arg%", lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") - 1 of the world {meltdownworld}
+			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") + 3, lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") - 3 of the world {meltdownworld}
 			set {_done} to false
 			set {_counter} to 0
 			while {_done} is not true:
 				if block at the location {_counter} blocks above {_loc} is not air:
-					set block at the location {_counter} blocks above {_loc} to red concrete
-					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set block at the location {_counter} blocks above {_loc} to gray concrete
+					add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				if {_counter} is more than 30:
 					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
 						if loop-block is not air:
-							set loop-block to red concrete
-							spawn marker at loop-block's location
+							set block at the location {_counter} blocks above {_loc} to gray concrete
+							add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				else:
 					add 1 to {_counter}
-			set {_loc} to the location at lesser x coord of bound with id "meltdownroom%arg%", lesser y coord of bound with id "meltdownroom%arg%", lesser z coord of bound with id "meltdownroom%arg%" of the world {meltdownworld}
+			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") + 3, lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") + 3 of the world {meltdownworld}
 			set {_done} to false
 			set {_counter} to 0
 			while {_done} is not true:
 				if block at the location {_counter} blocks above {_loc} is not air:
-					set block at the location {_counter} blocks above {_loc} to red concrete
-					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set block at the location {_counter} blocks above {_loc} to gray concrete
+					add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				if {_counter} is more than 30:
 					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
 						if loop-block is not air:
-							set loop-block to red concrete
-							spawn marker at loop-block's location
+							set block at the location {_counter} blocks above {_loc} to gray concrete
+							add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				else:
 					add 1 to {_counter}
-			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") - 1, lesser y coord of bound with id "meltdownroom%arg%", lesser z coord of bound with id "meltdownroom%arg%" of the world {meltdownworld}
+			set {_loc} to the location at (greater x coord of bound with id "meltdownroom%arg%") - 3, lesser y coord of bound with id "meltdownroom%arg%", (greater z coord of bound with id "meltdownroom%arg%") + 3 of the world {meltdownworld}
 			set {_done} to false
 			set {_counter} to 0
 			while {_done} is not true:
 				if block at the location {_counter} blocks above {_loc} is not air:
-					set block at the location {_counter} blocks above {_loc} to red concrete
-					summon marker at the location {_counter} blocks above the location 0.5 blocks above the location 0.5 blocks south of the location 0.5 blocks east of {_loc}
+					set block at the location {_counter} blocks above {_loc} to gray concrete
+					add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				if {_counter} is more than 30:
 					loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
 						if loop-block is not air:
-							set loop-block to red concrete
-							spawn marker at loop-block's location
+							set block at the location {_counter} blocks above {_loc} to gray concrete
+							add block at the location {_counter} blocks above {_loc} to {mcc.meltdown.blocks%arg%::*}
 					set {_done} to true
 				else:
 					add 1 to {_counter}
-			loop 45 times:
-				
-				loop entities in bound bound with id "meltdownroom%arg%":
-					
-					if loop-entity is a marker:
-						
-						if block at loop-entity's location is red concrete:
-						
-							loop blocks in radius 1 around block at loop-entity's location:
-								if loop-block is not air or iron trapdoor or orange concrete or red concrete:
-									set loop-block to orange concrete
-									summon marker at loop-block's location
-								else if loop-block is iron trapdoor:
-									if block below loop-block is not sea lantern or black concrete:
-										set loop-block to orange concrete
-										summon marker at loop-block's location
-				wait 1 second
-				loop entities in bound bound with id "meltdownroom%arg%":
-					if loop-entity is a marker:
-						if block at loop-entity's location is red concrete:
-							
-							set block at loop-entity's location to air
-							kill loop-entity
-						if block at loop-entity's location is orange concrete:
-							
-							set block at loop-entity's location to red concrete
-				wait 1 second
+			set {mcc.meltdown.room%arg%.done} to false
+			meltdowncentersequence(0)
+			
 		if arg is not 0:
 			loop entities in bound bound with id "meltdownroom%arg%":
 				if loop-entity is a player:
@@ -350,7 +392,7 @@ command /meltdownroom <number>:
 						
 						set {frozen.%loop-entity%} to false
 						clear all potion effects of loop-entity
-						
+						apply infinite potion of night vision without any particles whilst hiding the potion icon to loop-entity
 						broadcast formatted "<%mcccolor({mcc.team.%loop-entity%})%>%loop-entity% <white>Got stuck in a melting room"
 				
 				
@@ -373,7 +415,7 @@ on join:
 	if player's world is {meltdownworld}:
 		set player's gamemode to adventure
 	
-on player walk:
+on player move:
 	event-world is {meltdownworld}
 	if {frozen.%player's name%} is true:
 		cancel event
@@ -385,6 +427,8 @@ on experience spawn:
 	cancel event
 
 function endmeltdown():
+	set {mcc.meltdown.room0.done} to true
+	delete {mcc.meltdown.blocks0::*}
 	if {mcc.meltdown.roundnum} is less than 3:
 		add 1 to {mcc.meltdown.roundnum}
 		execute console command "/schempaste meltdownmap meltdown -999 31 -999"
@@ -410,6 +454,9 @@ function transfermeltdowndoorvariablesback():
 		if {mcc.meltdownbackup.spawndoors::%loop-number-1%} is set:
 			set {mcc.meltdown.spawndoors::%loop-number-1%} to {mcc.meltdownbackup.spawndoors::%loop-number-1%}
 			set world of {mcc.meltdown.spawndoors::%loop-number-1%} to "meltdown" parsed as world
+on swap hand items:
+	world is "meltdown"
+	cancel event
 
 command /mccmeltdown:
 	trigger:
@@ -427,6 +474,7 @@ command /mccmeltdown:
 			delete {mcc.meltdown.arrowsshot::*}
 			loop all players:
 				meltdowntutorial(loop-player)
+				
 		else:
 			set {mcc.meltdown.timeleft} to 15
 			
@@ -438,8 +486,13 @@ command /mccmeltdown:
 			execute console command "/unfreeze %loop-player's name%"
 			set loop-player's gamemode to adventure
 			set slot 8 of loop-player to shulker spawn egg named "&3Heater"
-			apply infinite potion of night vision to loop-player
+			apply infinite potion of night vision without any particles whilst hiding the potion icon to loop-player
+			make loop-player execute command "/getmeltdownmap"
+			loop items in loop-player's inventory:
+				if loop-item is filled map:
+					set loop-player's offhand tool to loop-item
 		execute console command "/meltdownclosespawndoors"
+		execute console command "/setmeltdownmapstage 0"
 		loop 4 times:
 			execute console command "/closedoor %loop-number%"
 		
@@ -488,45 +541,79 @@ every second:
 			
 		else if {mcc.meltdown.stage} is 2:
 			execute console command "/mccbreak"
-	else if {mcc.meltdown.timeleft} is 295:
+	else if {mcc.meltdown.timeleft} is 265:
 		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 1"
 			loop 10 times:
 				set all blocks in region "meltdownspawn%loop-number%" to air 
-				execute console command "/meltdownroom %31 - loop-number%"
-				wait 2 ticks
-	else if {mcc.meltdown.timeleft} is 250:
+			execute console command "/meltdownroom 29"
+			execute console command "/meltdownroom 28"
+			execute console command "/meltdownroom 26"
+			execute console command "/meltdownroom 24"
+			execute console command "/meltdownroom 23"
+			execute console command "/meltdownroom 21"
+	else if {mcc.meltdown.timeleft} is 255:
 		if {mcc.meltdown.stage} is 1:
-			loop 8 times:
-				execute console command "/meltdownroom %17 - loop-number%"
-				wait 2 ticks
+			execute console command "/setmeltdownmapstage 2"
+			execute console command "/meltdownroom 27"
+			execute console command "/meltdownroom 25"
+			execute console command "/meltdownroom 30"
+			execute console command "/meltdownroom 22"
 	else if {mcc.meltdown.timeleft} is 230:
 		if {mcc.meltdown.stage} is 1:
-			loop 4 times:
+			execute console command "/setmeltdownmapstage 3"
+			loop 8 times:
 				execute console command "/meltdownroom %21 - loop-number%"
-				wait 2 ticks
-				execute console command "/opendoormeltdown %loop-number%"
-			wait 5 seconds
-			execute console command "/closedoormeltdown 0"
-	else if {mcc.meltdown.timeleft} is 195:
+	else if {mcc.meltdown.timeleft} is 203:
 		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 4"
+	else if {mcc.meltdown.timeleft} is 200:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 5"
+			loop 4 times:
+				execute console command "/meltdownroom %13 - loop-number%"
+			execute console command "/opendoormeltdown 1"
+			execute console command "/opendoormeltdown 2"
+			execute console command "/opendoormeltdown 3"
+			execute console command "/opendoormeltdown 4"
+			wait 1 second
+			execute console command "/closedoor 0"
+	else if {mcc.meltdown.timeleft} is 193:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 6"
+	else if {mcc.meltdown.timeleft} is 165:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 7"
 			loop 4 times:
 				execute console command "/meltdownroom %9 - loop-number%"
-				wait 2 ticks
-	else if {mcc.meltdown.timeleft} is 170:
+	else if {mcc.meltdown.timeleft} is 157:
 		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 8"
+	else if {mcc.meltdown.timeleft} is 140:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 9"
 			execute console command "/opendoormeltdown 0"
-				
-	else if {mcc.meltdown.timeleft} is 150:
+	else if {mcc.meltdown.timeleft} is 137:
 		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 10"
+	else if {mcc.meltdown.timeleft} is 120:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 11"
 			loop 4 times:
 				execute console command "/meltdownroom %5 - loop-number%"
-				wait 2 ticks
-	else if {mcc.meltdown.timeleft} is 105:
+	else if {mcc.meltdown.timeleft} is 103:
 		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 12"
+	else if {mcc.meltdown.timeleft} is 75:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 13"
 			execute console command "/meltdownroom 0"
 			loop blocks in region "meltdownmid":
 				if loop-block is light blue stained glass:
 					set loop-block to air
+	else if {mcc.meltdown.timeleft} is 57:
+		if {mcc.meltdown.stage} is 1:
+			execute console command "/setmeltdownmapstage 14"
 	set {meltdown.playersleft} to 0
 	loop all players in world {meltdownworld}:
 		if gamemode of loop-player is adventure:
@@ -546,20 +633,24 @@ command /unfreeze <player>:
 	trigger:
 		set {frozen.%arg 1's name%} to false
 		if arg's world is {meltdownworld}:
-			clear arg 1's inventory
+			loop numbers from 0 to 8:
+				set slot loop-number of arg 1's inventory to air
 			set arg's experience to 0
 			set arg 1's offhand tool to air
 			give arg 1 bow of infinity
 			give arg 1 arrow
 			give arg 1 wooden pickaxe named "&3Telepickaxe Shell"
 			clear all the potion effects of arg
-			apply infinite potion of night vision to arg
+			apply infinite potion of night vision without any particles whilst hiding the potion icon to arg
 			set {frozencooldown.%arg 1's name%} to true
-			if block at the location 1 block above arg 1's location is blue ice:
-				set block at the location 1 block above arg 1's location to air
-			if block at arg 1's location is blue ice:
-				set block at arg 1's location to air
-			ac({hitby.%arg's name%},-25,"Killed a player",false)
+			
+			loop entities in radius 1 of the location 0.8 blocks above arg's location:
+				if loop-entity is a block display:
+					kill loop-entity
+			loop entities in radius 1 of arg's location:
+				if loop-entity is a block display:
+					kill loop-entity
+			ac({hitby.%arg's name%},-25,"Player unfroze",false)
 		
 			
 		
@@ -658,6 +749,7 @@ on damage of a player:
 		set {frozen.%victim's name%} to false
 		clear all potion effects of victim
 		#ac({meltdown.hitby.%victim's name%},25,"Killed a player",false)
+		apply infinite potion of night vision without any particles whilst hiding the potion icon to victim
 		broadcast formatted "<%mcccolor({mcc.team.%victim's name%})%>%victim's name% <white>Fell into molten lava"
 
 command /telepicaxetest:
