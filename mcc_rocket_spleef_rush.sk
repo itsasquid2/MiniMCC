@@ -18,9 +18,11 @@ command /rsrloaddata:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger
 
-		set {mcc.rsr.map.1} to "classic"
-		set {mcc.rsr.map.2} to "lobby"
+		set {mcc.rsr.map.1} to "structs"
+		set {mcc.rsr.map.2} to "ocean"
 		set {mcc.rsr.map.3} to "space"
+        
+		set {mcc.rsr.num_stages.%{mcc.rsr.map.1}%} to 3
 
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 30
@@ -28,7 +30,7 @@ command /rsrloaddata:
 
 		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%} to 2
 		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.2}%} to 2
-		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.3}%} to 2
+		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.3}%} to 3
 
 		set {mcc.rsr.radius.%{mcc.rsr.map.1}%} to 40
 		set {mcc.rsr.radius.%{mcc.rsr.map.2}%} to 40
@@ -89,6 +91,9 @@ function flasharrow(x: number, y: number, z: number):
 
 function genterrain(x: number, y: number, z: number):
 	set {_stage} to rsrstage()
+	if {mcc.rsr.num_stages.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%} is set:
+		set {_stage} to min({_stage}, {mcc.rsr.num_stages.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%})
+    
 	set {_bla} to {mcc.rsr.mapsperstage.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}
 	if {_bla} is not equal to 3:
 		if {_stage} is equal to 4:

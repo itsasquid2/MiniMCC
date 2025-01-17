@@ -880,8 +880,7 @@ command /mccnewevent:
 		loop 8 times:
 			if {mcc.decisiondome.red.%loop-number%} is false:
 				execute console command "/ddredden %loop-number%"
-		loop all players:
-			stop sound "custom:oneminutetomcc" for loop-player
+		execute console command "/playmusic none"
 
 		execute console command "/mccdecisiondome"
 		#execute console command "/playmusic decisiondome"

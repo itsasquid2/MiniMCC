@@ -49,41 +49,46 @@ command /gridgencourse:
 			if command sender is not "MiniMCC":
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
-		loop all entities in "gridrunners":
-			kill the loop-entity
+		kill all entities in world "gridrunners"
+		wait 1 second
 		loop 10 times:
-			wait 20 ticks
-			teleport event-player to location(-100, 0, loop-number*33, world "gridrunners")
-			make event-player execute command "//schem load grid_pool"
-			make event-player execute command "//paste"
+			execute console command "/schempaste grid_pool gridrunners -100 0 %loop-number * 33%"
+			# wait 20 ticks
+			# teleport event-player to location(-100, 0, loop-number*33, world "gridrunners")
+			# make event-player execute command "//schem load grid_pool"
+			# make event-player execute command "//paste"
 			set {mcc.grid.numrooms} to 8
 			loop 8 times:
-				wait 20 ticks
 				if {mcc.grid.challenge.%loop-number-2%} is equal to -1:
 					subtract 1 from {mcc.grid.numrooms}
 				else:
 					if {mcc.grid.%{mcc.grid.challenge.%loop-number-2%}%.type} is equal to 4:
-						teleport event-player to location((loop-number-2)*45-45, 0, loop-number-1 * 33, world "gridrunners")
-						make event-player execute command "//schem load grid_transition_4"
-						make event-player execute command "//paste"
+						execute console command "/schempaste grid_transition_4 gridrunners %(loop-number-2)*45-45% 0 %loop-number-1 * 33%"
+						# teleport event-player to location((loop-number-2)*45-45, 0, loop-number-1 * 33, world "gridrunners")
+						# make event-player execute command "//schem load grid_transition_4"
+						# make event-player execute command "//paste"
 						
 					else if {mcc.grid.%{mcc.grid.challenge.%loop-number-2%}%.type} is equal to 22:
-						teleport event-player to location((loop-number-2)*45-45, 0, loop-number-1 * 33, world "gridrunners")
-						make event-player execute command "//schem load grid_transition_22"
-						make event-player execute command "//paste"
+						execute console command "/schempaste grid_transition_22 gridrunners %(loop-number-2)*45-45% 0 %loop-number-1 * 33%"
+						# teleport event-player to location((loop-number-2)*45-45, 0, loop-number-1 * 33, world "gridrunners")
+						# make event-player execute command "//schem load grid_transition_22"
+						# make event-player execute command "//paste"
 					else:
-						teleport event-player to location((loop-number-2)*45-45, 0, loop-number-1 * 33, world "gridrunners")
-						make event-player execute command "//schem load grid_transition_1111"
-						make event-player execute command "//paste"
-					wait 20 ticks
-					teleport event-player to location((loop-number-2)*45-30, 0, (loop-number-1) * 33, world "gridrunners")
-					make event-player execute command "//schem load gridrunners_%{mcc.grid.challenge.%loop-number-2%}% -e"
-					make event-player execute command "//paste -e"
-			wait 20 ticks
-			teleport event-player to location(360, 0, (loop-number-1) * 33, world "gridrunners")
-			make event-player execute command "//schem load grid_finish_2"
-			make event-player execute command "//paste"
-			wait 20 ticks
+						execute console command "/schempaste grid_transition_1111 gridrunners %(loop-number-2)*45-45% 0 %loop-number-1 * 33%"
+						# teleport event-player to location((loop-number-2)*45-45, 0, loop-number-1 * 33, world "gridrunners")
+						# make event-player execute command "//schem load grid_transition_1111"
+						# make event-player execute command "//paste"
+					execute console command "/schempaste gridrunners_%{mcc.grid.challenge.%loop-number-2%}% gridrunners %(loop-number-2)*45-30% 0 %loop-number-1 * 33%"
+					# wait 20 ticks
+					# teleport event-player to location((loop-number-2)*45-30, 0, (loop-number-1) * 33, world "gridrunners")
+					# make event-player execute command "//schem load gridrunners_%{mcc.grid.challenge.%loop-number-2%}% -e"
+					# make event-player execute command "//paste -e"
+			execute console command "/schempaste grid_finish_2 gridrunners 360 0 %loop-number * 33%"
+			# wait 20 ticks
+			# teleport event-player to location(360, 0, (loop-number-1) * 33, world "gridrunners")
+			# make event-player execute command "//schem load grid_finish_2"
+			# make event-player execute command "//paste"
+			# wait 20 ticks
 			
 		
 

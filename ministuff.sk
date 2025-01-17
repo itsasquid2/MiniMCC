@@ -37,8 +37,8 @@ command /demo <player=%player%> <number>:
             set {_packet} to new change_game_state packet
 
 
-            #set field 0 of {_packet} to 5.byteValue()
-            #set field 1 of {_packet} to arg 2.floatValue()
+            set field 0 of {_packet} to 5.byteValue()
+            set field 1 of {_packet} to arg 2.floatValue()
 
             send {_player} packet {_packet}
 

@@ -1,0 +1,166 @@
+command /attemptboss:
+    trigger:
+        if event-world is "world":
+            open chest inventory named "boss selection" to the player
+            set slot 9 of player's current inventory to rotten flesh named "<red>Zombie"
+        else:
+            message "Please go to the hub first!"
+
+on inventory click:
+    if inventory name of player's current inventory is "Zombie boss selection":
+        if event-item is rotten flesh named "<red>Tier 1":
+            execute console command "/mvtp %player's name% bossworld"
+            clear player's inventory
+            heal player
+            feed player
+            set player's gamemode to adventure
+            loop {bossinventory.%event-player's name%::*}:
+                give loop-value to event-player
+            wait 10 tick
+            execute console command "/boopboopboopbeep %player's name%"
+            wait 3 seconds
+            spawn a zombie at location(0,-60,15, world "bossworld")
+            set name of last spawned entity to "Zombie Tier 1 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
+            apply infinite potion of speed of tier 4 without particles to last spawned entity
+            
+            set {spawner.%uuid of last spawned entity%} to event-player
+            set {spawnedboss.%event-player's name%} to last spawned entity
+        if event-item is rotten flesh named "<red>Tier 2":
+            execute console command "/mvtp %player's name% bossworld"
+            clear player's inventory
+            heal player
+            feed player
+            set player's gamemode to adventure
+            loop {bossinventory.%event-player's name%::*}:
+                give loop-value to event-player
+            wait 10 tick
+            execute console command "/boopboopboopbeep %player's name%"
+            wait 3 seconds
+            spawn a zombie at location(0,-60,15, world "bossworld")
+            set name of last spawned entity to "Zombie Tier 2 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
+            apply infinite potion of speed of tier 4 without particles to last spawned entity
+            apply infinite potion of strength of tier 5 without particles to last spawned entity
+            set {spawner.%uuid of last spawned entity%} to event-player
+            set {spawnedboss.%event-player's name%} to last spawned entity
+        if event-item is rotten flesh named "<red>Tier 3":
+            execute console command "/mvtp %player's name% bossworld"
+            clear player's inventory
+            heal player
+            feed player
+            set player's gamemode to adventure
+            loop {bossinventory.%event-player's name%::*}:
+                give loop-value to event-player
+            wait 10 tick
+            execute console command "/boopboopboopbeep %player's name%"
+            wait 3 seconds
+            spawn a zombie at location(0,-60,15, world "bossworld")
+            set name of last spawned entity to "Zombie Tier 3 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
+            apply infinite potion of speed of tier 4 without particles to last spawned entity
+            apply infinite potion of strength of tier 5 without particles to last spawned entity
+           
+            set {spawner.%uuid of last spawned entity%} to event-player
+            
+            set {spawnedboss.%event-player's name%} to last spawned entity
+        if event-item is rotten flesh named "<red>Tier 4":
+            execute console command "/mvtp %player's name% bossworld"
+            clear player's inventory
+            heal player
+            feed player
+            set player's gamemode to adventure
+            loop {bossinventory.%event-player's name%::*}:
+                give loop-value to event-player
+            wait 10 tick
+            execute console command "/boopboopboopbeep %player's name%"
+            wait 3 seconds
+            spawn a zombie at location(0,-60,15, world "bossworld")
+            set name of last spawned entity to "Zombie Tier 4 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
+            apply infinite potion of speed of tier 4 without particles to last spawned entity
+            apply infinite potion of strength of tier 5 without particles to last spawned entity
+            add last spawned entity to {bosses.regenlist::*}
+            set {spawner.%uuid of last spawned entity%} to event-player
+            set {spawnedboss.%event-player's name%} to last spawned entity
+    if event-world is "world":
+        if inventory name of player's current inventory is "boss selection":
+            if event-item is rotten flesh named "<red>Zombie":
+                open chest inventory named "Zombie boss selection" to the player
+                set slot 10 of player's current inventory to rotten flesh named "<red>Tier 1"
+                set slot 11 of player's current inventory to rotten flesh named "<red>Tier 2"
+                set slot 12 of player's current inventory to rotten flesh named "<red>Tier 3"
+                set slot 13 of player's current inventory to rotten flesh named "<red>Tier 4"
+    
+on death of zombie:
+    world is "bossworld"
+    
+    if name of victim contains "Zombie Tier 1":
+        if {bossinventory.%{spawner.%uuid of victim%}%::*} doesn't contain wooden sword:
+            add wooden sword to {bossinventory.%{spawner.%uuid of victim%}%::*}
+        send title "Boss Slain" to {spawner.%uuid of victim%}
+    if name of victim contains "Zombie Tier 2":
+        if {bossinventory.%{spawner.%uuid of victim%}%::*} doesn't contain iron chestplate:
+            add iron chestplate to {bossinventory.%{spawner.%uuid of victim%}%::*}
+        send title "Boss Slain" to {spawner.%uuid of victim%}
+    if name of victim contains "Zombie Tier 3":
+        delete {invunerable1.done.%uuid of victim%}
+        delete {invunerable2.done.%uuid of victim%}
+        if {bossinventory.%{spawner.%uuid of victim%}%::*} doesn't contain {slowpot1}:
+            add {slowpot1} to {bossinventory.%{spawner.%uuid of victim%}%::*}
+        
+        send title "Boss Slain" to {spawner.%uuid of victim%}
+    if name of victim contains "Zombie Tier 4":
+        delete {invunerable1.done.%uuid of victim%}
+        delete {invunerable2.done.%uuid of victim%}
+        send title "Boss Slain" to {spawner.%uuid of victim%}
+    
+on damage:
+    victim is not a player
+    world is "bossworld"
+    set {_bla} to first index of "[" in victim's name
+    
+    damage cause is an attack 
+    
+    cancel event
+    if victim's name contains "*Invunerable*":
+        set damage to 0
+    loop 2 times:
+        set {_random::%loop-value%} to a random integer between 1 and -1
+    bind hologram "&c❁ &f&l-%damage*2% &c❁" to victim for 1 second offset by {_random::1}, 2, {_random::2}
+    damage victim by damage
+    set victim's name to "%first {_bla} characters of victim's name% &8[&c%victim's health*2% &8/ &c%victim's max health*2%&8]"
+    if victim's name starts with "Zombie Tier 3" or "Zombie Tier 4":
+        if victim's health is less than (0.66*victim's max health):
+            if {invunerable1.done.%uuid of victim%} isn't true:
+                set {invunerable1.done.%uuid of victim%} to true
+                add potion effect of glowing of tier 1 to victim's potion effects for 2 seconds
+                set victim's name to "*Invunerable* %victim's name%"
+                wait 2 seconds
+                set victim's name to last (length of victim's name - 14) characters of victim's name
+        if victim's health is less than (0.33*victim's max health):
+            if {invunerable2.done.%uuid of victim%} isn't true:
+                set {invunerable2.done.%uuid of victim%} to true
+                add potion effect of glowing of tier 1 to victim's potion effects for 2 seconds
+                set victim's name to "*Invunerable* %victim's name%"
+                wait 2 seconds
+                set victim's name to last (length of victim's name - 14) characters of victim's name
+    
+on potion effect removed:
+    world is "bossworld"
+    event-entity is a zombie
+    if event-potioneffecttype = slowness:
+        if event-entity's name contains "Zombie Tier 1" or "Zombie Tier 2" or "Zombie Tier 3" or "Zombie Tier 4":
+            apply infinite potion of speed of tier 4 without particles to event-entity
+
+every 0.5 seconds:
+    loop {bosses.regenlist::*}:
+        if loop-value's health is more than 0:
+            heal loop-value by 0.5
+            set {_bla} to first index of "[" in loop-value's name
+            set loop-value's name to "%first {_bla} characters of loop-value's name% &8[&c%loop-value's health*2% &8/ &c%loop-value's max health*2%&8]"
+on death of player:
+    world is "bossworld"
+    clear drops
+    wait 5 ticks
+    make victim execute command "/hub"
+    wait 5 ticks
+    send title "<red>You Failed" to victim
+    teleport {spawnedboss.%victim's name%} to location(0,0,0,world "test")
+    kill {spawnedboss.%victim's name%}

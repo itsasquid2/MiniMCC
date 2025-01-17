@@ -109,6 +109,7 @@ command /mccvote <number>:
 				loop {mcc.decisiondome.slices.%loop-number%::*}:
 					set block at loop-value-2 to red wool
 		execute console command "/playmusic none"
+		wait 1 tick
 		execute console command "/playmusic decisiondome"
 		if {mcc.gamenum} is equal to 1:
 			execute console command "/mcccoinmultiplier 1.5"	
@@ -296,8 +297,7 @@ every second:
 				execute console command "/dddown"
 			if {mcc.decisiondome.votingtime} is equal to 0:
 				set {mcc.currentevent} to "none"
-				loop all players:
-					stop sound "custom:decisiondome" for loop-player
+				execute console command "/playmusic none"
 				set {mcc.decisiondome.votingtime} to -1
 				if {mcc.gamenum} is below 6:
 					

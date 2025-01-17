@@ -421,3 +421,7 @@ on pick up:
 			remove 1 raw copper from event-player
 			
 
+on spawn:
+	if "%event-world%" starts with "bingo":
+		if event-spawnreason is natural:
+			cancel event

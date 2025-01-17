@@ -533,12 +533,6 @@ every second:
 		sgb("<pink>The border is shrinking in 30 seconds!")
 		set {sg.worldborderx} to a random integer between -95.5 and 95.5
 		set {sg.worldborderz} to a random integer between -95.5 and 95.5
-		send title "<red>Warning!" with subtitle "Check the chat" to all players
-		sgb("----------------------------------------------------------------------------------------------------------------------------------")
-		sgb("                                                                                                                                  ")
-		sgb("<pink>The center of the border will <bold>Instantly<reset><pink> move to (%{sg.worldborderx}%, %{sg.worldborderz}%) in 30 seconds.")
-		sgb("                                                                                                                                  ")
-		sgb("----------------------------------------------------------------------------------------------------------------------------------")
 	else if {sg.time} is equal to 180: 	
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 30 seconds.")
@@ -548,7 +542,8 @@ every second:
 			if {mcc.team.%loop-player's name%} is not equal to 0:
 				send title "" with subtitle "<pink>Border shrinking" to loop-player for 5 seconds
 		set {_good} to false
-		
+		set size of world border of world "survivalgames" to 310
+		set size of world border of world "survivalgames2" to 310
 		set border center of world border of world "survivalgames" to location({sg.worldborderx},0,{sg.worldborderz})
 		set border center of world border of world "survivalgames2" to location({sg.worldborderx},0,{sg.worldborderz})
 		shrink world border of world "survivalgames" to 25 in 200 seconds

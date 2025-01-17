@@ -763,3 +763,4 @@ command /killrrrvillagers:
         loop entities in world "railroadrush":
             if loop-entity is a villager:
                 kill loop-entity
+

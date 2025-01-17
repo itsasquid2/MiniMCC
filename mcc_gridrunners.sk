@@ -115,7 +115,7 @@ function gridpoint(n:number, pts:number):
 				else if {mcc.grid.crowbars::*} contains {mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}:
 					loop all players:
 						if {mcc.team.%loop-player%} is equal to {_n}:
-							execute console command "/give %loop-player% netherite_pickaxe{CanDestroy:[iron_bars]} 1"
+							give loop-player {mcc.grid.crowbaritem}
 
 command /setcrowbar <number>:
 	trigger:
