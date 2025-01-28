@@ -1,0 +1,78 @@
+
+command /rrrgencourse:
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			if command sender is not "MiniMCC":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		kill all entities in world "railroadrush"
+		wait 1 second
+		set {_list::*} to all numbers between 1 and 10
+		loop 6 times:
+			set {_bla} to a random element out of {_list::*}
+			remove {_bla} from {_list::*}
+			add {_bla} to {_list2::*}
+		broadcast {_list2::*}
+		loop 10 times:
+			execute console command "/schempaste railroadrush_begin railroadrush -100 0 %loop-number * 29%"
+			broadcast location(-77.5,-5, loop-number*29 + 5.5, world "railroadrush")
+			if "%mcccolor(loop-number-1)%" is "light cyan":
+				set {_color} to "cyan"
+				spawn villager at location(-77.5,-5, loop-number*29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+			else if "%mcccolor(loop-number-1)%" is "light green":
+				set {_color} to "lime"
+
+				spawn villager at location(-77.5,-5, loop-number*29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+			else:
+				spawn villager at location(-77.5,-5, loop-number*29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number-1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+			set spawned entity's name to "<gold>Golden Gabriel"
+			set spawned entity's yaw to 90
+			# wait 20 ticks
+			# teleport event-player to location(-100, 0, loop-number*33, world "railroadrush")
+			# make event-player execute command "//schem load grid_pool"
+			# make event-player execute command "//paste"
+			
+			loop 6 times:
+				execute console command "/schempaste railroadrush_%{_list2::%loop-number-2%}% railroadrush %(loop-number-2)*99-171% 0 %loop-number-1 * 29%"
+				if "%mcccolor(loop-number-1)%" is "light cyan":
+					set {_color} to "cyan"
+
+					spawn villager at location(((loop-number-2)*99-171)+7.5,-5, loop-number-1 * 29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				else if "%mcccolor(loop-number-1)%" is "light green":
+					set {_color} to "lime"
+
+					spawn villager at location(((loop-number-2)*99-171)+7.5,-5, loop-number-1 * 29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				else:
+					spawn villager at location(((loop-number-2)*99-171)+7.5,-5, loop-number-1 * 29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number-1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				set spawned entity's name to "<gold>Golden Gabriel"
+				set spawned entity's yaw to 90
+					# wait 20 ticks
+						# teleport event-player to location((loop-number-2)*45-30, 0, (loop-number-1) * 33, world "railroadrush")
+						# make event-player execute command "//schem load railroadrush_%{mcc.grid.challenge.%loop-number-2%}% -e"
+						# make event-player execute command "//paste -e"
+				set {_loc} to location((loop-number-2)*99-171.5, 0, loop-number-1 * 29+0.5, world "railroadrush")
+				set {_loc} to {_loc} ~ {mcc.rrr.vector%{_list2::%loop-number-2%}%}
+				if "%mcccolor(loop-number-1)%" is "light cyan":
+					set {_color} to "cyan"
+					spawn villager at {_loc} with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				else if "%mcccolor(loop-number-1)%" is "light green":
+					set {_color} to "lime"
+
+					spawn villager at {_loc} with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				else:
+					spawn villager at {_loc} with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number-1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				set spawned entity's name to "<gold>Golden Gabriel"
+				set spawned entity's yaw to 90
+					# wait 20 ticks
+						# teleport event-player to location((loop-number-2)*45-30, 0, (loop-number-1) * 33, world "railroadrush")
+						# make event-player execute command "//schem load railroadrush_%{mcc.grid.challenge.%loop-number-2%}% -e"
+						# make event-player execute command "//paste -e"
+			execute console command "/schempaste railroadrush_end railroadrush 423 0 %loop-number * 29%"
+			# wait 20 ticks
+			# teleport event-player to location(360, 0, (loop-number-1) * 33, world "railroadrush")
+			# make event-player execute command "//schem load grid_finish_2"
+			# make event-player execute command "//paste"
+			# wait 20 ticks
+		execute console command "/schempaste rrr_goldmine railroadrush -279 84 -40"
+		execute console command "/schempaste rrr_goldmine railroadrush -554 115 -6"
+		execute console command "/schempaste rrr_goldmine railroadrush -150 86 303"

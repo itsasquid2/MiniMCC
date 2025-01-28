@@ -239,7 +239,26 @@ every second:
 						reveal loop-player-1 to loop-player-2
 				
 		
-						
+command /setpkwstagename <string>:
+	permission: op
+	trigger:
+		if player's world is "parkourwarriornew":
+			set {_regions::*} to regions at player
+			if size of {_regions::*} is greater than 1:
+				message "you are inside more than 1 region! Please find a place with only 1 region."
+				exit trigger
+			if size of {_regions::*} is less than 1:
+				message "You aren't inside any regions right now! Please find a region to change the name of the corresponding course."
+				exit trigger
+			loop {_regions::*}:
+				set {_bla} to the first 4 characters of "%loop-value%"
+				set {_title1} to "%the last character of {_bla} parsed as an integer + 1%"
+				set {_title2} to the first 3 characters of {_bla}
+				set {_title} to "%{_title2}%%{_title1}%"
+				set {mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name} to arg
+				send title "<yellow>%{_title}%" to player
+				if {mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name} is set:
+					send subtitle "<white>%{mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name}%" to player
 		
   		
 on region enter:
@@ -280,13 +299,13 @@ on region enter:
 				set {_text} to formatted "<##cd7f32>bronze medal"
 				set {_item} to copper ingot of unbreaking 10 named "<pink>Bronze Medal"
 				set {_special} to false
-				set {_coins} to 5
+				set {_coins} to 10
 				# bronze medal 
 			else if the last 1 characters of {_bla} is "2":
 				# silver medal 
 				set {_text} to formatted "<##9aa6a6>silver medal"
 				set {_item} to iron ingot of unbreaking 10 named "<light gray>Silver Medal"
-				set {_coins} to 15
+				set {_coins} to 20
 				set {_special} to false
 			else:
 				# gold medal
@@ -307,10 +326,10 @@ on region enter:
 				add 0.15 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
 			else if the first 1 characters of {_bla} is "2":
 				give a iron horse armor to the player
-				add 0.4 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+				add 0.35 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
 			else if the first 1 characters of {_bla} is "3":
 				give a gold horse armor to the player
-				add 1 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+				add 0.8 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
 			set {_teamdone} to true
 			loop all players:
 				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:

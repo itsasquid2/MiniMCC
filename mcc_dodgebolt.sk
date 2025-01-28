@@ -401,8 +401,8 @@ function dbstartgame():
 		if {db.playing.%loop-player's name%} is true:
 			clear the loop-player's inventory
 			give loop-player bow 
-			apply infinite potion of darkness of tier 200 to loop-player
-			set glowing of loop-player to true
+			#apply infinite potion of darkness of tier 200 to loop-player
+			#set glowing of loop-player to true
 			set the loop-player's health to 10
 			set the loop-player's hunger to 10
 			set {db.ready.%loop-player's name%} to false
@@ -447,7 +447,8 @@ function dbstartgame():
 	givetealarrow()
 	
 
-on rightclick on button:
+on rightclick:
+	event-block is tagged as tag "buttons"
 	event-block's z coordinate is -235.5
 	if player is in world "world":
 		if {mcc.currentevent} is not equal to "none":
@@ -472,7 +473,8 @@ on rightclick on button:
 		else:
 			message "<yellow>[Dodgebolt] <pink>This arena is in use!" to event-player
 			
-on rightclick on button:
+on rightclick:
+	event-block is tagged as tag "buttons"
 	event-block's z coordinate is -236.5
 	if player is in world "world":
 		if {mcc.currentevent} is not equal to "none":
@@ -557,7 +559,8 @@ on drop:
 		message "<pink>You might want to keep that!" to event-player
 		cancel event
 
-on walking on carpet:
+on player move:
+	block below event-player is a carpet
 	if {db.playing.%player's name%} is true:
 		if {db.inprogress} is false:
 			exit trigger

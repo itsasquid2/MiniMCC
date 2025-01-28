@@ -72,19 +72,22 @@ function mccskbtutorial(p:player):
 
 
 function skbrad(time:number) :: number:
-	set {_t} to {_time}+20
-	if {_t} is greater than or equal to 180:
-		set {_e} to 240-{_t}
-		return 115-floor({_e}/3)
-	else if {_t} is greater than or equal to 120:
-		set {_e} to 180-{_t}
-		return 95-floor({_e}/2)
-	else if {_t} is greater than or equal to 90:
-		set {_e} to 120-{_t}
-		return 65-floor({_e}/2)
-	else if {_t} is greater than or equal to 14:
-		set {_e} to 90-{_t}
-		return 50-floor({_e}/1.5)
+	if {mcc.skybattle.overtimetriggered} is true:
+		return 0
+	else:
+		set {_t} to {_time}+20
+		if {_t} is greater than or equal to 180:
+			set {_e} to 240-{_t}
+			return 115-floor({_e}/3)
+		else if {_t} is greater than or equal to 120:
+			set {_e} to 180-{_t}
+			return 95-floor({_e}/2)
+		else if {_t} is greater than or equal to 90:
+			set {_e} to 120-{_t}
+			return 65-floor({_e}/2)
+		else if {_t} is greater than or equal to 14:
+			set {_e} to 90-{_t}
+			return 50-floor({_e}/1.5)
 
 function skbheight(time:number) :: number:
 	set {_t} to {_time}+20
@@ -388,6 +391,7 @@ on death of player:
 			if loop-player's game mode is survival:
 				bac(loop-player, 2, "Survived 1 place")
 	if skbover() is true:
+		set {mcc.skybattle.overtimetriggered} to true
 		set {mcc.skybattle.timeleft} to 0
 
 
@@ -423,6 +427,7 @@ every second:
 		if {mcc.skybattle.timeleft} is equal to 10:
 			if {mcc.skybattle.stage} is equal to 0:
 				execute console command "/mccskbresetmap"
+				set {mcc.skybattle.overtimetriggered} to false
 				wait 2 second
 				skbislands()
 			
@@ -443,30 +448,36 @@ every second:
 		if {mcc.skybattle.stage} is equal to 0:
 			set {mcc.skybattle.stage} to 1
 			set {mcc.skybattle.timeleft} to 240
+			
 		else if {mcc.skybattle.stage} is equal to 1:
-			delete {_bl::*} 
-			loop all players:
-				if loop-player's game mode is survival:
-					ac(loop-player, 50, "You survived the entire round!", true)
-					add "<%mcccolor({mcc.team.%loop-player's name%})%>%loop-player's name%" to {_bl::*}
-			if size of {_bl::*} is equal to 1:
-				broadcast formatted "[<gold><bold>Sky Battle<white>] The winner of this round is %{_bl::1}%!" 
-			else:
-				broadcast formatted "[<gold><bold>Sky Battle<white>] The winners of this round are %{_bl::*}%!" 
-			if {mcc.skybattle.roundnum} is equal to 3:
-				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
-						send title "<pink>Game over!" to loop-player for 3 seconds
-				set {mcc.skybattle.stage} to 2
+			if {mcc.skybattle.overtimetriggered} is false:
 				set {mcc.skybattle.timeleft} to 30
-				execute console command "/mccstandings"		
+				set {mcc.skybattle.overtimetriggered} to true
+				send title "<red>Overtime!" to all players
 			else:
+				delete {_bl::*} 
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
-						send title "<pink>Round over!" to loop-player for 3 seconds
-				add 1 to {mcc.skybattle.roundnum} 
-				set {mcc.skybattle.stage} to 0
-				set {mcc.skybattle.timeleft} to 20
+					if loop-player's game mode is survival:
+						ac(loop-player, 50, "You survived the entire round!", true)
+						add "<%mcccolor({mcc.team.%loop-player's name%})%>%loop-player's name%" to {_bl::*}
+				if size of {_bl::*} is equal to 1:
+					broadcast formatted "[<gold><bold>Sky Battle<white>] The winner of this round is %{_bl::1}%!" 
+				else:
+					broadcast formatted "[<gold><bold>Sky Battle<white>] The winners of this round are %{_bl::*}%!" 
+				if {mcc.skybattle.roundnum} is equal to 3:
+					loop all players:
+						if {mcc.team.%loop-player's name%} is not equal to 0:
+							send title "<pink>Game over!" to loop-player for 3 seconds
+					set {mcc.skybattle.stage} to 2
+					set {mcc.skybattle.timeleft} to 30
+					execute console command "/mccstandings"		
+				else:
+					loop all players:
+						if {mcc.team.%loop-player's name%} is not equal to 0:
+							send title "<pink>Round over!" to loop-player for 3 seconds
+					add 1 to {mcc.skybattle.roundnum} 
+					set {mcc.skybattle.stage} to 0
+					set {mcc.skybattle.timeleft} to 20
 		else if {mcc.skybattle.stage} is equal to 2:
 			execute console command "/mccbreak"
 			set {mcc.skybattle.timeleft} to -1

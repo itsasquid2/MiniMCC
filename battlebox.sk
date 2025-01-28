@@ -177,7 +177,8 @@ function bbendgame(n: number):
 
 
 
-on rightclick on button:
+on rightclick:
+	event-block is tagged as tag "buttons"
 	if {battlebox.playing.%player%} is true:
 		if x-coordinate of event-location is equal to 6.5:
 			bbkit(player, 1)		
@@ -197,7 +198,8 @@ on rightclick on button:
 			bbkit(player, 4)		
 
 
-on rightclick on button:
+on rightclick:
+	event-block is tagged as tag "buttons"
 	if "%player's world%" is equal to "world":
 		if event-block's z coordinate is -231.5:
 			if {mcc.currentevent} is not equal to "none":
@@ -219,7 +221,8 @@ on rightclick on button:
 				message "<light blue>[Battle Box] <pink>You are already in this game!" to event-player
 
 
-on rightclick on button:
+on rightclick:
+	event-block is tagged as tag "buttons"
 	if "%player's world%" is equal to "world":
 		if event-block's z coordinate is -232.5:
 			if {mcc.currentevent} is not equal to "none":

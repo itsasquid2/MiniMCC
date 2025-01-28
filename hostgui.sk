@@ -47,7 +47,7 @@ command /tpalltominimcctown:
 			teleport all players to location(1, 67, -24, world "mini_mcc_town")
 
 on inventory click:
-	if inventory name of event-inventory is "<orange>MMCC hosting Panel":
+	if component inventory title of event-player's current inventory is "<orange>MMCC hosting Panel":
 		cancel event
 		if {mmcc.hoster.%player's name%} isn't true:
 			if event-item is white concrete named "Pause/Unpause":

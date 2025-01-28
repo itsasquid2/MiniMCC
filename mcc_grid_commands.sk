@@ -162,33 +162,32 @@ on entity drop of an egg:
 
 
 on walk on concrete:
-	if event-entity is a player:
-		if {mcc.grid.pads::*} contains event-block:
-			if event-block is red concrete:
-				gridpoint(1,1)
-			else if event-block is orange concrete:
-				gridpoint(2,1)
-			else if event-block is yellow concrete:
-				gridpoint(3,1)
-			else if event-block is lime concrete:
-				gridpoint(4,1)
-			else if event-block is green concrete:
-				gridpoint(5,1)
-			else if event-block is cyan concrete:
-				gridpoint(6,1)
-			else if event-block is light blue concrete:
-				gridpoint(7,1)
-			else if event-block is blue concrete:
-				gridpoint(8,1)
-			else if event-block is purple concrete:
-				gridpoint(9,1)
-			else if event-block is pink concrete:
-				gridpoint(10,1)
-			set event-block to stone
-			set block 1 block north of event-block to stone
-			set block 2 block north of event-block to stone
-			set block 1 block south of event-block to stone
-			set block 2 block south of event-block to stone
+	if {mcc.grid.pads::*} contains event-block:
+		if event-block is red concrete:
+			gridpoint(1,1)
+		else if event-block is orange concrete:
+			gridpoint(2,1)
+		else if event-block is yellow concrete:
+			gridpoint(3,1)
+		else if event-block is lime concrete:
+			gridpoint(4,1)
+		else if event-block is green concrete:
+			gridpoint(5,1)
+		else if event-block is cyan concrete:
+			gridpoint(6,1)
+		else if event-block is light blue concrete:
+			gridpoint(7,1)
+		else if event-block is blue concrete:
+			gridpoint(8,1)
+		else if event-block is purple concrete:
+			gridpoint(9,1)
+		else if event-block is pink concrete:
+			gridpoint(10,1)
+		set event-block to stone
+		set block 1 block north of event-block to stone
+		set block 2 block north of event-block to stone
+		set block 1 block south of event-block to stone
+		set block 2 block south of event-block to stone
 
 command /gridrunnerssetconcrete:
 	trigger:

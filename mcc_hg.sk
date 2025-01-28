@@ -365,7 +365,7 @@ on death of player:
 		set {_pl} to "<%mcccolor({mcc.team.%victim%})%>%victim%"
 		set {_msg} to "%{_pl}%<white> died"
 		if attacker is a player:
-			heal attacker by 2 hearts
+			heal attacker by 3 hearts
 			set {_at} to "<%mcccolor({mcc.team.%attacker%})%>%attacker%"
 			if damage cause is attack:
 				set {_msg} to "%{_pl}% <white>was slain by %{_at}%"
@@ -428,7 +428,7 @@ on death of player:
 				if 55-5*floor({sg.time}/45) is greater than 35:
 					ac({sg.hitby.%victim%}, 55-5*floor({sg.time}/45), "You killed %{sg.hitby.%victim%}%!", false)
 				else:
-					ac({sg.hitby.%victim%}, 55, "You killed %{sg.hitby.%victim%}%!", false)
+					ac({sg.hitby.%victim%}, 35, "You killed %{sg.hitby.%victim%}%!", false)
 				youkilled({sg.hitby.%victim%}, victim)
 		set {_pl} to "<%mcccolor({mcc.team.%victim%})%>%victim%"
 		
@@ -436,7 +436,7 @@ on death of player:
 			# if "%loop-player's world%" is equal to "survivalgames" or "survivalgames2":
 			# 	send formatted {_msg} to loop-player
 			if {sg.playing.%loop-player's name%} is true:
-				bac(loop-player, 3, "Survived 1 place")	
+				bac(loop-player, 4, "Survived 1 place")	
 		if sgover() is true:
 			sgendgame()
 					
@@ -529,21 +529,27 @@ every second:
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 1 minute.")
 		else:
-			sgb("<pink>Supply drops arriving in 1 minute.")
+			sgb("<pink>Supply drops arriving in 30 seconds.")
 		sgb("<pink>The border is shrinking in 30 seconds!")
 		set {sg.worldborderx} to a random integer between -95.5 and 95.5
 		set {sg.worldborderz} to a random integer between -95.5 and 95.5
+	else if {sg.time} is equal to 170:
+		if {hgmapset} is true:
+			loop 10 times:
+				sgb("<pink>Supply drops arriving in <light cyan>%11 - loop-number%<white> seconds.")
+				wait 1 second
 	else if {sg.time} is equal to 180: 	
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 30 seconds.")
 		else:
-			sgb("<pink>Supply drops arriving in 30 seconds.")
+			sgb("<pink>Supply drops have arrived!")
+			sgspawnsupplydrops({sgworld})
 		loop all players:
 			if {mcc.team.%loop-player's name%} is not equal to 0:
 				send title "" with subtitle "<pink>Border shrinking" to loop-player for 5 seconds
 		set {_good} to false
-		set size of world border of world "survivalgames" to 310
-		set size of world border of world "survivalgames2" to 310
+		set size of world border of world "survivalgames" to 340
+		set size of world border of world "survivalgames2" to 340
 		set border center of world border of world "survivalgames" to location({sg.worldborderx},0,{sg.worldborderz})
 		set border center of world border of world "survivalgames2" to location({sg.worldborderx},0,{sg.worldborderz})
 		shrink world border of world "survivalgames" to 25 in 200 seconds
@@ -552,38 +558,24 @@ every second:
 	else if {sg.time} is equal to 195: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 15 seconds.")
-		else:
-			sgb("<pink>Supply drops arriving in 15 seconds.")
 	else if {sg.time} is equal to 200: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 10 seconds.")
-		else:
-			sgb("<pink>Supply drops arriving in 10 seconds.")
 	else if {sg.time} is equal to 205: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 5 seconds.")
-		else:
-			sgb("<pink>Supply drops arriving in 5 seconds.")
 	else if {sg.time} is equal to 206: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 4 seconds.")
-		else:
-			sgb("<pink>Supply drops arriving in 4 seconds.")
 	else if {sg.time} is equal to 207: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 3 seconds.")
-		else:
-			sgb("<pink>Supply drops arriving in 3 seconds.")
 	else if {sg.time} is equal to 208: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 2 seconds.")
-		else:
-			sgb("<pink>Supply drops arriving in 2 seconds.")
 	else if {sg.time} is equal to 209: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 1 second.")
-		else:
-			sgb("<pink>Supply drops arriving in 1 second.")
 	else if {sg.time} is equal to 210: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast has begun!")
@@ -608,17 +600,17 @@ every second:
 				if loop-block is a chest:
 					add loop-block to {lootchests::*}
 			execute console command "/fillchests sg_feast"
-		else:
-			sgb("<pink>Supply drops have arrived!")
-			sgspawnsupplydrops({sgworld})
-	else if {sg.time} is more than 390:
+	else if {sg.time} is 390:
 		send title "<red>Sudden Death!" with subtitle "<pink>Players' health will slowly be drained" to all players for 2 seconds
 	else if {sg.time} is more than 390:
 		if mod({sg.time},5) is 0:
 			loop all players:
-				damage loop-player by 1 heart
-	else if {sg.time} is equal to 420:
+				if loop-player's health is above 1:
+					damage loop-player by 1 heart
+	else if {sg.time} is more than 420:
 		sgendgame()	
+	if mod({sg.time},45) is 0:
+		sgb("<light cyan>[<yellow>Info<light cyan>]<white>Kills are now worth %55-5*floor({sg.time}/45)% coins.")
 
 function sgspawnsupplydrops(world:world):
 	loop {sgsupplydroplocs::*}:
@@ -634,6 +626,8 @@ function sgspawnsupplydrops(world:world):
 		loop blocks in radius 2 of loop-value:
 			if loop-block is a chest:
 				add loop-block to {lootchests::*}
+				le spawn text display at the location 0.6 block above loop-block
+				set display text of last spawned entity to "<lime>Coin Crate(Break)"
 	execute console command "/fillchests sg_wild"
 
 on inventory click:
@@ -901,7 +895,7 @@ function hgrandomtp(world:world):
 on break:
 	world is "survivalgames" or "survivalgames2"
 	{sgmapset} is true
-	if event-block isn't leaves or glass or cobweb or gold block:
+	if event-block isn't leaves or glass or cobweb or gold block or water:
 		cancel event
 	else if event-block is gold block:
 		loop all players:
@@ -914,7 +908,7 @@ on break:
 on place:
 	world is "survivalgames" or "survivalgames2"
 	{sgmapset} is true
-	event-block isn't cobweb
+	event-block isn't cobweb or water
 	cancel event
 
 

@@ -405,24 +405,12 @@ on explode:
                 loop blocks in radius 5 around loop-block:
                     if loop-block-2 is oxidized copper block:
                         set loop-block-2 to air
-                if x-coord of loop-block is 21.5:
+                if mod(x-coord of loop-block - 27, 99) is 0:
+                    rrrcheckpoints(round((x-coord of loop-block - 27)/99 + 2),rrrcheckteam(z-coord of loop-block))
+                else if x-coord of loop-block is -72:
                     rrrcheckpoints(1,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 72.5:
-                    rrrcheckpoints(2,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 142.5:
-                    rrrcheckpoints(3,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 225.5:
-                    rrrcheckpoints(4,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 295.5:
-                    rrrcheckpoints(5,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 344.5:
-                    rrrcheckpoints(6,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 414.5:
-                    rrrcheckpoints(7,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 484.5:
+                else if x-coord of loop-block is 669:
                     rrrcheckpoints(8,rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is 554.5:
-                    rrrcheckpoints(9,rrrcheckteam(z-coord of loop-block))
                 set loop-block to air
             else if loop-block is gold ore:
                 set loop-block to air
@@ -509,13 +497,15 @@ on break of rail or golden rail:
 function rrrcheckpoints(cp:number, team:number):
     if {mcc.rrr.checkpoint.%{_team}%} + 1 is {_cp}:
         set {mcc.rrr.checkpoint.%{_team}%} to {_cp}
-        loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
-                ac(loop-player,25,"You Reached a Checkpoint!", false)
-        if {_team} is 1:
-            set {rrr.minecartspawn.%{_team}%} to {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%{_team}%}%.minecartspawn}
+        if {_cp} isn't 1:
+            loop all players:
+                if {mcc.team.%loop-player's name%} is {_team}:
+                    ac(loop-player,25,"You Reached a Checkpoint!", false)
         else:
-            set {rrr.minecartspawn.%{_team}%} to the location 1 block south of the location 28*({_team}-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%{_team}%}%.minecartspawn}
+            loop all players:
+                if {mcc.team.%loop-player's name%} is {_team}:
+                    ac(loop-player,2.5,"You Reached a Checkpoint!", false)
+        set {rrr.minecartspawn.%{_team}%} to the location 29*({_team}-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%{_team}%}%.minecartspawn}
 
 on break:
     world is "railroadrush"
@@ -578,12 +568,8 @@ command /mccrailroadrush:
         loop 10 times:
             set {mcc.rrr.checkpoint.%loop-number%} to 0
             set {mcc.rrr.team%loop-number%.furthestdistance} to 0
-            if loop-number is 1:
-                set {rrr.minecartspawn.%loop-number%} to {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
-                set {rrr.playerspawn.%loop-number%} to {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
-            else:
-                set {rrr.minecartspawn.%loop-number%} to the location 1 block south of the location 28*((loop-number)-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
-                set {rrr.playerspawn.%loop-number%} to the location 1 block south of the location 28*((loop-number)-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
+            set {rrr.minecartspawn.%loop-number%} to the location 29*((loop-number)-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
+            set {rrr.playerspawn.%loop-number%} to the location 29*((loop-number)-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
         loop all players:
             teleport loop-player to {rrr.playerspawn.%{mcc.team.%loop-player's name%}%}
             clear loop-player's inventory
@@ -711,7 +697,7 @@ command /setrrritems:
                 add loop-item to {mcc.rrr.startingitems::*}
 
 function rrrcheckteam(n:number) :: number:
-    return ceil(({_n}-201)/28)
+    return ceil(({_n}-201)/29)
 
 on damage:
     world is "railroadrush"
@@ -741,13 +727,13 @@ command /spawnrrrvillager_in_all_lanes:
             if "%mcccolor(loop-number + 1)%" is "light cyan":
                 set {_color} to "cyan"
 
-                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
             else if "%mcccolor(loop-number + 1)%" is "light green":
                 set {_color} to "lime"
 
-                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
             else:
-                spawn villager at the location 1 block south of the location 28*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number + 1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number + 1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
             set spawned entity's name to "<gold>Golden Gabriel"
 
 command /maxlvlrrrvillagers:

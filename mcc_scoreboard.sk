@@ -406,12 +406,15 @@ function mccupdatescoreboard(p:player):
 		else if {mcc.currentevent} is equal to "skybattle":
 			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Sky Battle"
 			set line 14 of {_p}'s scoreboard to "<green><bold>Round: <white>%{mcc.skybattle.roundnum}%/3"
-			if {mcc.skybattle.stage} is equal to 0:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.skybattle.timeleft})%"
-			else if {mcc.skybattle.stage} is equal to 1:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Time left <white>%time({mcc.skybattle.timeleft})%"
-			else if {mcc.skybattle.stage} is equal to 2:				
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.skybattle.timeleft})%"
+			if set {mcc.skybattle.overtimetriggered} is false:
+				if {mcc.skybattle.stage} is equal to 0:
+					set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.skybattle.timeleft})%"
+				else if {mcc.skybattle.stage} is equal to 1:
+					set line 13 of {_p}'s scoreboard to "<pink><bold>Time left <white>%time({mcc.skybattle.timeleft})%"
+				else if {mcc.skybattle.stage} is equal to 2:				
+					set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.skybattle.timeleft})%"
+			else:
+				set line 13 of {_p}'s scoreboard to "<pink><bold>Overtime: <white>%time({mcc.skybattle.timeleft})%"
 			set line 12 of {_p}'s scoreboard to ""
 			set line 4 of {_p}'s scoreboard to "<lime><bold>Players remaining: <white>%{mcc.skybattle.playersleft}%"
 			set line 3 of {_p}'s scoreboard to "<yellow><bold>Your kills: <white>%{mcc.skybattle.kills.%{_p}%}%"

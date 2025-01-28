@@ -131,6 +131,7 @@ on block break:
             cancel event
 
 function spleefstartgame():
+    set {spleef.timeleft} to 124
     set {spleef.inprogress} to true
     loop all players:
         if {spleef.playing.%loop-player%} is true:
@@ -162,7 +163,7 @@ function spleefstartgame():
         if {spleef.playing.%loop-player%} is true:
             execute console command "/note 18 %loop-player%"
             set loop-player's gamemode to survival
-    set {spleef.timeleft} to 120
+    
 	
 
 every second in "world":

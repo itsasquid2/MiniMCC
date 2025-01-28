@@ -146,7 +146,7 @@ command /replaceobj <number> <number>:
 			exit trigger
 		set {_past} to {bingottt.board.%arg 1%.%arg 2%}
 		#pickobj(arg 1, arg 2)
-		
+		set {bingo.objectives::%{bingottt.board.%arg 1%.%arg 2%}%} to player's tool
 		broadcast "<lime>Replaced %{bingo.objectives::%{_past}%}% <lime>with %{bingo.objectives::%{bingottt.board.%arg 1%.%arg 2%}%}%<lime> in position %arg 1%<lime>,%arg 2%<lime>" 
 
 

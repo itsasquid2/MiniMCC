@@ -455,6 +455,7 @@ command /mccrocketspleefrush:
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.3}%} to 30
+		execute console command "/mccrsrpod true"
 		loop all players:
 			if {mcc.team.%loop-player's name%} is not equal to 0:
 				execute console command "/mv tp %loop-player% rocketspleefrush"
@@ -514,13 +515,15 @@ every second:
 		else if {mcc.rsr.timeleft} is equal to 20:
 			if {mcc.rsr.stage} is equal to 0:
 				if {mcc.rsr.roundnum} is equal to 2 or 3:
-					mccrsrpod(true)
+					
 					mccrsrdisintegrate({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
 					if abs({mcc.rsr.oldx}) is greater than 30: 
 						mccrsrdisintegrate({mcc.rsr.oldx}, {mcc.rsr.oldy}, {mcc.rsr.oldz})
 		else if {mcc.rsr.timeleft} is equal to 15:
 			if {mcc.rsr.stage} is equal to 0:
 				if {mcc.rsr.roundnum} is equal to 2 or 3:
+					genterrain(0, -30, 0)
+					mccrsrpod(true)
 					loop all players:
 						if {rsrinprogress} is true:
 							if {rsrplaying.%loop-player's name%} is true:
@@ -535,7 +538,7 @@ every second:
 								clear the loop-player's inventory
 								execute console command "/rsr %loop-player%"
 								set loop-player's game mode to adventure
-					genterrain(0, -30, 0)
+					
 		else if {mcc.rsr.timeleft} is equal to 130:
 			if {mcc.rsr.stage} is equal to 1:
 				loop all players:
@@ -562,11 +565,17 @@ every second:
 			if {mcc.rsr.stage} is equal to 1:
 				if {mcc.rsr.roundnum} is equal to 1:
 					set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 9
+					set {mcc.rsr.radius.%{mcc.rsr.map.1}%} to 20
 					set {mcc.rsr.suddendeath} to true
+					
+		
 				if {mcc.rsr.roundnum} is equal to 2:
 					set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 9
+					set {mcc.rsr.radius.%{mcc.rsr.map.2}%} to 20
 					set {mcc.rsr.suddendeath} to true
+
 				if {mcc.rsr.roundnum} is equal to 3:
+					set {mcc.rsr.radius.%{mcc.rsr.map.3}%} to 20
 					set {mcc.rsr.spawnperiod.%{mcc.rsr.map.3}%} to 9
 					set {mcc.rsr.suddendeath} to true
 				loop all players:
@@ -635,7 +644,7 @@ every second:
 								ac(loop-player, 150, "You survived the entire round!", true)	
 							else if {mcc.rsr.place.%loop-player's name%} is not equal to -1:
 								if {mcc.rsr.place.%loop-player's name%} is less than or equal to 10:
-									ac(loop-player, {mcc.rsr.bonuscoins.%{mcc.rsr.place.%loop-player's name%}%}, "You got %nth({mcc.rsr.place.%loop-player's name%})% place!", false)
+									ac(loop-player, {mcc.rsr.bonuscoins.%{mcc.rsr.place.%loop-player's name%}%} parsed as number, "You got %nth({mcc.rsr.place.%loop-player's name%})% place!", false)
 				else:
 					if {mcc.team.%loop-player's name%} is not equal to 0:
 						if {mcc.rsr.roundnum} is equal to 3:
@@ -647,7 +656,7 @@ every second:
 							ac(loop-player, 150, "You survived the entire round!", true)	
 						else if {mcc.rsr.place.%loop-player's name%} is not equal to -1:
 							if {mcc.rsr.place.%loop-player's name%} is less than or equal to 10:
-								ac(loop-player, {mcc.rsr.bonuscoins.%{mcc.rsr.place.%loop-player's name%}%}, "You got %nth({mcc.rsr.place.%loop-player's name%})% place!", false)
+								ac(loop-player, {mcc.rsr.bonuscoins.%{mcc.rsr.place.%loop-player's name%}%} parsed as number, "You got %nth({mcc.rsr.place.%loop-player's name%})% place!", false)
 						
 			if size of {_winners::*} is equal to 1:
 				broadcast "[<gold><bold>Rocket Spleef Rush<reset>] The winner of this round is %{_winners::*}%!"							
@@ -673,7 +682,7 @@ every second:
 
 every second:
 	loop all players:
-		if loop-player's y-coordinate is less than -60:
+		if loop-player's y-coordinate is less than -70:
 			if loop-player's gamemode is adventure:
 				if {mcc.currentevent} is "rocketspleefrush":
 					if {mcc.rsr.stage} is 1:

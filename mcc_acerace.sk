@@ -49,7 +49,7 @@ function mccaceracescore(p:player) :: number:
 	return {mcc.acerace.lapsdone.%{_p}%}*10000+{mcc.acerace.checkpoint.%{_p}%}*100 - floor(distance between {_p} and mccaceracenextcp({_p}))/10
 	
 on region enter:
-	world is "acerace4"
+	world is "acerace4" or "acerace5" or "acerace6"
 	if the first 2 characters of "%region%" are "ra":
 		set the player's chestplate to air
 
@@ -59,7 +59,7 @@ function mccupdateaceracescores():
 			set {mcc.acerace.score.%loop-player's name%} to mccaceracescore(loop-player)
 	
 on region enter:
-	world is "acerace4"
+	world is "acerace4" or "acerace5" or "acerace6"
 	if the first 5 characters of "%region%" are "windn":
 		add player to {mcc.acerace.windnorth::*}
 	else if the first 5 characters of "%region%" are "winds":
@@ -70,7 +70,7 @@ on region enter:
 		add player to {mcc.acerace.windwest::*}
 
 on region exit:
-	world is "acerace4"
+	world is "acerace4" or "acerace5" or "acerace6"
 	if the first 5 characters of "%region%" are "windn":
 		remove player from {mcc.acerace.windnorth::*}
 	else if the first 5 characters of "%region%" are "winds":
@@ -87,7 +87,7 @@ every tick:
 		if {_regions::*} is set:
 			loop {_regions::*}:
 				if the first 5 characters of "%loop-value-2%" are "windn":
-					push loop-value-1 north with speed 0.05
+					push loop-value-1 north with speed 0.1
 		else:
 			remove loop-value from {mcc.acerace.windnorth::*}
 	loop {mcc.acerace.windsouth::*}:
@@ -95,7 +95,7 @@ every tick:
 		if {_regions::*} is set:
 			loop {_regions::*}:
 				if the first 5 characters of "%loop-value-2%" are "winds":
-					push loop-value-1 south with speed 0.05
+					push loop-value-1 south with speed 0.1
 		else:
 			remove loop-value from {mcc.acerace.windsouth::*}
 	loop {mcc.acerace.windeast::*}:
@@ -103,7 +103,7 @@ every tick:
 		if {_regions::*} is set:
 			loop {_regions::*}:
 				if the first 5 characters of "%loop-value-2%" are "winde":
-					push loop-value-1 east with speed 0.05
+					push loop-value-1 east with speed 0.1
 		else:
 			remove loop-value from {mcc.acerace.windeast::*}
 	loop {mcc.acerace.windwest::*}:
@@ -111,12 +111,21 @@ every tick:
 		if {_regions::*} is set:
 			loop {_regions::*}:
 				if the first 5 characters of "%loop-value-2%" are "windw":
-					push loop-value-1 west with speed 0.05
+					push loop-value-1 west with speed 0.1
 					#set {_v} to velocity of loop-value-1
 					#set {_v} to {_v} ++ vector(-0.5,0,0)
 					#set velocity of loop-value-1 to {_v}
 		else:
 			remove loop-value from {mcc.acerace.windwest::*}
+
+on break:
+	"%event-world%" starts with "acerace"
+	if {mcc.inprogress} is true:
+		cancel event
+		set player's gamemode to adventure
+	if {mcc.currentevent} is "acerace":
+		cancel event
+		set player's gamemode to adventure
 
 function mccaceracetutorial(p:player):
 	wait 3 seconds
@@ -249,7 +258,7 @@ function aceracecp(p:player, n:number):
 				send title "<lime>Lap %{mcc.acerace.lapsdone.%{_p}%}+1%<lime>/3" to {_p} for 1 second
 			set {mcc.acerace.checkpoint.%{_p}%} to 0
 		else:
-			broadcast "%{_p}% missed cp%{mcc.acerace.checkpoint.%{_p}%}%"
+			broadcast "%{_p}% missed checkpoint %{mcc.acerace.checkpoint.%{_p}%}%"
 
 command /checkloc:
 	trigger:
@@ -432,7 +441,7 @@ on damage:
 
 on walking on yellow glazed terracotta:
 	#block below event-block is minecraft:barrier
-	if world is "acerace4":
+	if world is "acerace4" or "acerace5" or "acerace6":
 		set {_p} to potion effect of speed of tier 3 without particles for 3 seconds
 		add {_p} to potion effects of the player
 		play sound "ENTITY_GUARDIAN_DEATH" with volume 0.2 to the player
@@ -447,23 +456,23 @@ on region enter:
 		add {_p} to potion effects of event-player
 		set {_p} to potion effect of jump boost of tier 5 without particles for 9999 seconds
 		add {_p} to potion effects of event-player
-		send action bar "Swift Sprint on" to event-player
+		send action bar "<lime>[Swift Sprint on]" to event-player
 		wait 1 second
-		send action bar "Swift Sprint on" to event-player
+		send action bar "<lime><[Swift Sprint on]" to event-player
         
 on region enter:
 	if the first 2 characters of "%region%" are "se":
 		clear event-player's potion effects
-		send action bar "Swift Sprint off" to event-player
+		send action bar "<red>[Swift Sprint off]" to event-player
 		wait 1 second
-		send action bar "Swift Sprint off" to event-player
+		send action bar "<red>[Swift Sprint off]" to event-player
 
 on region enter:
 	if the first 3 characters of "%region%" are "eln":
 		remove trident from event-player
-		send action bar "Trident Removed" to event-player
+		send action bar "<red>[Trident Removed]" to event-player
 		wait 1 second
-		send action bar "Trident Removed" to event-player
+		send action bar "<red>[Trident Removed]" to event-player
 
 
 
@@ -471,9 +480,9 @@ on region enter:
 	if the first 3 characters of "%region%" are "ely":
 		if event-player does not have trident:
 			give event-player unbreakable trident of riptide
-			send action bar "Trident Given" to event-player
+			send action bar "<lime>[Trident Given]" to event-player
 			wait 1 second
-			send action bar "Trident Removed" to event-player
+			send action bar "<lime>[Trident Given]" to event-player
 
 on region enter:
 	if the first 2 characters of "%region%" are "aq":
@@ -485,9 +494,9 @@ on region enter:
 			set the player's chestplate to elytra
 			set gliding of player to true
 			set {flycooldown.%player's name%} to true
-			send action bar "<lime><bold> [Elytra Equipped]" to event-player
+			send action bar "<lime><bold>[Elytra Equipped]" to event-player
 			wait 5 tick
-			send action bar "<lime><bold> [Elytra Equipped]" to event-player
+			send action bar "<lime><bold>[Elytra Equipped]" to event-player
 
 			wait 3 seconds
 			set {flycooldown.%player's name%} to false
@@ -594,6 +603,16 @@ on walking on lava:
 	if player's world is "acerace4":
 		add 1 to {mcc.acerace.checkpoint.%player's name%}
 		teleport player to {mcc.acerace4.checkpoints::%{mcc.acerace.checkpoint.%player's name%}%}
+		subtract 1 from {mcc.acerace.checkpoint.%player's name%}
+		set player's chestplate to air
+	if player's world is "acerace5":
+		add 1 to {mcc.acerace.checkpoint.%player's name%}
+		teleport player to {mcc.acerace5.checkpoints::%{mcc.acerace.checkpoint.%player's name%}%}
+		subtract 1 from {mcc.acerace.checkpoint.%player's name%}
+		set player's chestplate to air
+	if player's world is "acerace6":
+		add 1 to {mcc.acerace.checkpoint.%player's name%}
+		teleport player to {mcc.acerace6.checkpoints::%{mcc.acerace.checkpoint.%player's name%}%}
 		subtract 1 from {mcc.acerace.checkpoint.%player's name%}
 		set player's chestplate to air
 	if player's world is "acerace2":

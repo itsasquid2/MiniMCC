@@ -231,6 +231,8 @@ command /opendoormeltdown <number>:
 
 function meltdownsequence(n:number):
 	delete {_blocks::*}
+	set {_loc} to bound greater corner of bound with id "meltdownroom%{_n}%"
+	set {_loc} to the location 50 blocks below {_loc}
 	set {_loc2} to the location (a random number between 25 and 35) blocks north of the location (a random number between 25 and 35) blocks west of {_loc}
 	set {_counter} to 0
 	set {_done} to false
@@ -250,16 +252,15 @@ function meltdownsequence(n:number):
 		set {_n3} to 60 - (0.04*({_n2}^1.4))
 		#broadcast {_n3}
 		loop {_blocks::*}:
-			set {_done1} to true
 			loop blocks in radius 1 around loop-value:
 				if loop-block isn't air or iron trapdoor or light block or structure void:
 					if {_blocks::*} doesn't contain loop-block:
-						if loop-block's location is within bound bound with id "meltdownroom%{_n}%":
-							set {_done1} to false
-							break
-			if {_done1} is true:
-				set block at loop-value's location to air
-				remove loop-value from {_blocks::*}
+						if loop-block's location is within bound with id "meltdownroom%{_n}%":
+							set loop-block to gray concrete
+							add loop-block to {_blocks::*}
+							exit 4 sections
+			set block at loop-value's location to air
+			remove loop-value from {_blocks::*}
 			
 			if {_n3} is more than 5:
 				chance of {_n3}%:
@@ -340,18 +341,16 @@ function meltdowncentersequence(n:number):
 		set {_n3} to 60 - (0.04*({_n2}^1.2))
 		#broadcast {_n3}
 		loop {_blocks::*}:
-			set {_done1} to true
 			loop blocks in radius 1 around loop-value:
 				if loop-block isn't air or iron trapdoor or light block or structure void or lava:
 					if {_blocks::*} doesn't contain loop-block:
-						if loop-block's location is within bound bound with id "meltdownroom%{_n}%":
-							chance of 25%:
-								add loop-block to {_blocks::*}
-								set loop-block to gray concrete
-							set {_done1} to false
-			if {_done1} is true:
-				set block at loop-value's location to air
-				remove loop-value from {_blocks::*}
+						if loop-block's location is within bound with id "meltdownroom%{_n}%":
+							add loop-block to {_blocks::*}
+							set loop-block to gray concrete
+							exit 4 sections
+			
+			set block at loop-value's location to air
+			remove loop-value from {_blocks::*}
 			
 			if {_n3} is more than 5:
 				chance of {_n3}%:

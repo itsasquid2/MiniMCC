@@ -113,6 +113,7 @@ function gridpoint(n:number, pts:number):
 								if loop-block is cracked deepslate bricks:
 									set loop-block to air
 				else if {mcc.grid.crowbars::*} contains {mcc.grid.challenge.%{mcc.grid.room.%{_n}%}%}:
+					broadcast "e"
 					loop all players:
 						if {mcc.team.%loop-player%} is equal to {_n}:
 							give loop-player {mcc.grid.crowbaritem}
