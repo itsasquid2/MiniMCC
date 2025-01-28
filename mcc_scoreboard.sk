@@ -83,9 +83,10 @@ function mccgetaceracestandings():
 		if {mcc.team.%loop-player%} is not equal to 0:
 			if {mcc.team.%loop-player%} is less than 11:
 				add 1 to {mcc.acerace.numplayers}
-				add {mcc.acerace.score.%loop-player%} to {_aceracescores::*}
+				add {mcc.acerace.score.%loop-player's name%} to {_aceracescores::*}
 		add loop-player to {_already::*}
 	set {_aceracescores::*} to sorted {_aceracescores::*}
+	broadcast {_aceracescores::*}
 	loop numbers from (size of {_already::*}) to 1:
 		set {_good} to false
 		loop all players:
@@ -97,6 +98,7 @@ function mccgetaceracestandings():
 							set {mcc.acerace.placenum.%loop-player%} to size of {_already::*} + 1 - (loop-number-1)
 							set {_good} to true
 							remove loop-player from {_already::*}
+	
 
 
 function mccupdatescoreboard(p:player):

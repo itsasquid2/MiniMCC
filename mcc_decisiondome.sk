@@ -249,7 +249,6 @@ every second:
 				ddnextgreen()
 				wait 0.5 seconds
 		else if {mcc.decisiondome.votingtime} is greater than or equal to 35:
-			if {mcc.decisiondome.votingtime} is equal to 25:
 			ddnextgreen()
 			wait 0.25 seconds
 			ddnextgreen()
