@@ -86,7 +86,7 @@ function mccgetaceracestandings():
 				add {mcc.acerace.score.%loop-player's name%} to {_aceracescores::*}
 		add loop-player to {_already::*}
 	set {_aceracescores::*} to sorted {_aceracescores::*}
-	broadcast {_aceracescores::*}
+	#broadcast {_aceracescores::*}
 	loop numbers from (size of {_already::*}) to 1:
 		set {_good} to false
 		loop all players:
@@ -167,7 +167,7 @@ function mccupdatescoreboard(p:player):
 		set line 11 of {_p}'s scoreboard to "%{mcc.teams::%{db.color2}%}%: %{db.teamwinsb}%"
 	else:
 		set title of {_p}'s scoreboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
-		if {mcc.currentevent} is not equal to "acerace" or "gridrunners":
+		if {mcc.currentevent} is not equal to "gridrunners":
 			set line 11 of {_p}'s scoreboard to "<light blue><bold>Game coins: <white>(<yellow>x%{mcc.coinmultiplier}%<white>)"
 			set line 10 of {_p}'s scoreboard to ""
 			set line 5 of {_p}'s scoreboard to ""
@@ -408,7 +408,7 @@ function mccupdatescoreboard(p:player):
 		else if {mcc.currentevent} is equal to "skybattle":
 			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Sky Battle"
 			set line 14 of {_p}'s scoreboard to "<green><bold>Round: <white>%{mcc.skybattle.roundnum}%/3"
-			if set {mcc.skybattle.overtimetriggered} is false:
+			if {mcc.skybattle.overtimetriggered} is false:
 				if {mcc.skybattle.stage} is equal to 0:
 					set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.skybattle.timeleft})%"
 				else if {mcc.skybattle.stage} is equal to 1:
