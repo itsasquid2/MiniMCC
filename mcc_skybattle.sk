@@ -448,6 +448,7 @@ every second:
 		if {mcc.skybattle.stage} is equal to 0:
 			set {mcc.skybattle.stage} to 1
 			set {mcc.skybattle.timeleft} to 240
+			execute console command "/playmusic skybattle"
 			
 		else if {mcc.skybattle.stage} is equal to 1:
 			if {mcc.skybattle.overtimetriggered} is false:
@@ -456,6 +457,7 @@ every second:
 				send title "<red>Overtime!" to all players
 			else:
 				delete {_bl::*} 
+				execute conole command "/playmusic none"
 				loop all players:
 					if loop-player's game mode is survival:
 						ac(loop-player, 50, "You survived the entire round!", true)
