@@ -457,7 +457,7 @@ every second:
 				send title "<red>Overtime!" to all players
 			else:
 				delete {_bl::*} 
-				execute conole command "/playmusic none"
+				execute console command "/playmusic none"
 				loop all players:
 					if loop-player's game mode is survival:
 						ac(loop-player, 50, "You survived the entire round!", true)
