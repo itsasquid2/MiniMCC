@@ -283,6 +283,12 @@ function ac(p:player, n:number, m:text, special:boolean):
 		add {_n} to {mcc.indivcoins.%{_p}%}
 		add {_n}*{mcc.coinmultiplier} to {mcc.lifetimecoins.%{_p}%}	
 
+command /resetlifetimecoinsall:
+	trigger:
+		if command sender is "itsasquid2":
+			loop all players:
+				set {mcc.lifetimecoins.%loop-player%} to 0	
+
 command /mccgivecoins <player> <number>:
 	trigger:
 		if command sender is not the console:

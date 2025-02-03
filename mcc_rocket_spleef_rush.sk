@@ -522,6 +522,9 @@ every second:
 		else if {mcc.rsr.timeleft} is equal to 15:
 			if {mcc.rsr.stage} is equal to 0:
 				if {mcc.rsr.roundnum} is equal to 2 or 3:
+					set {mcc.rsr.radius.%{mcc.rsr.map.1}%} to 40
+					set {mcc.rsr.radius.%{mcc.rsr.map.2}%} to 40
+					set {mcc.rsr.radius.%{mcc.rsr.map.3}%} to 40
 					genterrain(0, -30, 0)
 					mccrsrpod(true)
 					loop all players:

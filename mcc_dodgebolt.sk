@@ -559,8 +559,7 @@ on drop:
 		message "<pink>You might want to keep that!" to event-player
 		cancel event
 
-on player move:
-	block below event-player is a carpet
+on walking on carpet:
 	if {db.playing.%player's name%} is true:
 		if {db.inprogress} is false:
 			exit trigger
