@@ -76,3 +76,32 @@ command /rrrgencourse:
 		execute console command "/schempaste rrr_goldmine railroadrush -279 84 -40"
 		execute console command "/schempaste rrr_goldmine railroadrush -554 115 -6"
 		execute console command "/schempaste rrr_goldmine railroadrush -150 86 303"
+
+command /rrrreginit <number>:
+	permission: op
+	trigger:
+		set {rrr.registering.%player%} to arg
+		set {rrr.registering.%player%.loc} to player's location
+		message "Please go to the location of the extra villager and run /rrrregvillager"
+		message "To add secrets to this map, please go to the location of the container with the secret and run /rrrregsecret"
+		message "To clear secrets, run /rrrclearsecrets <map_num>"
+		message "If you did not run this command at the copy location, pleas do so now."
+		message "If you ran this command on accident, please run /rrrregcancel"
+
+command /rrrregvillager:
+	permission: op
+	trigger:
+		if {rrr.registering.%player%} is set:
+			set {mcc.rrr.vector%{rrr.registering.%player%}%} to vector between {rrr.registering.%player%.loc} and player's location
+
+command /rrrregsecret:
+	permission: op
+	trigger:
+		if {rrr.registering.%player%} is set:
+			add vector between {rrr.registering.%player%.loc} and player's location to {mcc.rrr.secretvectors.%{rrr.registering.%player%}%::*}
+
+command /rrrclearsecrets <number>:
+	permission: op
+	trigger:
+		delete {mcc.rrr.secretvectors.%arg%::*}
+
