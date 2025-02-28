@@ -201,7 +201,7 @@ function aceracecp(p:player, n:number):
 		set {mcc.acerace.checkpoint.%{_p}%} to {_n}
 	else if {_n} is equal to 0:
 		if {mcc.acerace.official} is true:
-			if {mcc.acerace.checkpoint.%{_p}%} is 11:
+			if {mcc.acerace.checkpoint.%{_p}%} is 15:
 				add 1 to {mcc.acerace.lapsdone.%{_p}%}
 				broadcast formatted "<%mcccolor({mcc.team.%{_p}%})%>%{_p}%<gray> has finished lap <lime>%{mcc.acerace.lapsdone.%{_p}%}%<lime>/3!"
 				if {mcc.acerace.lapsdone.%{_p}%} is equal to 3:
@@ -658,9 +658,12 @@ command /mccacerace:
 				set {mcc.acerace.checkpoint.%loop-player's name%} to 0
 				set {mcc.acerace.lapsdone.%loop-player's name%} to 0
 				set {bouncepadcooldown.%loop-player's name%} to false
+				delete {mcc.acerace.placenum.%loop-player%}
 				mccaceracetutorial(loop-player)
 				hide loop-player from all players
 				set loop-player's gamemode to adventure
+		loop 40 times:
+			delete {mcc.acerace.place.%loop-number%}
 		set {mcc.currentevent} to "acerace"
 		set {mcc.acerace.playersdone} to 0	
 		set {mcc.acerace.timeleft} to 60 

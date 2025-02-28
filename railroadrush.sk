@@ -120,7 +120,7 @@ every 0.15 second:
                         ac(loop-player,{_score},"Minecart went further than before",false)
             spawn a creeper at {rrr.minecart.%loop-number%}'s location
             
-            set explosive yield of last spawned entity to 1
+            #set explosive yield of last spawned entity to 1
             instantly explode last spawned entity
             kill {rrr.minecart.%loop-number%}
             delete {rrr.minecart.%loop-number%}
@@ -182,7 +182,7 @@ every 0.15 second:
                             ac(loop-player,{_score},"Minecart went further than before",false)
                 spawn a creeper at {rrr.minecart.%loop-number%}'s location
                 
-                set explosive yield of last spawned entity to 1
+                #set explosive yield of last spawned entity to 1
                 instantly explode last spawned entity
                 kill {rrr.minecart.%loop-number%}
                 delete {rrr.minecart.%loop-number%}
@@ -377,7 +377,7 @@ on place of red candle:
     kill {_display}
     spawn a creeper at event-block's location
     set event-block to air
-    set explosive yield of last spawned entity to 1
+    #set explosive yield of last spawned entity to 1
     add "dynamite" to scoreboard tags of last spawned entity
     add "%player's name%" to scoreboard tags of last spawned entity
     instantly explode last spawned entity
@@ -405,10 +405,11 @@ on explode:
                 loop blocks in radius 5 around loop-block:
                     if loop-block-2 is oxidized copper block:
                         set loop-block-2 to air
-                if mod(x-coord of loop-block - 27.5, 99) is 0:
-                    rrrcheckpoints(round((x-coord of loop-block - 27.5)/99 + 2),rrrcheckteam(z-coord of loop-block))
-                else if x-coord of loop-block is -71.5:
+                
+                if x-coord of loop-block is -71.5:
                     rrrcheckpoints(1,rrrcheckteam(z-coord of loop-block))
+                else if mod(x-coord of loop-block - 27.5, 99) is 0:
+                    rrrcheckpoints(round((x-coord of loop-block - 27.5)/99 + 2),rrrcheckteam(z-coord of loop-block))
                 else if x-coord of loop-block is 669.5:
                     rrrcheckpoints(8,rrrcheckteam(z-coord of loop-block))
                 set loop-block to air
@@ -457,42 +458,42 @@ on break of rail or golden rail:
         else:
             cancel event
             message "<red>You cannot break pre-placed rails!" to event-player
-    if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 1:
-        if x-coord of event-block is less than 21.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 2:
-        if x-coord of event-block is less than 72.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 3:
-        if x-coord of event-block is less than 142.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 4:
-        if x-coord of event-block is less than 225.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 5:
-        if x-coord of event-block is less than 295.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 6:
-        if x-coord of event-block is less than 344.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 7:
-        if x-coord of event-block is less than 414.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 8:
-        if x-coord of event-block is less than 484.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
-    else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 9:
-        if x-coord of event-block is less than 554.5:
-            cancel event
-            message "<red>You cannot take rails from previous sections!" to event-player
+    # if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 1:
+    #     if x-coord of event-block is less than 21.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 2:
+    #     if x-coord of event-block is less than 72.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 3:
+    #     if x-coord of event-block is less than 142.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 4:
+    #     if x-coord of event-block is less than 225.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 5:
+    #     if x-coord of event-block is less than 295.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 6:
+    #     if x-coord of event-block is less than 344.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 7:
+    #     if x-coord of event-block is less than 414.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 8:
+    #     if x-coord of event-block is less than 484.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 9:
+    #     if x-coord of event-block is less than 554.5:
+    #         cancel event
+    #         message "<red>You cannot take rails from previous sections!" to event-player
 
 function rrrcheckpoints(cp:number, team:number):
     if {mcc.rrr.checkpoint.%{_team}%} + 1 is {_cp}:
@@ -697,7 +698,7 @@ command /setrrritems:
                 add loop-item to {mcc.rrr.startingitems::*}
 
 function rrrcheckteam(n:number) :: number:
-    return ceil(({_n}-201)/29)
+    return ceil(({_n}-3)/29)
 
 on damage:
     world is "railroadrush"

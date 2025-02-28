@@ -307,6 +307,7 @@ function dbendround(n:number):
 			if z-coordinate of loop-entity is between -187 and -217:	
 				if x-coordinate of loop-entity is between 61 and 95:
 					delete the loop-entity
+	execute console command "/playmusic none"
 	if {_n} is equal to 1:
 		add 1 to {db.teamwinsa}
 		if {db.teamwinsa} is equal to 3:
@@ -445,6 +446,7 @@ function dbstartgame():
 			set {frozen.%loop-player's name%} to false
 	giveorangearrow()
 	givetealarrow()
+	execute console command "/playmusic dodgebolt"
 	
 
 on rightclick:
@@ -857,7 +859,12 @@ command /mccdodgebolt <number> <number> <number>:
 				
 		set {mcc.db.timeleft} to arg 3	
 
-
+command /resetdodgboltplaying:
+	trigger:
+		if command sender is "itsasquid2":
+			loop all players:
+				set {db.playing.%loop-player's name%} to false
+				set {db.team.%loop-player's name%} to "none"
 
 every second:
 	if {mcc.paused} is true:

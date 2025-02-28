@@ -438,17 +438,19 @@ every second:
 						execute console command "/boopboopboopbeep %loop-player's name%"
 		else if {mcc.skybattle.timeleft} is equal to 1:
 			if {mcc.skybattle.stage} is equal to 0:
-				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
-						set loop-player's game mode to survival
-						loop blocks in radius 7 around loop-player:
-							if loop-block is barrier block:
-								set loop-block to air
+
+				execute console command "/playmusic skybattle"
 	else if {mcc.skybattle.timeleft} is equal to 0:
 		if {mcc.skybattle.stage} is equal to 0:
+			loop all players:
+				if {mcc.team.%loop-player's name%} is not equal to 0:	
+					loop blocks in radius 7 around loop-player:
+						if loop-block is barrier block:
+							set loop-block to air
+					set loop-player's game mode to survival
 			set {mcc.skybattle.stage} to 1
 			set {mcc.skybattle.timeleft} to 240
-			execute console command "/playmusic skybattle"
+			
 			
 		else if {mcc.skybattle.stage} is equal to 1:
 			if {mcc.skybattle.overtimetriggered} is false:
@@ -470,6 +472,7 @@ every second:
 					loop all players:
 						if {mcc.team.%loop-player's name%} is not equal to 0:
 							send title "<pink>Game over!" to loop-player for 3 seconds
+					set {mcc.skybattle.overtimetriggered} to false
 					set {mcc.skybattle.stage} to 2
 					set {mcc.skybattle.timeleft} to 30
 					execute console command "/mccstandings"		
@@ -477,6 +480,7 @@ every second:
 					loop all players:
 						if {mcc.team.%loop-player's name%} is not equal to 0:
 							send title "<pink>Round over!" to loop-player for 3 seconds
+					set {mcc.skybattle.overtimetriggered} to false
 					add 1 to {mcc.skybattle.roundnum} 
 					set {mcc.skybattle.stage} to 0
 					set {mcc.skybattle.timeleft} to 20

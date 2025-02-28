@@ -321,6 +321,7 @@ on region enter:
 		else if the last 1 characters of {_bla} is "3":
 			broadcast "%mccname(player)% <magenta>has completed the entire course!"
 			set player's game mode to spectator
+			reveal all players to player
 			if the first 1 characters of {_bla} is "1":
 				give a leather horse armor to the player
 				add 0.15 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}

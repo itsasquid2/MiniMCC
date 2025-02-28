@@ -423,5 +423,6 @@ on pick up:
 
 on spawn:
 	if "%event-world%" starts with "bingo":
-		if event-spawnreason is natural:
+
+		if spawn reason = natural:
 			cancel event

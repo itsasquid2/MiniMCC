@@ -6,13 +6,13 @@ function gen_image(n:number, p1:text, p2:text, p3:text, p4:text):
 command /mccautoassignteams:
     trigger:
         if command sender's display name is "itsasquid2":
-            gen_image(1, "Sacronix", "xBilly", "NotSubnautic","Kkota_")
-            gen_image(2, "Pikachugirl_9","Pokemaster404","Pumpkir","LargeTortilla")
-            gen_image(3, "PlateofRavioli","Shadowyninja151","Simarasaile","Overflow23")
-            gen_image(4, "BurgerInATux","TigerTech","GalaxyGema","RealPenguin1")
-            gen_image(5, "PEEJ45","jamzinho7","AlexCountX","Ka1d4r3")
-            gen_image(6, "xPlebnerdz",	"oKizmo",	"Yungsoupyz",	"FireBeastMode")
-            gen_image(7, "Claralemon",	"Hiitzhunter",	"Wistry",	"Cinnameme")
-            gen_image(8, "Adjacentt",	"Milo_wh",	"Dinamonchi",	"Mudkipboi14")
-            gen_image(9, "specialmentally",	"Kryptic1llusion",	"Xaybrazy",	"waffelix")
-            gen_image(10, "spooqys",	"bluized",	"Tr1llu",	"SurprisePopper")
+            gen_image(8,"ilikecountries",	"Bluized",	"Firebeastmode",	"Beefing")
+            gen_image(2,"Adjacentt",	"Cabbenge",	"Anshdaboss",	"Qvrk")
+            gen_image(3,"Claralemon",	"ShadowyNinja151",	"Beebuilding",	"Dinamonchi")
+            gen_image(4,"PlateofRavioli",	"Overflow32",	"Tacogaming123456",	"Valuedspy")
+            gen_image(5,"Elitecombate",	"Cyclodrone ",	"Dlxckinq",	"Itsasquid2")
+            gen_image(7,"RealPenguin1",	"Envux",	"SimaraSaile",	"Apoller")
+            gen_image(6,"Sacronix",	"PEEJ45",	"AlexCountX",	"Jamzinho")
+            gen_image(1,"XayBrazy",	"Pokemaster404",	"Milo_wh",	"Ka1d4r3")
+            gen_image(9,"Krypticillusion",	"Tr1lu",	"BestBedwarPlayer",	"LargeTortilla")
+            gen_image(10,"mr_bean69",	"Bhrefort",	"Queefoholic",	"Malvare_")

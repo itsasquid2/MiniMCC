@@ -40,6 +40,7 @@ command /hostpanel:
 			set slot 15 of player's current inventory to golden shovel named "<green>Start Rocket Spleef Rush"
 			set slot 16 of player's current inventory to rail named "<green>Start Railroad Rush"
 			set slot 17 of player's current inventory to bow named "<green>Start Dodgebolt"
+			set slot 18 of player's current inventory to gold block named "<green>Pirate Game"
 
 command /tpalltominimcctown:
 	trigger:
@@ -120,6 +121,10 @@ on inventory click:
 				set {mmcc.hoster.%player's name%} to false
 			if event-item is bow named "<green>Start Dodgebolt":
 				execute console command "/dodgebolttest"
+			if event-item is gold block named "<green>Pirate Game":
+				set {mmcc.hoster.%player's name%} to true
+				make event-player execute command "/mccpirategame"
+				set {mmcc.hoster.%player's name%} to false
 		else:
 			if event-item is white concrete named "Pause/Unpause":
 				
@@ -191,5 +196,9 @@ on inventory click:
 				
 			if event-item is bow named "<green>Start Dodgebolt":
 				execute console command "/dodgebolttest"
+			if event-item is gold block named "<green>Pirate Game":
+				
+				make event-player execute command "/mccpirategame"
+				
 
 

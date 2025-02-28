@@ -117,6 +117,7 @@ function mccindivlead(p:player, n:number):
 	execute console command "/npc select %121+{_n}%"
 	execute console command "/npc spawn %121+{_n}%"
 	execute console command "/npc skin %{_p}%"
+	execute console command "/npc rename w"
 	if {mcc.team.%{_p}%} is equal to 1:
 		execute console command "/npc rename %{_n}%. &4%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 2:
@@ -172,8 +173,9 @@ function mccteamlead(t:number, n:number, pl:number):
 	if {_t} is not equal to 0:
 		execute console command "/npc spawn %111+{_t}%" 
 		execute console command "/npc select %111+{_t}%"
-		execute console command "/npc rename %{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)" 
 		summonnpc("%111+{_t}%", {mcc.teamnpclocs::%{_pl}%})
+		execute console command "/npc rename w" 
+		execute console command "/npc rename %{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)" 
 
 command /setpillar <text> <number>:
 	trigger:

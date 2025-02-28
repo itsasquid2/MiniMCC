@@ -230,134 +230,18 @@ command /opendoormeltdown <number>:
 			wait 1 second
 
 function meltdownsequence(n:number):
-	delete {_blocks::*}
-	set {_loc} to bound greater corner of bound with id "meltdownroom%{_n}%"
-	set {_loc} to the location 50 blocks below {_loc}
-	set {_loc2} to the location (a random number between 25 and 35) blocks north of the location (a random number between 25 and 35) blocks west of {_loc}
-	set {_counter} to 0
-	set {_done} to false
-	while {_done} is not true:
-		if block at the location {_counter} blocks above {_loc2} is not air:
-			
-			set block at the location {_counter} blocks above {_loc2} to gray concrete
-			add block at the location {_counter} blocks above {_loc2} to {_blocks::*}
-			
-			set {_done} to true
-		else:
-			add 1 to {_counter}
-	broadcast "set block"
-	while {mcc.meltdown.room%{_n}%.done} is false:
-		set {_blocks::*} to shuffled {_blocks::*}
-		set {_n2} to size of {_blocks::*}
-		set {_n3} to 60 - (0.04*({_n2}^1.4))
-		#broadcast {_n3}
-		loop {_blocks::*}:
-			loop blocks in radius 1 around loop-value:
-				if loop-block isn't air or iron trapdoor or light block or structure void:
-					if {_blocks::*} doesn't contain loop-block:
-						if loop-block's location is within bound with id "meltdownroom%{_n}%":
-							set loop-block to gray concrete
-							add loop-block to {_blocks::*}
-							exit 4 sections
-			set block at loop-value's location to air
-			remove loop-value from {_blocks::*}
-			
-			if {_n3} is more than 5:
-				chance of {_n3}%:
-					wait 1 tick
-			else:
-				chance of 5%:
-					wait 1 tick
+	set {_b} to bound with id "meltdownroom%{_n}%"
+	set {_c} to bound greater corner of {_b}
+	set {_l} to bound lesser corner of {_b}
+	execute console command "/meltdownarea %x-coord of {_l}% %y-coord of {_l}% %z-coord of {_l}% %x-coord of {_c}% %y-coord of {_c}% %z-coord of {_c}% false %{_n}%"
+	#set {_loc} to bound greater corner of bound with id "meltdownroom%{_n}%"
+	
 			
 function meltdowncentersequence(n:number):
-	delete {_blocks::*}
-	set {_loc} to the location at (greater x coord of bound with id "meltdownroom%{_n}%") - 3, lesser y coord of bound with id "meltdownroom%{_n}%", (greater z coord of bound with id "meltdownroom%{_n}%") - 3 of the world {meltdownworld}
-	set {_done} to false
-	set {_counter} to 0
-	while {_done} is not true:
-		if block at the location {_counter} blocks above {_loc} is not air:
-			set block at the location {_counter} blocks above {_loc} to gray concrete
-			add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		if {_counter} is more than 30:
-			loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
-				if loop-block is not air:
-					set block at the location {_counter} blocks above {_loc} to gray concrete
-					add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		else:
-			add 1 to {_counter}
-	set {_loc} to the location at (greater x coord of bound with id "meltdownroom%{_n}%") - 3, lesser y coord of bound with id "meltdownroom%{_n}%", (lesser z coord of bound with id "meltdownroom%{_n}%") + 3 of the world {meltdownworld}
-	set {_done} to false
-	set {_counter} to 0
-	while {_done} is not true:
-		if block at the location {_counter} blocks above {_loc} is not air:
-			set block at the location {_counter} blocks above {_loc} to gray concrete
-			add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		if {_counter} is more than 30:
-			loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
-				if loop-block is not air:
-					set block at the location {_counter} blocks above {_loc} to gray concrete
-					add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		else:
-			add 1 to {_counter}
-	set {_loc} to the location at (lesser x coord of bound with id "meltdownroom%{_n}%") + 3, lesser y coord of bound with id "meltdownroom%{_n}%", (greater z coord of bound with id "meltdownroom%{_n}%") - 3 of the world {meltdownworld}
-	set {_done} to false
-	set {_counter} to 0
-	while {_done} is not true:
-		if block at the location {_counter} blocks above {_loc} is not air:
-			set block at the location {_counter} blocks above {_loc} to gray concrete
-			add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		if {_counter} is more than 30:
-			loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
-				if loop-block is not air:
-					set block at the location {_counter} blocks above {_loc} to gray concrete
-					add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		else:
-			add 1 to {_counter}
-	set {_loc} to the location at (lesser x coord of bound with id "meltdownroom%{_n}%") + 3, lesser y coord of bound with id "meltdownroom%{_n}%", (lesser z coord of bound with id "meltdownroom%{_n}%") + 3 of the world {meltdownworld}
-	set {_done} to false
-	set {_counter} to 0
-	while {_done} is not true:
-		if block at the location {_counter} blocks above {_loc} is not air:
-			set block at the location {_counter} blocks above {_loc} to gray concrete
-			add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		if {_counter} is more than 30:
-			loop blocks in radius 4 of the location {_counter} blocks above {_loc}:
-				if loop-block is not air:
-					set block at the location {_counter} blocks above {_loc} to gray concrete
-					add block at the location {_counter} blocks above {_loc} to {_blocks::*}
-			set {_done} to true
-		else:
-			add 1 to {_counter}
-	while {mcc.meltdown.room%{_n}%.done} is false:
-		set {_blocks::*} to shuffled {_blocks::*}
-		set {_n2} to size of {_blocks::*}
-		set {_n3} to 60 - (0.04*({_n2}^1.2))
-		#broadcast {_n3}
-		loop {_blocks::*}:
-			loop blocks in radius 1 around loop-value:
-				if loop-block isn't air or iron trapdoor or light block or structure void or lava:
-					if {_blocks::*} doesn't contain loop-block:
-						if loop-block's location is within bound with id "meltdownroom%{_n}%":
-							add loop-block to {_blocks::*}
-							set loop-block to gray concrete
-							exit 4 sections
-			
-			set block at loop-value's location to air
-			remove loop-value from {_blocks::*}
-			
-			if {_n3} is more than 5:
-				chance of {_n3}%:
-					wait 1 tick
-			else:
-				chance of 5%:
-					wait 1 tick
+	set {_b} to bound with id "meltdownroom%{_n}%"
+	set {_c} to bound greater corner of {_b}
+	set {_l} to bound lesser corner of {_b}
+	execute console command "/meltdownarea %x-coord of {_l}% %y-coord of {_l}% %z-coord of {_l}% %x-coord of {_c}% %y-coord of {_c}% %z-coord of {_c}% true %{_n}%"
 
 command /meltdownroom <number>:
 	trigger:
@@ -369,7 +253,7 @@ command /meltdownroom <number>:
 				send formatted "<red><bold>ROOM MELTDOWN ALERT! <reset><yellow>Melting has begun." to loop-entity
 
 		if arg is not 0:
-			set {_loc} to the location at greater x coord of bound with id "meltdownroom%arg%", lesser y coord of bound with id "meltdownroom%arg%", greater z coord of bound with id "meltdownroom%arg%" of the world {meltdownworld}
+			
 			
 			set {mcc.meltdown.room%arg%.done} to false
 			meltdownsequence(arg)
@@ -380,6 +264,7 @@ command /meltdownroom <number>:
 			execute console command "/closedoor %arg%"
 			wait 3 seconds
 			set {mcc.meltdown.room%arg%.done} to true
+			execute console command "/cancelmeltdown %arg%"
 
 
 		else:
@@ -423,14 +308,17 @@ on player jump:
 	if {frozen.%player's name%} is true:
 		cancel event
 
-
+on player move:
+	event-world is {meltdownworld}
+	if {frozen.%player's name%} is true:
+		cancel event
 
 on experience spawn:
 	world is {meltdownworld}
 	cancel event
 
 function endmeltdown():
-	set {mcc.meltdown.room0.done} to true
+	execute console command "/cancelmeltdown 0"
 	delete {mcc.meltdown.blocks0::*}
 	if {mcc.meltdown.roundnum} is less than 3:
 		add 1 to {mcc.meltdown.roundnum}
@@ -639,7 +527,7 @@ command /unfreeze <player>:
 			loop numbers from 0 to 8:
 				set slot loop-number of arg 1's inventory to air
 			set arg's experience to 0
-			set arg 1's offhand tool to air
+			#set arg 1's offhand tool to air
 			give arg 1 bow of infinity
 			give arg 1 arrow
 			give arg 1 wooden pickaxe named "&3Telepickaxe Shell"
