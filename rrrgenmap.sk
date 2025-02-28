@@ -63,6 +63,11 @@ command /rrrgencourse:
 					spawn villager at {_loc} with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number-1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
 				set spawned entity's name to "<gold>Golden Gabriel"
 				set spawned entity's yaw to 90
+				loop {mcc.rrr.secretvectors.%{_list2::%loop-number-2%}%::*}:
+					set {_loc} to location((loop-number-2)*99-171.5, 0, loop-number-1 * 29+0.5, world "railroadrush")
+					set {_loc} to {_loc} ~ loop-value-3
+					if block at {_loc} is a chest or barrel or trapped chest:
+						add random element out of {mcc.rrr.secrets::*} to block at {_loc}
 					# wait 20 ticks
 						# teleport event-player to location((loop-number-2)*45-30, 0, (loop-number-1) * 33, world "railroadrush")
 						# make event-player execute command "//schem load railroadrush_%{mcc.grid.challenge.%loop-number-2%}% -e"
