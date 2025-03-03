@@ -281,6 +281,7 @@ on break:
 
 
 on rightclick on stone button:
+	"%event-world%" is equal to "bingo_island"
 	loop blocks in radius 1 of event-location:
 		if type of loop-block is mob spawner:
 			if {mcc.bingo.spawncooldown.%player%} is not true:

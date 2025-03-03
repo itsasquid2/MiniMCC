@@ -325,6 +325,7 @@ function givewool(p:player, c:number):
 	execute console command "/give %{_p}% %{color}%_wool{CanPlaceOn:[bedrock]} 64"
 
 on rightclick on button:
+	world is "battlebox"
 	loop blocks in radius 1 of event-location:
 		if loop-block is redstone block:
 			if {mcc.kitstaken.%{mcc.team.%player's name%}%.healer} is true:
