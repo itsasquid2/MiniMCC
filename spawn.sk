@@ -22,11 +22,19 @@ command /getsnowballs:
 on projectile collide:
     if projectile is snowball:
         if world is "world":
-            if {spleef.playing.%player%} isn't true:
+            if scoreboard tags of event-projectile contains "powerful":
+                set {_v} to vector from event-projectile to event-entity
+                set y component of {_v} to (x component of {_v} + z component of {_v})/10
+                push event-entity {_v} at speed 10
+            else if {spleef.playing.%player%} isn't true:
                 damage event-entity by 1 heart
                 knockback event-entity (vector from event-projectile to event-entity)
             else:
                 cancel event
+            
+on shoot:
+    if {powerfulsnowballs.%shooter%} is true:
+        add "powerful" to scoreboard tags of event-projectile
 
 on projectile hit:
     if projectile is snowball:
@@ -60,6 +68,16 @@ on death:
         force victim to respawn
         wait 1 tick
         teleport victim to {spawn_pvp_arena_loc}
+
+command /togglepowerfulsnowballs:
+    permission: op
+    trigger:
+        if {powerfulsnowballs.%player%} is true:
+            set {powerfulsnowballs.%player%} to false
+            message "set to false"
+        else :
+            set {powerfulsnowballs.%player%} to true
+            message "set to true"
 
 #spleef-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 

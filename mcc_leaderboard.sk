@@ -67,7 +67,28 @@ command /mccupdateindivleaderboard:
 		
 		
 		loop {_numbad} times:
-			execute console command "/npc despawn %132-loop-number%"
+			docknpc({mcc.indivleaderboardlocs::%11-loop-number%})
+		delete {_already::*}
+		delete {_indivcoins::*}
+		set {_numbad} to 40
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
+				add {mcc.indivcoins.%loop-player%} to {_indivcoins::*}
+				add loop-player to {_already::*}
+				subtract 1 from {_numbad}
+		set {_indivcoins::*} to sorted {_indivcoins::*}
+		set {_indivcoins::*} to reversed {_indivcoins::*}
+		loop 40 times:
+			set {_good} to false
+			loop all players:
+				if {_good} is false:
+					if {_already::*} contains loop-player:
+						if {mcc.indivcoins.%loop-player%} is equal to {_indivcoins::%loop-number%}:
+							mccallindivlead(loop-player, loop-number)
+							set {_good} to true
+							remove loop-player from {_already::*}
+		loop {_numbad} times:
+			docknpc({mcc.fullindivleaderboardlocs::%41-loop-number%})
 		
 
 
@@ -114,30 +135,48 @@ command /mccshowindiv:
 			
 
 function mccindivlead(p:player, n:number):
-	execute console command "/npc select %121+{_n}%"
-	execute console command "/npc spawn %121+{_n}%"
-	execute console command "/npc skin %{_p}%"
-	execute console command "/npc rename w"
 	if {mcc.team.%{_p}%} is equal to 1:
-		execute console command "/npc rename %{_n}%. &4%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &4%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &4%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 2:
-		execute console command "/npc rename %{_n}%. &6%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &6%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &6%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 3:
-		execute console command "/npc rename %{_n}%. &e%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &e%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &e%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 4:
-		execute console command "/npc rename %{_n}%. &a%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &a%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &a%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 5:
-		execute console command "/npc rename %{_n}%. &2%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &2%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &2%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 6:
-		execute console command "/npc rename %{_n}%. &3%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &3%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &3%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 7:
-		execute console command "/npc rename %{_n}%. &b%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &b%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &b%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 8:
-		execute console command "/npc rename %{_n}%. &1%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &1%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &1%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 9:
-		execute console command "/npc rename %{_n}%. &5%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &5%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &5%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 	else if {mcc.team.%{_p}%} is equal to 10:
-		execute console command "/npc rename %{_n}%. &d%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+		summonnpc("%{_n}%. &d%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.indivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &d%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	
+function mccallindivlead(p:player, n:number):
+	if {mcc.team.%{_p}%} is equal to 1:
+		summonnpc("%{_n}%. &4%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &4%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 2:
+		summonnpc("%{_n}%. &6%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &6%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 3:
+		summonnpc("%{_n}%. &e%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &e%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 4:
+		summonnpc("%{_n}%. &a%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &a%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 5:
+		summonnpc("%{_n}%. &2%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &2%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 6:
+		summonnpc("%{_n}%. &3%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &3%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 7:
+		summonnpc("%{_n}%. &b%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &b%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 8:
+		summonnpc("%{_n}%. &1%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &1%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 9:
+		summonnpc("%{_n}%. &5%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &5%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
+	else if {mcc.team.%{_p}%} is equal to 10:
+		summonnpc("%{_n}%. &d%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)", {mcc.fullindivleaderboardlocs::%{_n}%}, {_p})#execute console command "/npc rename %{_n}%. &d%{_p}% &f(%{mcc.indivcoins.%{_p}%}%)"
 
 function mccaceracelead(p:player, n:number):
 	execute console command "/npc select %131+{_n}%"
@@ -173,7 +212,7 @@ function mccteamlead(t:number, n:number, pl:number):
 	if {_t} is not equal to 0:
 		execute console command "/npc spawn %111+{_t}%" 
 		execute console command "/npc select %111+{_t}%"
-		summonnpc("%111+{_t}%", {mcc.teamnpclocs::%{_pl}%})
+		summonnpcteams("%{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)", {mcc.teamnpclocs::%{_pl}%}, {_t})
 		execute console command "/npc rename w" 
 		execute console command "/npc rename %{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)" 
 

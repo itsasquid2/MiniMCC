@@ -63,6 +63,18 @@ command /freeze <player>:
 			if {frozencooldown.%arg 1's name%} is false:
 				if arg 1's inventory contains shulker spawn egg named "&3Heater":
 					set {heatercooldown.%arg's name%} to true
+				set {_counter} to 0
+				while block below player is air:
+					wait 1 tick
+					add 1 to {_counter}
+					if {_counter} > 25:
+						send title "<pink><bold>FROZEN" to arg 1 for 3 seconds
+						loop numbers from 0 to 8:
+							set slot loop-number of arg 1's inventory to blue ice
+						set {frozen.%arg 1's name%} to true
+						if {meltdown.hitby.%arg's name%} is set:
+							ac({meltdown.hitby.%arg's name%},25,"Killed a player",false)
+						broadcast formatted "<%mcccolor({mcc.team.%arg%})%>%arg% <white>Was crushed by their ice block."
 				send title "<pink><bold>FROZEN" to arg 1 for 3 seconds
 				loop numbers from 0 to 8:
 					set slot loop-number of arg 1's inventory to blue ice
@@ -357,6 +369,9 @@ command /mccmeltdown:
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
 		if {mmcc.hoster.%command sender%} is true:
+			broadcast "Meltdown Map is resetting, server will freeze for a second"
+			execute console command "/schempaste meltdownmap meltdown -999 31 -999"
+			wait 1 second
 			set {mcc.meltdown.roundnum} to 1
 			set {meltdownworld} to "meltdown"
 			execute console command "/mccnewgame"
@@ -541,9 +556,7 @@ command /unfreeze <player>:
 			loop entities in radius 1 of arg's location:
 				if loop-entity is a block display:
 					kill loop-entity
-			ac({hitby.%arg's name%},-25,"Player unfroze",false)
-		
-			
+			ac({meltdown.hitby.%arg's name%},-25,"Player unfroze",false)
 		
 on rightclick:
 	world is {meltdownworld}
@@ -629,9 +642,10 @@ on damage of a player:
 		if {mcc.team.%victim's name%} is not equal to {mcc.team.%attacker's name%}:
 			if {frozen.%victim's name%} is not true:
 				youkilled(attacker, victim)
-				ac(attacker,25,"Killed a player",false)
-				execute console command "/freeze %victim's name%"
+				#ac(attacker,25,"Killed a player",false)
 				set {meltdown.hitby.%victim's name%} to attacker
+				execute console command "/freeze %victim's name%"
+				
 		else:
 			send message "don't attack your teammates >:(" to attacker
 	if damage cause is lava:

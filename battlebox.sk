@@ -12,12 +12,12 @@ on skript start:
 	set {battlebox.inprogress} to false
 
 function bbopencages():
-	execute console command "/schempaste emptycage world 16 95 -305"
-	execute console command "/schempaste emptycage world 48 95 -305"
+	execute console command "/schempaste emptycage world 16 50 -305"
+	execute console command "/schempaste emptycage world 48 50 -305"
 
 function bbclosecages():
-	execute console command "/schempaste greenwall world 16 96 -305"
-	execute console command "/schempaste blackwall world 48 96 -305"
+	execute console command "/schempaste greenwall world 16 51 -305"
+	execute console command "/schempaste blackwall world 48 51 -305"
 
 
 function bbkit(p:player, n:number):
@@ -95,9 +95,9 @@ function bbstartgame():
 			set line 14 of loop-player's scoreboard to ""
 			set line 13 of loop-player's scoreboard to "<lime>Get ready!"	
 			if {battlebox.team.%loop-player%} is equal to "dream":
-				teleport loop-player to location at 11, 96, -304 of world "world" 
+				teleport loop-player to location at 11, 51, -304 of world "world" 
 			else:
-				teleport loop-player to location at 51, 96, -304 of world "world" 
+				teleport loop-player to location at 51, 51, -304 of world "world" 
 	bbclosecages()
 	loop all players:
 		if {battlebox.playing.%loop-player%} is true:
@@ -158,7 +158,7 @@ function bbendgame(n: number):
 	wait 3 seconds
 	loop all dropped items in "world":
 		if x-coordinate of loop-entity is between 59 and 3:
-			if y-coordinate of loop-entity is between 122 and 87:
+			if y-coordinate of loop-entity is between 88 and 43:
 				if z-coordinate of loop-entity is between -329 and -278:
 					delete the loop-entity
 	loop blocks in radius 2.5 of {bbwoolloc}:
@@ -209,7 +209,7 @@ on rightclick:
 			if {battlebox.playing.%player%} is false:
 				if {battlebox.inprogress} is false:
 					broadcast "<light blue>[Battle Box] <white>%player% has joined team <gray>Black BadBoyHalos!"
-					teleport player to the location at 53, 102, -305 of world "world"
+					teleport player to the location at 53, 57, -305 of world "world"
 					clear the player's inventory
 					set slot 4 of player's inventory to gunpowder named "<lime>Ready"
 					set slot 8 of player's inventory to red dye named "<pink>Leave"
@@ -231,7 +231,7 @@ on rightclick:
 			if {battlebox.playing.%player%} is false:
 				if {battlebox.inprogress} is false:
 					broadcast "<light blue>[Battle Box] <white>%player% has joined team <lime>Green Dreams!"
-					teleport player to the location at 9, 102, -305 of world "world"
+					teleport player to the location at 9, 57, -305 of world "world"
 					clear the player's inventory
 					set slot 4 of player's inventory to gunpowder named "<lime>Ready"
 					set slot 8 of player's inventory to red dye named "<pink>Leave"
@@ -313,7 +313,7 @@ on place:
 			cancel event
 		set {bb.good} to false
 		if x-coordinate of event-location is between 30.5 and 32.5:
-			if y-coordinate of event-location is equal to 101.5:
+			if y-coordinate of event-location is equal to 56.5:
 				if z-coordinate of event-location is between -303.5 and -305.5:
 					set {bb.good} to true			
 		if {bb.good} is false:

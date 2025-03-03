@@ -1,21 +1,202 @@
 
 
-function summonnpc(t:text, l:location):
-	set {_x} to x-coordinate of {_l}
-	set {_y} to y-coordinate of {_l}
-	set {_z} to z-coordinate of {_l}
-	set {_world} to world of {_l}
-	execute console command "/npc select %{_t}%"
-	execute console command "/npc moveto %{_x}% %{_y}% %{_z}% %{_world}%" 
+function summonnpc(t:text, l:location, p:player):
+	loop entities in radius 0.5 of {_l}:
+		if loop-entity is armor stand:
+			kill loop-entity
+	loop entities in radius 0.5 of the location 2.1 blocks above {_l}:
+		if loop-entity is text display:
+			kill loop-entity
+	spawn armor stand at {_l}:
+		set helmet of spawned entity to skull of {_p}
+		set {_cp} to leather chestplate
+		set {_lg} to leather leggings
+		set {_bt} to leather boots
+		#broadcast {mcc.team.%{_p}'s name%}
+		
+		if {mcc.team.%{_p}'s name%} is equal to 1:
+			dye {_cp} red
+			dye {_lg} red
+			dye {_bt} red
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 2:
+			dye {_cp} orange
+			dye {_lg} orange
+			dye {_bt} orange
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 3:
+			dye {_cp} yellow
+			dye {_lg} yellow
+			dye {_bt} yellow
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 4:
+			dye {_cp} lime
+			dye {_lg} lime
+			dye {_bt} lime
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 5:
+			dye {_cp} green
+			dye {_lg} green
+			dye {_bt} green
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 6:
+			dye {_cp} light cyan
+			dye {_lg} light cyan
+			dye {_bt} light cyan
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 7:
+			dye {_cp} cyan
+			dye {_lg} cyan
+			dye {_bt} cyan
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 8:
+			dye {_cp} blue
+			dye {_lg} blue
+			dye {_bt} blue
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 9:
+			dye {_cp} purple
+			dye {_lg} purple
+			dye {_bt} purple
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {mcc.team.%{_p}'s name%} is equal to 10:
+			dye {_cp} pink
+			dye {_lg} pink
+			dye {_bt} pink
+			broadcast {_cp}
+		set spawned entity's chestplate to {_cp}
+		set spawned entity's leggings to {_lg}
+		set spawned entity's boots to {_bt}
+	
+	le spawn text display at the location 2.1 blocks above {_l}
+	set billboard of last spawned text display to center
+	set display text of last spawned entity to {_t}
+	
+
+
+	# execute console command "/npc select %{_t}%"
+	# execute console command "/npc moveto %{_x}% %{_y}% %{_z}% %{_world}%" 
 #	loop all entities in radius 5 of {npchub}:
 #		broadcast "%loop-entity%"	
 #		if "%loop-entity%" is equal to "%{_t}%":
 #			broadcast "test"
 #			teleport loop-entity to {_l}
 
+function summonnpcteams(t:text, l:location, n:number):
+	loop entities in radius 0.5 of {_l}:
+		if loop-entity is armor stand:
+			kill loop-entity
+	loop entities in radius 0.5 of the location 2.1 blocks above {_l}:
+		if loop-entity is text display:
+			kill loop-entity
+	spawn armor stand at {_l}:
+		set helmet of spawned entity to golden helmet
+		set {_cp} to leather chestplate
+		set {_lg} to leather leggings
+		set {_bt} to leather boots
+		broadcast {_n}
+		
+		if {_n} is equal to 1:
+			dye {_cp} red
+			dye {_lg} red
+			dye {_bt} red
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 2:
+			dye {_cp} orange
+			dye {_lg} orange
+			dye {_bt} orange
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 3:
+			dye {_cp} yellow
+			dye {_lg} yellow
+			dye {_bt} yellow
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 4:
+			dye {_cp} lime
+			dye {_lg} lime
+			dye {_bt} lime
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 5:
+			dye {_cp} green
+			dye {_lg} green
+			dye {_bt} green
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 6:
+			dye {_cp} light cyan
+			dye {_lg} light cyan
+			dye {_bt} light cyan
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 7:
+			dye {_cp} cyan
+			dye {_lg} cyan
+			dye {_bt} cyan
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 8:
+			dye {_cp} blue
+			dye {_lg} blue
+			dye {_bt} blue
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 9:
+			dye {_cp} purple
+			dye {_lg} purple
+			dye {_bt} purple
+			# set spawned entity's chestplate to {_cp}
+			# set spawned entity's chestplate to {_lg}
+			# set spawned entity's chestplate to {_bt}
+		if {_n} is equal to 10:
+			dye {_cp} pink
+			dye {_lg} pink
+			dye {_bt} pink
+			broadcast {_cp}
+		set spawned entity's chestplate to {_cp}
+		set spawned entity's leggings to {_lg}
+		set spawned entity's boots to {_bt}
+	
+	le spawn text display at the location 2.1 blocks above {_l}
+	set billboard of last spawned text display to center
+	set display text of last spawned entity to {_t}
 
-function docknpc(t:text, l:location):
-	execute console command "/npc despawn %{_t}%"
+function docknpc(l:location):
+	loop entities in radius 0.5 of {_l}:
+		if loop-entity is armor stand:
+			kill loop-entity
+	loop entities in radius 0.5 of the location 2.1 blocks above {_l}:
+		if loop-entity is text display:
+			kill loop-entity
 
 
 

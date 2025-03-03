@@ -5,7 +5,6 @@ on rightclick with popped chorus fruit:
     remove 1 popped chorus fruit from player
 
 
-
 on damage of chicken:
     world is "tgttosawaf"
     

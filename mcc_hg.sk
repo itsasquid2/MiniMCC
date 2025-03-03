@@ -89,9 +89,12 @@ function sgstartgame():
 			loop blocks in radius 5 of loop-player:
 				if loop-block is a barrier block:
 					set loop-block to air
+	execute console command "/schempaste sgcirclenobarriers %{sgmap}% 0 93 13" 
 	
 	wait 1 second
 	set {sg.time} to 1
+	wait 30 seconds
+	execute console command "/schempaste sgcirclegone %{sgmap}% 0 93 13" 
 
 command /addbarrierssg <number>:
 	trigger:
@@ -365,7 +368,7 @@ on death of player:
 		set {_pl} to "<%mcccolor({mcc.team.%victim%})%>%victim%"
 		set {_msg} to "%{_pl}%<white> died"
 		if attacker is a player:
-			heal attacker by 3 hearts
+			apply potion of regeneration of tier 3 to attacker for 3 seconds
 			set {_at} to "<%mcccolor({mcc.team.%attacker%})%>%attacker%"
 			if damage cause is attack:
 				set {_msg} to "%{_pl}% <white>was slain by %{_at}%"
@@ -381,31 +384,31 @@ on death of player:
 			set {_msg} to "%{_pl}% <white>was killed by a mob"
 		else if "%damage cause%" is "unknown":
 			if {skb.hitby.%victim%} is set:
-				heal {skb.hitby.%victim%} by 2 hearts
+				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}% <white>didn't want to live in the same world as %{_at}%"
 			else:
 				set {_msg} to "%{_pl}% <white>fell out of the world"
 		else if "%damage cause%" contains "explosion":
 			if {skb.hitby.%victim%} is set:
-				heal {skb.hitby.%victim%} by 2 hearts
+				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}% <white>was blown up by %{_at}%"
 			else:
 				set {_msg} to "%{_pl}% <white>blew up"
 		else if damage cause is fall:
 			if {skb.hitby.%victim%} is set:
-				heal {skb.hitby.%victim%} by 2 hearts
+				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}% fell from a high place while trying to escape %{_at}%" 
 			else:
 				set {_msg} to "%{_pl}% <white>fell from a high place"
 		else if damage cause is lava:
 			if {skb.hitby.%victim%} is set:
-				heal {skb.hitby.%victim%} by 2 hearts
+				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}%<white> tried to swim in lava while trying to escape %{_at}%" 
 			else:
 				set {_msg} to "%{_pl}% <white>tried to swim in lava"
 		else if damage cause is fire:
 			if {skb.hitby.%victim%} is set:
-				heal {skb.hitby.%victim%} by 2 hearts
+				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}%<white> burnt to a crisp while trying to escape %{_at}%" 
 			else:
 				set {_msg} to "%{_pl}% <white>burnt to a crisp"
@@ -624,9 +627,10 @@ function sgspawnsupplydrops(world:world):
 	loop {sgsupplydroplocs::*}:
 		set facing of the block 1 block south of loop-value to south
 		loop blocks in radius 2 of loop-value:
-			if loop-block is a chest:
+			if loop-block is a gold block:
 				add loop-block to {lootchests::*}
-				le spawn text display at the location 0.6 block above loop-block
+				le spawn text display at the location 0.6 block above loop-block:
+					set billboard of spawned text display to center
 				set display text of last spawned entity to "<lime>Coin Crate(Break)"
 	execute console command "/fillchests sg_wild"
 
@@ -798,7 +802,8 @@ command /mcchungergames:
 				if {hgmapset} isn't true:
 					hungergamestp1({mcc.team.%loop-player's name%}, loop-player)
 				else:
-					hgrandomtp(world "survivalgames")
+					#hgrandomtp(world "survivalgames")
+					hgcircletp(world "survivalgames")
 				set {immune.%loop-player's name%} to false
 				wait a tick
 				set loop-player's game mode to survival
@@ -835,8 +840,10 @@ command /mcchungergames:
 			if {mcc.team.%loop-player's name%} is not equal to 0:
 				if {hgmapset} isn't true:
 					hungergamestp2({mcc.team.%loop-player's name%}, loop-player)
+					
 				else:
-					hgrandomtp(world "survivalgames2")
+					#hgrandomtp(world "survivalgames2")
+					hgcircletp(world "survivalgames2")
 				set {immune.%loop-player's name%} to false
 				wait a tick
 				set loop-player's game mode to survival
@@ -891,6 +898,22 @@ function hgrandomtp(world:world):
 				else if {_count} is equal to 10:
 					set loop-block to magenta concrete
 		add 1 to {_count}
+
+function hgcircletp(world:world):
+	loop 10 times:
+		set {_loc} to {mcc.hg.circlestartinglocs::%loop-number%}
+		set world of {_loc} to {_world}
+		loop all players:
+			if {mcc.team.%loop-player's name%} is equal to loop-number:
+				teleport loop-player to {_loc}
+				set loop-player's chestplate to elytra
+
+
+
+on gliding state change:
+	world is "survivalgames" or "survivalgames2"
+	player's y-coordinate is less than 94
+	set player's chestplate to air
 
 on break:
 	world is "survivalgames" or "survivalgames2"
