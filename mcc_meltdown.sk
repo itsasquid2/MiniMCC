@@ -73,14 +73,14 @@ command /freeze <player>:
 							set slot loop-number of arg 1's inventory to blue ice
 						set {frozen.%arg 1's name%} to true
 						if {meltdown.hitby.%arg's name%} is set:
-							ac({meltdown.hitby.%arg's name%},25,"Killed a player",false)
+							ac({meltdown.hitby.%arg's name%},25,"Froze a player",false)
 						broadcast formatted "<%mcccolor({mcc.team.%arg%})%>%arg% <white>Was crushed by their ice block."
 				send title "<pink><bold>FROZEN" to arg 1 for 3 seconds
 				loop numbers from 0 to 8:
 					set slot loop-number of arg 1's inventory to blue ice
 				set {frozen.%arg 1's name%} to true
 				if {meltdown.hitby.%arg's name%} is set:
-					ac({meltdown.hitby.%arg's name%},25,"Killed a player",false)
+					ac({meltdown.hitby.%arg's name%},25,"Froze a player",false)
 				apply slowness 255 to arg 1 for 1000 seconds
 				apply mining fatigue 255 to arg 1 for 1000 seconds
 				set total experience of arg 1 to 0
@@ -389,6 +389,7 @@ command /mccmeltdown:
 		
 		loop all players:
 			teleport loop-player to {mcc.meltdown.spawnloc.%{mcc.team.%loop-player's name%}%}
+			delete {meltdown.hitby.%loop-player's name%}
 			execute console command "/unfreeze %loop-player's name%"
 			set loop-player's gamemode to adventure
 			set slot 8 of loop-player to shulker spawn egg named "&3Heater"
@@ -557,6 +558,7 @@ command /unfreeze <player>:
 				if loop-entity is a block display:
 					kill loop-entity
 			ac({meltdown.hitby.%arg's name%},-25,"Player unfroze",false)
+			delete {meltdown.hitby.%arg's name%}
 		
 on rightclick:
 	world is {meltdownworld}

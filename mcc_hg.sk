@@ -918,7 +918,7 @@ on gliding state change:
 on break:
 	world is "survivalgames" or "survivalgames2"
 	{sgmapset} is true
-	if event-block isn't leaves or glass or cobweb or gold block or water:
+	if event-block isn't leaves or glass or cobweb or gold block or water or glass pane:
 		cancel event
 	else if event-block is gold block:
 		loop all players:
@@ -931,7 +931,7 @@ on break:
 on place:
 	world is "survivalgames" or "survivalgames2"
 	{sgmapset} is true
-	event-block isn't cobweb or water
+	event-block isn't cobweb or water bucket or block of water
 	cancel event
 
 

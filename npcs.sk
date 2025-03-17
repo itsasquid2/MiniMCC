@@ -81,7 +81,7 @@ function summonnpc(t:text, l:location, p:player):
 			dye {_cp} pink
 			dye {_lg} pink
 			dye {_bt} pink
-			broadcast {_cp}
+			#broadcast {_cp}
 		set spawned entity's chestplate to {_cp}
 		set spawned entity's leggings to {_lg}
 		set spawned entity's boots to {_bt}
@@ -112,7 +112,7 @@ function summonnpcteams(t:text, l:location, n:number):
 		set {_cp} to leather chestplate
 		set {_lg} to leather leggings
 		set {_bt} to leather boots
-		broadcast {_n}
+		#broadcast {_n}
 		
 		if {_n} is equal to 1:
 			dye {_cp} red
@@ -181,7 +181,7 @@ function summonnpcteams(t:text, l:location, n:number):
 			dye {_cp} pink
 			dye {_lg} pink
 			dye {_bt} pink
-			broadcast {_cp}
+			#broadcast {_cp}
 		set spawned entity's chestplate to {_cp}
 		set spawned entity's leggings to {_lg}
 		set spawned entity's boots to {_bt}

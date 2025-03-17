@@ -201,7 +201,7 @@ function aceracecp(p:player, n:number):
 		set {mcc.acerace.checkpoint.%{_p}%} to {_n}
 	else if {_n} is equal to 0:
 		if {mcc.acerace.official} is true:
-			if {mcc.acerace.checkpoint.%{_p}%} is 15:
+			if {mcc.acerace.checkpoint.%{_p}%} is 11:
 				add 1 to {mcc.acerace.lapsdone.%{_p}%}
 				broadcast formatted "<%mcccolor({mcc.team.%{_p}%})%>%{_p}%<gray> has finished lap <lime>%{mcc.acerace.lapsdone.%{_p}%}%<lime>/3!"
 				if {mcc.acerace.lapsdone.%{_p}%} is equal to 3:

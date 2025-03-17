@@ -1163,7 +1163,7 @@ on chat:
 		exit trigger
 	if player count is greater than 10:
 		if {lastchat.%player's name%} is set:
-			if time since {lastchat.%player's name%} is less than 2 seconds:
+			if time since {lastchat.%player's name%} is less than 1 seconds:
 				if player is not "itsasquid2":
 					message "<pink>You are chatting too fast!"
 					exit trigger
@@ -1176,64 +1176,87 @@ on chat:
 		if {mcc.team.%player's name%} is equal to 1:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <red>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <red>%player's name%<reset>: %message%"
 			else:
 				broadcast "<red>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 2:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <gold>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <gold>%player's name%<reset>: %message%"
 			else:
 				broadcast "<gold>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 3:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <yellow>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <yellow>%player's name%<reset>: %message%"
 			else:
 				broadcast "<yellow>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 4:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <lime>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <lime>%player's name%<reset>: %message%"
 			else:
 				broadcast "<lime>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 5:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <green>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <green>%player's name%<reset>: %message%"
 			else:
 				broadcast "<green>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 6:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <cyan>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <cyan>%player's name%<reset>: %message%"
 			else:
 				broadcast "<cyan>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 7:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <light blue>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <light blue>%player's name%<reset>: %message%"
 			else:
 				broadcast "<light blue>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 8:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] &9%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% &9%player's name%<reset>: %message%"
 			else:
 				broadcast "&9%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 9:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <purple>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <purple>%player's name%<reset>: %message%"
 			else:
 				broadcast "<purple>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 10:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <magenta>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <magenta>%player's name%<reset>: %message%"
 			else:
 				broadcast "<magenta>%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is equal to 0:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <reset>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <reset>%player's name%<reset>: %message%"
 			else:
 				broadcast "%player's name%<reset>: %message%"
 		else if {mcc.team.%player's name%} is not set:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <reset>%player's name%<reset>: %message%"
+			if ({mmcc.chatprefix.%player's name%} is set):
+				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <reset>%player's name%<reset>: %message%"
 			else:
 				broadcast "%player's name%<reset>: %message%"
-
 
 
 

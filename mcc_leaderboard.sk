@@ -210,11 +210,11 @@ function mccteamlead(t:number, n:number, pl:number):
 	loop {mcc.teampillars.%{_pl}%::*}:
 		set block at loop-value to {_bl} 
 	if {_t} is not equal to 0:
-		execute console command "/npc spawn %111+{_t}%" 
-		execute console command "/npc select %111+{_t}%"
+		# execute console command "/npc spawn %111+{_t}%" 
+		# execute console command "/npc select %111+{_t}%"
 		summonnpcteams("%{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)", {mcc.teamnpclocs::%{_pl}%}, {_t})
-		execute console command "/npc rename w" 
-		execute console command "/npc rename %{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)" 
+		# execute console command "/npc rename w" 
+		# execute console command "/npc rename %{_pl}%. %{mcc.teams::%{_t}%}% &f(%round({mcc.teamcoins.%{_t}%})%)" 
 
 command /setpillar <text> <number>:
 	trigger:
