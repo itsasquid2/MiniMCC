@@ -80,6 +80,7 @@ function sgstartgame():
 				clear the loop-player's inventory
 				give a wooden sword to the loop-player
 				set slot 8 of the loop-player's inventory to compass of curse of vanishing named "<gold>Tracking Compass"
+				set loop-player's chestplate to elytra
 			execute console command "/boopboopboopbeep %loop-player%"
 	wait 3 seconds
 	loop all players:
@@ -428,8 +429,8 @@ on death of player:
 			if {sg.hitby.%victim%} is not equal to victim:
 				add 1 to {sg.kills.%{sg.hitby.%victim%}%}
 				add 1 to {sg.totalkills.%{sg.hitby.%victim%}%}
-				if 55-5*floor({sg.time}/45) is greater than 35:
-					ac({sg.hitby.%victim%}, 55-5*floor({sg.time}/45), "You killed %{sg.hitby.%victim%}%!", false)
+				if 55-5*floor({sg.time}/50) is greater than 35:
+					ac({sg.hitby.%victim%}, 55-5*floor({sg.time}/50), "You killed %{sg.hitby.%victim%}%!", false)
 				else:
 					ac({sg.hitby.%victim%}, 35, "You killed %{sg.hitby.%victim%}%!", false)
 				youkilled({sg.hitby.%victim%}, victim)
@@ -494,6 +495,7 @@ every second:
 		sgb("<pink>Grace period ends in 1 second.")
 	else if {sg.time} is equal to 20: 	
 		sgb("<pink>Grace period is over. PVP is enabled!")
+		spawnsgrelics({sgworld})
 	else if {sg.time} is equal to 60: 	
 		if {hgmapset} isn't true:
 			set {_x} to a random integer between -95.5 and 95.5
@@ -561,24 +563,38 @@ every second:
 	else if {sg.time} is equal to 195: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 15 seconds.")
+		else:
+			sgb("<pink>The mid relic will spawn in 15 seconds.")
 	else if {sg.time} is equal to 200: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 10 seconds.")
+		else:
+			sgb("<pink>The mid relic will spawn in 10 seconds.")
 	else if {sg.time} is equal to 205: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 5 seconds.")
+		else:
+			sgb("<pink>The mid relic will spawn in 5 seconds.")
 	else if {sg.time} is equal to 206: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 4 seconds.")
+		else:
+			sgb("<pink>The mid relic will spawn in 4 seconds.")
 	else if {sg.time} is equal to 207: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 3 seconds.")
+		else:
+			sgb("<pink>The mid relic will spawn in 3 seconds.")
 	else if {sg.time} is equal to 208: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 2 seconds.")
+		else:
+			sgb("<pink>The mid relic will spawn in 2 seconds.")
 	else if {sg.time} is equal to 209: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast will begin at 0, %{sg.ycord}%, 0 in 1 second.")
+		else:
+			sgb("<pink>The mid relic will spawn in 1 second.")
 	else if {sg.time} is equal to 210: 
 		if {hgmapset} isn't true:
 			sgb("<pink>The Feast has begun!")
@@ -603,6 +619,10 @@ every second:
 				if loop-block is a chest:
 					add loop-block to {lootchests::*}
 			execute console command "/fillchests sg_feast"
+		else:
+			sgb("<pink>The mid relic has spawned!")
+			execute console command "/schempaste sg_mid %{sgworld}% 0 56 0"
+			drop {hg.customitems::star} at location(0.5,50,0.5,{sgworld}) without velocity
 	else if {sg.time} is 390:
 		send title "<red>Sudden Death!" with subtitle "<pink>Players' health will slowly be drained" to all players for 2 seconds
 	else if {sg.time} is more than 390:
@@ -612,8 +632,9 @@ every second:
 					damage loop-player by 1 heart
 	else if {sg.time} is more than 420:
 		sgendgame()	
-	if mod({sg.time},45) is 0:
-		sgb("<light cyan>[<yellow>Info<light cyan>]<white>Kills are now worth %55-5*floor({sg.time}/45)% coins.")
+	if mod({sg.time},50) is 0:
+		if (55-5*floor({sg.time}/50) is greater than 34):
+			sgb("<light cyan>[<yellow>Info<light cyan>]<white>Kills are now worth %55-5*floor({sg.time}/45)% coins.")
 
 function sgspawnsupplydrops(world:world):
 	loop {sgsupplydroplocs::*}:
@@ -628,10 +649,12 @@ function sgspawnsupplydrops(world:world):
 		set facing of the block 1 block south of loop-value to south
 		loop blocks in radius 2 of loop-value:
 			if loop-block is a gold block:
-				add loop-block to {lootchests::*}
+				
 				le spawn text display at the location 0.6 block above loop-block:
 					set billboard of spawned text display to center
 				set display text of last spawned entity to "<lime>Coin Crate(Break)"
+			if loop-block is a chest:
+				add loop-block to {lootchests::*}
 	execute console command "/fillchests sg_wild"
 
 on inventory click:
@@ -678,6 +701,13 @@ on inventory click:
 			loop {hg.customitems::*}:
 				if player's inventory contains loop-value:
 					set glowing of player to true
+	wait a tick
+	set glowing of player to false
+	loop {hg.customitems::*}:
+		if player's inventory contains loop-value:
+			set glowing of player to true
+	if player's inventory contains a crossbow:
+		set glowing of player to true
 		
 
 
@@ -725,6 +755,13 @@ on pick up:
 			loop {hg.customitems::*}:
 				if player's inventory contains loop-value:
 					set glowing of player to true
+	wait a tick
+	set glowing of player to false
+	loop {hg.customitems::*}:
+		if player's inventory contains loop-value:
+			set glowing of player to true
+	if player's inventory contains a crossbow:
+		set glowing of player to true
 	
 on drop:
 	world is {sgworld}
@@ -770,12 +807,124 @@ on drop:
 			loop {hg.customitems::*}:
 				if player's inventory contains loop-value:
 					set glowing of player to true
+	if event-item is {hg.customitems::dash}:
+		wait a tick
+		if player's inventory contains {hg.customitems::dash}:
+			set glowing of player to true
+		else:
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+	wait a tick
+	set glowing of player to false
+	loop {hg.customitems::*}:
+		if player's inventory contains loop-value:
+			set glowing of player to true
+	if player's inventory contains a crossbow:
+		set glowing of player to true
+
+on rightclick:
+	player's world is {sgworld}
+	{hg.customitems::*} contains player's tool
+	if player's tool is {hg.customitems::dash}:
+		if {hg.dashcooldown} is greater than 14:
+			if {hg.dashcooldown2} is less than 1:
+				push player forwards at speed 1.5
+				remove 15 from {hg.dashcooldown}
+				set {hg.dashcooldown2} to 2
+			else:
+				message "<red>Your dash ability is currently on cooldown! Cooldown time: <light cyan>%{hg.dashcooldown2}%<red> seconds." to event-player
+		else:
+			message "<red>You ran out of charges! Next charge in <light cyan>%15-{hg.dashcooldown}%<red> seconds." to event-player
+	if player's tool is {hg.customitems::star}:
+		if {hg.starcooldown} is less than 1:
+			apply regeneration of tier 10 to player for 0.5 seconds
+			set {hg.starcooldown} to 30
+		else:
+			message "<red>Your ability is on cooldown! Cooldown time: <light cyan>%{hg.starcooldown}%<red> seconds." to event-player
+	if player's tool is {hg.customitems::scan}:
+		cancel event
+		if {hg.scancooldown} is less than 1:
+			loop players in radius 30 of event-player:
+				execute console command "/onesidedglow %loop-player's name% %player% true"
+				send formatted "You are being revealed to <%mcccolor({mcc.team.%player's name%})%>%player%<reset>!" to loop-player
+				play sound "minecraft:entity.elder_guardian.curse" in master category to loop-player 
+			set {hg.scancooldown} to 30
+			wait 10 seconds
+			loop players in radius 30 of event-player:
+				execute console command "/onesidedglow %loop-player's name% %player% false"
+				send formatted "You are no longer being revealed to <%mcccolor({mcc.team.%player's name%})%>%player%<reset>!" to loop-player
+			teamglowplayer(player,"%{mcc.teamglowenabled}%")
+			wait a tick
+			set glowing of player to false
+			loop {hg.customitems::*}:
+				if player's inventory contains loop-value:
+					set glowing of player to true
+		else:
+			message "<red>Your ability is on cooldown! Cooldown time: <light cyan>%{hg.scancooldown}%<red> seconds." to event-player
+
+every second:
+	if {hg.dashcooldown} is less than 46:
+		add 1 to {hg.dashcooldown}
+	if {hg.dashcooldown2} is more than 0:
+		remove 1 from {hg.dashcooldown2}
+	if {hg.starcooldown} is more than 0:
+		remove 1 from {hg.starcooldown}
+	if {hg.scancooldown} is more than 0:
+		remove 1 from {hg.scancooldown}
 
 
 on projectile hit:
 	world is {sgworld}
 	if event-projectile is a trident:
 		apply resistance of tier 1 to victim for 0.05 seconds
+
+function spawnsgrelics(world:world):
+	set {_loc} to {hg.reliclocs::dash}
+	set world of {_loc} to {_world}
+	execute console command "/schempaste hgbeacon %{sgworld}% %floor(x-coord of {_loc})% %floor(y-coord of {_loc}) + 3% %floor(z-coord of {_loc})%"
+	set {_loc} to {hg.reliclocs::scan}
+	set world of {_loc} to {_world}
+	execute console command "/schempaste hgbeacon %{sgworld}% %floor(x-coord of {_loc})% %floor(y-coord of {_loc}) + 3% %floor(z-coord of {_loc})%"
+	set {_loc} to {hg.reliclocs::crossbow}
+	set world of {_loc} to {_world}
+	execute console command "/schempaste hgbeacon %{sgworld}% %floor(x-coord of {_loc})% %floor(y-coord of {_loc}) + 3% %floor(z-coord of {_loc})%"
+	set {_loc} to {hg.reliclocs::shulker}
+	set world of {_loc} to {_world}
+	execute console command "/schempaste hgbeacon %{sgworld}% %floor(x-coord of {_loc})% %floor(y-coord of {_loc}) + 3% %floor(z-coord of {_loc})%"
+	wait 10 seconds
+	set {_loc} to {hg.reliclocs::dash}
+	set world of {_loc} to {_world}
+	loop blocks in radius 2 of the location 1 block above {_loc}:
+		if loop-block is netherite block or beacon or magenta stained glass pane:
+			set loop-block to air
+	drop {hg.customitems::dash} at {_loc} without velocity
+	set {_loc} to {hg.reliclocs::scan}
+	set world of {_loc} to {_world}
+	loop blocks in radius 2 of the location 1 block above {_loc}:
+		if loop-block is netherite block or beacon or magenta stained glass pane:
+			set loop-block to air
+	drop {hg.customitems::scan} at {_loc} without velocity
+	set {_loc} to {hg.reliclocs::crossbow}
+	set world of {_loc} to {_world}
+	loop blocks in radius 2 of the location 1 block above {_loc}:
+		if loop-block is netherite block or beacon or magenta stained glass pane:
+			set loop-block to air
+	drop {hg.customitems::crossbow} at {_loc} without velocity
+	set {_loc} to {hg.reliclocs::shulker}
+	set world of {_loc} to {_world}
+	loop blocks in radius 2 of the location 1 block above {_loc}:
+		if loop-block is netherite block or beacon or magenta stained glass pane:
+			set loop-block to air
+	drop {hg.customitems::shulker} at {_loc} without velocity
+
+on item despawn:
+	world is {sgworld}
+	if {hg.customitems::*} contains event-item:
+		cancel event
+	if event-item is a crossbow:
+		cancel event
 
 command /mcchungergames:
 	trigger:
@@ -822,6 +971,7 @@ command /mcchungergames:
 		set border center of world border of world "survivalgames1" to location(0,0,0)
 		expand world border of world "survivalgames2" to 275 in 1 second
 		expand world border of world "survivalgames" to 275 in 1 second
+		teamglow("true")
 		while {mcc.sg.round} is equal to 1:
 			wait 1 second
 		set {mcc.sg.stage} to 0
@@ -861,6 +1011,7 @@ command /mcchungergames:
 		set border center of world border of world "survivalgames1" to location(0,0,0)
 		expand world border of world "survivalgames2" to 275 in 1 second
 		expand world border of world "survivalgames" to 275 in 1 second
+		teamglow("true")
 
 function hgrandomtp(world:world):
 	set {_locations::*} to {mcc.hg.startinglocs::*}
@@ -931,7 +1082,7 @@ on break:
 on place:
 	world is "survivalgames" or "survivalgames2"
 	{sgmapset} is true
-	event-block isn't cobweb or water bucket or block of water
+	event-block isn't cobweb
 	cancel event
 
 

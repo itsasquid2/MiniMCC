@@ -1,0 +1,41 @@
+command /tournament <number>:
+    trigger:
+        set {_teams} to arg-1
+        
+        loop {_teams} times:
+            add "Team %loop-number%" to {_teamlist::*}
+        if mod({_teams},2) isn't 0:
+            add "Bye" to {_teamlist::*}
+        loop (size of {_teamlist::*})/2 times:
+            add {_teamlist::%loop-number%} to {_row1::*}
+            add {_teamlist::%size of {_teamlist::*} - loop-number + 1%} to {_row2::*}
+        loop size of {_teamlist::*} - 1 times:
+            message "<green>Round %loop-number%"
+            loop size of {_row1::*} times:
+                message "<yellow>%{_row1::%loop-number-2%}% vs %{_row2::%loop-number-2%}%"
+            set {_last1} to last element of {_row1::*}
+            remove {_last1} from {_row1::*}
+            set {_first2} to first element of {_row2::*}
+            remove {_first2} from {_row2::*}
+            set {_size} to size of {_row1::*}
+            loop {_size} - 1 times:
+                set {_row1::%{_size} - loop-number-2 + 2%} to {_row1::%{_size} - loop-number-2 + 1%}
+            set {_row1::2} to {_first2}
+            set {_size} to size of {_row2::*}
+            loop {_size} times:
+                set {_row2::%loop-number-2%} to {_row2::%loop-number-2 + 1%}
+            set {_row2::%{_size} + 1%} to {_last1}
+
+# on shoot:
+#     set {_v} to velocity of event-projectile
+#     set {_v} to {_v}*-1
+#     set velocity of event-projectile to {_v}
+
+# on entity knockback:
+#     cancel event
+
+# on damage:
+#     set victim's invulnerability ticks to random number between 1 and 40
+#     knock victim (vector from victim to attacker) with strength 1
+
+

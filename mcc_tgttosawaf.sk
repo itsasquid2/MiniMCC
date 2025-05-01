@@ -213,10 +213,14 @@ on place of wool:
 
 on break:
 	"%player's world%" is equal to "tgttosawaf"
-	event-item is not wool
-	player's gamemode is survival
-	message "<pink>You can only break blocks placed by a player!" to event-player
-	cancel event	
+	if event-block is not wool:
+		if player's gamemode is survival:
+			if event-block isn't concrete:
+				message "<pink>You can only break blocks placed by a player!" to event-player
+				cancel event	
+			else if region at event-block's location isn't "tgttos_concrete_break":
+				message "<pink>You can only break blocks placed by a player!!" to event-player
+				cancel event	
 
 every second:
 	loop all players in "tgttosawaf":
@@ -284,7 +288,7 @@ command /mccotherside <player> <text>:
 			loop all players:
 				if {mcc.team.%loop-player's name%} is not equal to 0:
 					set {mcc.tgttosawaf.timeleft} to 0
-		docknpc(arg 2, arg 1's location)
+		
 
 on damage:
 	world is "tgttosawaf"
@@ -417,124 +421,149 @@ command /mccsummonfans <number>:
 				set {_loc} to the location at {_x}, 4, {_z} of world {tgttosawafworld}
 				summonchicken(loop-number, {_loc})
 				#broadcast {_loc}
+		else if arg 1 is equal to 17:
+			loop 40 times:
+				set {_x} to a random number between -61 and -35 
+				set {_z} to a random number between 521 and 529
+				set {_loc} to the location at {_x}, 38, {_z} of world {tgttosawafworld}
+				summonchicken(loop-number, {_loc})
+				#broadcast {_loc}
+		else if arg 1 is equal to 18:
+			loop 40 times:
+				set {_x} to a random number between -84 and -124 
+				set {_z} to a random number between 28 and 31
+				set {_loc} to the location at {_x}, 57, {_z} of world {tgttosawafworld}
+				summonchicken(loop-number, {_loc})
+				#broadcast {_loc}
 
 command /mcctgttosawafteleporttomap <number>:
+	permission: op
 	trigger:
-		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
-				message "<pink>You do not have permission to run this command!"
-				exit trigger
 		if arg 1 is equal to 1:
-			loop 1 times:
-				set {_x} to a random number between 65.5 and 71.5 
-				set {_z} to a random number between 185.5 and 205.5
-				set {_loc} to the location at {_x}, 26, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 65.5 and 71.5 
+			set {_z} to a random number between 185.5 and 205.5
+			set {_loc} to the location at {_x}, 26, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 2:
-			loop 1 times:
-				set {_x} to a random number between 989.5 and 1000.5 
-				set {_z} to a random number between 1091.5 and 1096.5 
-				set {_loc} to the location at {_x}, 47, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 989.5 and 1000.5 
+			set {_z} to a random number between 1091.5 and 1096.5 
+			set {_loc} to the location at {_x}, 47, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 3:
-			loop 1 times:
-				set {_x} to a random number between -388.5 and -364.5 
-				set {_z} to a random number between -93.5 and -102.5 
-				set {_loc} to the location at {_x}, 5, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between -388.5 and -364.5 
+			set {_z} to a random number between -93.5 and -102.5 
+			set {_loc} to the location at {_x}, 5, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 4:
-			loop 1 times:
-				set {_x} to a random number between 1061.5 and 1067.5 
-				set {_z} to a random number between -995.5 and -1023.5 
-				set {_loc} to the location at {_x}, 5, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 1061.5 and 1067.5 
+			set {_z} to a random number between -995.5 and -1023.5 
+			set {_loc} to the location at {_x}, 5, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 5:
-			loop 1 times:
-				set {_x} to a random number between -1598.5 and -1613.5 
-				set {_z} to a random number between -476.5 and -479.5 
-				set {_loc} to the location at {_x}, 28, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between -1598.5 and -1613.5 
+			set {_z} to a random number between -476.5 and -479.5 
+			set {_loc} to the location at {_x}, 28, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 6:
-			loop 1 times:
-				set {_x} to a random number between 1224.5 and 1222.5 
-				set {_z} to a random number between -192.5 and -198.5 
-				set {_loc} to the location at {_x}, 9, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 1224.5 and 1222.5 
+			set {_z} to a random number between -192.5 and -198.5 
+			set {_loc} to the location at {_x}, 9, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 7:
-			loop 1 times:
-				set {_x} to a random number between -2.5 and 17.5 
-				set {_z} to a random number between -221.5 and -229.5 
-				set {_loc} to the location at {_x}, 5, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between -2.5 and 17.5 
+			set {_z} to a random number between -221.5 and -229.5 
+			set {_loc} to the location at {_x}, 5, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 8:
-			loop 1 times:
-				set {_x} to a random number between 1997.5 and 2007.5 
-				set {_z} to a random number between 98.5 and 100.5 
-				set {_loc} to the location at {_x}, 10, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 1997.5 and 2007.5 
+			set {_z} to a random number between 98.5 and 100.5 
+			set {_loc} to the location at {_x}, 10, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 9:
-			loop 1 times:
-				set {_x} to a random number between -270.5 and -264.5 
-				set {_z} to a random number between 2302.5 and 2320.5 
-				set {_loc} to the location at {_x}, 1, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+		#loop 1 times:
+			set {_x} to a random number between -270.5 and -264.5 
+			set {_z} to a random number between 2302.5 and 2320.5 
+			set {_loc} to the location at {_x}, 1, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 10:
-			loop 1 times:
-				set {_x} to a random number between 2748.5 and 2755.5 
-				set {_z} to a random number between -18.5 and 4.5 
-				set {_loc} to the location at {_x}, 4, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 2748.5 and 2755.5 
+			set {_z} to a random number between -18.5 and 4.5 
+			set {_loc} to the location at {_x}, 4, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 11:
-			loop 1 times:
-				set {_x} to a random number between 9.5 and 16.5 
-				set {_z} to a random number between -1190.5 and -1197.5 
-				set {_loc} to the location at {_x}, 8, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 9.5 and 16.5 
+			set {_z} to a random number between -1190.5 and -1197.5 
+			set {_loc} to the location at {_x}, 8, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 12:
-			loop 1 times:
-				set {_x} to a random number between -946.5 and -950.5 
-				set {_z} to a random number between 14.5 and 26.5 
-				set {_loc} to the location at {_x}, 25, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between -946.5 and -950.5 
+			set {_z} to a random number between 14.5 and 26.5 
+			set {_loc} to the location at {_x}, 25, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 13:
-			loop 1 times:
-				set {_x} to a random number between -1860.5 and -1849.5 
-				set {_z} to a random number between 85.5 and 107.5 
-				set {_loc} to the location at {_x}, 49, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between -1860.5 and -1849.5 
+			set {_z} to a random number between 85.5 and 107.5 
+			set {_loc} to the location at {_x}, 49, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 14:
-			loop 1 times:
-				set {_x} to a random number between 4897.5 and 4903.5 
-				set {_z} to a random number between -157.5 and -163.5 
-				set {_loc} to the location at {_x}, 7, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			#loop 1 times:
+			set {_x} to a random number between 4897.5 and 4903.5 
+			set {_z} to a random number between -157.5 and -163.5 
+			set {_loc} to the location at {_x}, 7, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 15:
-			loop 1 times:
-				set {_x} to a random number between -4902.5 and -4907.5 
-				set {_z} to a random number between 79.5 and 83.5 
-				set {_loc} to the location at {_x}, 11, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			##loop 1 times:
+			set {_x} to a random number between -4902.5 and -4907.5 
+			set {_z} to a random number between 79.5 and 83.5 
+			set {_loc} to the location at {_x}, 11, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 		else if arg 1 is equal to 16:
-			loop 1 times:
-				set {_x} to a random number between -1052.5 and -1060.5 
-				set {_z} to a random number between 1030.5 and 1038.5 
-				set {_loc} to the location at {_x}, 4, {_z} of world {tgttosawafworld}
-				teleport player to {_loc}
+			##loop 1 times:
+			set {_x} to a random number between -1052.5 and -1060.5 
+			set {_z} to a random number between 1030.5 and 1038.5 
+			set {_loc} to the location at {_x}, 4, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
+				#broadcast {_loc}
+		else if arg 1 is equal to 17:
+			#loop 40 times:
+			set {_x} to a random number between -61 and -35 
+			set {_z} to a random number between 521 and 529
+			set {_loc} to the location at {_x}, 38, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
+				#broadcast {_loc}
+		else if arg 1 is equal to 18:
+			#loop 40 times:
+			set {_x} to a random number between -84 and -124 
+			set {_z} to a random number between 28 and 31
+			set {_loc} to the location at {_x}, 57, {_z} of world {tgttosawafworld}
+			teleport player to {_loc}
 				#broadcast {_loc}
 
 command /mcctgttosawaf [<number>] [<boolean>]:
@@ -605,6 +634,12 @@ command /mcctgttosawaf [<number>] [<boolean>]:
 					else if arg 1 is equal to 14:
 						givecoloredwool(loop-player)
 						give shears to loop-player
+					else if arg 1 is equal to 17:
+						give iron pickaxe to loop-player
+					else if arg 1 is equal to 18:
+						givecoloredwool(loop-player)
+						give shears to loop-player
+						give potion of strong leaping to loop-player
 		set {mcc.tgttosawaf.playersdone} to 0
 every second:
 	if {mcc.currentevent} is "tgttosawaf":
@@ -617,8 +652,9 @@ command /clearwool <number>:
 	trigger:
 		if command sender is not the console:
 			if {mmcc.hoster.%command sender%} isn't true:
-				message "<pink>You do not have permission to run this command!"
-				exit trigger
+				if {mmcc.hosts::*} doesn't contain command sender:
+					message "<pink>You do not have permission to run this command!"
+					exit trigger
 		loop blocks in radius arg 1 of player:
 			if loop-block is wool:
 				set loop-block to air

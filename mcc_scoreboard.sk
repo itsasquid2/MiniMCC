@@ -319,7 +319,7 @@ function mccupdatescoreboard(p:player):
 			set line 4 of {_p}'s scoreboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
 		else if {mcc.currentevent} is equal to "battlebox":	
 			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Battle Box"
-			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.bb.round}%/7"
+			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.bb.round}%/%{mcc.bb.roundamount}%"
 			if {mcc.bb.kits} is true:
 				if {mcc.bb.timeleft} is greater than 10:
 					set line 13 of {_p}'s scoreboard to "<pink><bold>Kit selection: <white>%time({mcc.bb.timeleft}-10)%"

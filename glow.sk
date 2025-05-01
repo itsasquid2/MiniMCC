@@ -1,0 +1,47 @@
+function teamglow(t:text):
+    if {_t} is "true":
+        set {mcc.teamglowenabled} to true
+        loop all players:
+            loop all players:
+                if {mcc.team.%loop-player-1's name%} isn't 0:
+                    if {mcc.team.%loop-player-1's name%} is equal to {mcc.team.%loop-player-2's name%}:
+                        #broadcast "/onesidedglow %loop-player-2% %loop-player-1% true"
+                        execute console command "/onesidedglow %loop-player-2% %loop-player-1% true"
+                        execute console command "/onesidedglow %loop-player-1% %loop-player-2% true"
+                    else:
+                        #broadcast "/onesidedglow %loop-player-2% %loop-player-1% false"
+                        execute console command "/onesidedglow %loop-player-2% %loop-player-1% false"
+                        execute console command "/onesidedglow %loop-player-1% %loop-player-2% false"
+    else:
+        set {mcc.teamglowenabled} to false
+        loop all players:
+            loop all players:
+                execute console command "/onesidedglow %loop-player-2% %loop-player-1% false"
+                execute console command "/onesidedglow %loop-player-1% %loop-player-2% false"
+
+command /toggleteamglow <text>:
+    permission: op
+    trigger:
+        if {mmcc.hosts::*} contains command sender:
+            teamglow(arg)
+        else:
+            message "no"
+
+function teamglowplayer(p:player, t:text):
+    if {_t} is "true":
+        set {mcc.teamglowenabled} to true
+        loop all players:
+            if {mcc.team.%loop-player-1's name%} isn't 0:
+                if {mcc.team.%loop-player-1's name%} is equal to {mcc.team.%{_p}'s name%}:
+                    #broadcast "/onesidedglow %loop-player-2% %loop-player-1% true"
+                    execute console command "/onesidedglow %loop-player% %{_p}% true"
+                    execute console command "/onesidedglow %{_p}% %loop-player% true"
+                else:
+                    #broadcast "/onesidedglow %loop-player-2% %loop-player-1% false"
+                    execute console command "/onesidedglow %{_p}% %loop-player% false"
+                    execute console command "/onesidedglow %loop-player% %{_p}% false"
+    else:
+        set {mcc.teamglowenabled} to false
+        loop all players:
+            execute console command "/onesidedglow %loop-player% %{_p}% false"
+            execute console command "/onesidedglow %{_p}% %loop-player% false"

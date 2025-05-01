@@ -181,7 +181,7 @@ command /mccskbresetmap:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		
-		execute console command "/schempaste skybattle5 skybattle 0 24 0"
+		execute console command "/schempaste skybattle_mesa skybattle 0 24 0"
 		#execute console command "/schempaste skybattle2 skybattle 0 103 0"
 		
 		
@@ -226,6 +226,7 @@ command /mccskybattle:
 		loop all players:
 			if {mcc.team.%loop-player's name%} is not equal to 0:
 				mccskbtutorial(loop-player)
+		teamglow("true")
 
 
 on break:
@@ -256,8 +257,8 @@ on place of concrete:
 	"%player's world%" is equal to "skybattle" 
 	player's gamemode is survival
 	
-	if event-block's y coordinate is less than 57:
-		if event-block's y coordinate is more than 0:
+	if event-block's y coordinate is less than 48:
+		if event-block's y coordinate is more than 10:
 			if {mcc.skybattle.trackarrowsshot} is true:
 				add 1 to {mcc.skybattle.arrowsshot::%player%}
 			wait 1 tick

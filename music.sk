@@ -58,6 +58,7 @@ function noteall(n: number):
 		note({_n}, loop-player)
 
 command /note <number> [<player>]:
+	permission: op
 	trigger:
 		set {bla} to arg 1
 		subtract 12 from {bla}

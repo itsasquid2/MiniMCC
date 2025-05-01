@@ -145,3 +145,46 @@ command /pkwnewgencourse:
 		# offsets: easy (34, 4, 25), med (0, 0, 25), hard (-34, 4, 25)
 
 			
+command /pkwnewgencoursebonuses:
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		execute console command "/schempaste pkw_entrance parkourwarriornew 0 -50 0"
+		set {pkw.zcord} to 0 
+		delete {_bonuspathzcords::*}
+		# bonus paths	
+		loop 5 times:
+			add {pkw.zcord}+12 to {_bonuspathzcoords::*}
+			add 28 to {pkw.zcord}
+		message "%{_bonuspathzcoords::*}%"
+		loop 5 times:
+			set {_xcord} to -12
+			set {_ycord} to -50
+			loop 3 times:
+				set {_stagenum} to "B%loop-number-1%-%loop-number-2%"
+				set {_id} to {mcc.pkwnew.idof.%{_stagenum}%}
+				message "%{_id}%"
+				if {_id} is less than 200:
+					set {_diff} to "easy"
+				else if {_id} is less than 300:
+					set {_diff} to "medium"
+				else:
+					set {_diff} to "hard"		
+				set {_rand} to a random integer between 1 and 3
+				execute console command "/schempaste pkw_bonus_%{_diff}%_%{_rand}% parkourwarriornew %{_xcord}% %{_ycord}% %{_bonuspathzcoords::%loop-number-1%}%"
+				pkwregiondefine(player, "B%loop-number-1%-%(loop-number-2)-1%", {_xcord}-1, {_xcord}-4, {_ycord}-1, {_ycord}+5, {_bonuspathzcoords::%loop-number-1%}-4, {_bonuspathzcoords::%loop-number-1%}+4) 
+				set {mcc.pkwnew.respawnloc.B%loop-number-1%-%(loop-number-2)-1%} to the location at {_xcord}-4, {_ycord}, {_bonuspathzcoords::%loop-number-1%} of world "parkourwarriornew"
+				set yaw of {mcc.pkwnew.respawnloc.B%loop-number-1%-%(loop-number-2)-1%} to 90
+				
+				subtract 10 from {_xcord}
+				message "%{_stagenum}%"
+				message "pkw_%{mcc.pkw.idof.%{_stagenum}%}%"
+				message "%{mcc.pkwnew.%{mcc.pkwnew.idof.%{_stagenum}%}%.length}%"
+				execute console command "/schempaste pkw_%{mcc.pkwnew.idof.%{_stagenum}%}% parkourwarriornew %{_xcord}% %{_ycord}% %{_bonuspathzcoords::%loop-number-1%}%"
+				subtract 34 from {_xcord}
+				add {mcc.pkwnew.%{mcc.pkwnew.idof.%{_stagenum}%}%.height} to {_ycord}	
+			execute console command "/schempaste pkw_return_portal parkourwarriornew %{_xcord}% %{_ycord}% %{_bonuspathzcoords::%loop-number-1%}%"
+			pkwregiondefine(player, "B%loop-number-1%-3", {_xcord}-13, {_xcord}-15, {_ycord}+3, {_ycord}+8, {_bonuspathzcoords::%loop-number-1%}-4, {_bonuspathzcoords::%loop-number-1%}+4) 
+			# If the last region a player entered is a B-3, rather than respawning at respawnloc.B-3, they respawn at the last dojo

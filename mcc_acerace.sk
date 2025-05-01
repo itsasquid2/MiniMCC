@@ -68,6 +68,8 @@ on region enter:
 		add player to {mcc.acerace.windeast::*}
 	else if the first 5 characters of "%region%" are "windw":
 		add player to {mcc.acerace.windwest::*}
+	else if the first 5 characters of "%region%" are "windup":
+		add player to {mcc.acerace.windup::*}
 
 on region exit:
 	world is "acerace4" or "acerace5" or "acerace6"
@@ -79,6 +81,8 @@ on region exit:
 		remove player from {mcc.acerace.windeast::*}
 	else if the first 5 characters of "%region%" are "windw":
 		remove player from {mcc.acerace.windwest::*}
+	else if the first 5 characters of "%region%" are "windup":
+		remove player from {mcc.acerace.windup::*}
 
 
 every tick:
@@ -117,6 +121,17 @@ every tick:
 					#set velocity of loop-value-1 to {_v}
 		else:
 			remove loop-value from {mcc.acerace.windwest::*}
+	loop {mcc.acerace.windup::*}:
+		set {_regions::*} to regions at loop-value's location
+		if {_regions::*} is set:
+			loop {_regions::*}:
+				if the first 5 characters of "%loop-value-2%" are "windup":
+					push loop-value-1 upwards with speed 0.1
+					#set {_v} to velocity of loop-value-1
+					#set {_v} to {_v} ++ vector(-0.5,0,0)
+					#set velocity of loop-value-1 to {_v}
+		else:
+			remove loop-value from {mcc.acerace.windup::*}
 
 on break:
 	"%event-world%" starts with "acerace"
@@ -201,7 +216,7 @@ function aceracecp(p:player, n:number):
 		set {mcc.acerace.checkpoint.%{_p}%} to {_n}
 	else if {_n} is equal to 0:
 		if {mcc.acerace.official} is true:
-			if {mcc.acerace.checkpoint.%{_p}%} is 11:
+			if {mcc.acerace.checkpoint.%{_p}%} is 12:
 				add 1 to {mcc.acerace.lapsdone.%{_p}%}
 				broadcast formatted "<%mcccolor({mcc.team.%{_p}%})%>%{_p}%<gray> has finished lap <lime>%{mcc.acerace.lapsdone.%{_p}%}%<lime>/3!"
 				if {mcc.acerace.lapsdone.%{_p}%} is equal to 3:

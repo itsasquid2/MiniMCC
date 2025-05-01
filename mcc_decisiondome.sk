@@ -84,7 +84,7 @@ function countchickens(n:number) :: number:
 
 command /ddsetslice <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hoster.%command sender%} is true:
 			loop blocks in radius 12 around player:
 				if loop-block is black concrete:
 					add location of loop-block to {mcc.decisiondome.slices.%arg 1%::*}
@@ -93,7 +93,7 @@ command /ddsetslice <number>:
 
 command /ddresetslice:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hoster.%command sender%} is true:
 			loop 8 times:
 				delete {mcc.decisiondome.slices.%loop-number%::*}
 

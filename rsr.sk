@@ -17,7 +17,7 @@ command /practicersr:
 			message "<red>Something else is happening, sit tight!"
             
 function genterrain2(x: number, y: number, z: number):
-	set {_stage} to 4
+	set {_stage} to 1
 	set {_bla} to {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%}
 	if {_bla} is not equal to 3:
 		if {_stage} is equal to 4:

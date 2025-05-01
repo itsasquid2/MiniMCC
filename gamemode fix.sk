@@ -37,11 +37,6 @@ command /gmc:
 		set {_good} to false
 		if player is an op:
 			set {_good} to true
-		if {builder.%player%} is true:
-			if "%player's world%" is "mini_mcc_town" or "world":
-				set {_good} to true
-			if "%player's world%" is "free1":
-				set {_good} to true
 		if {_good} is false:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger			
@@ -75,11 +70,7 @@ command /gmsp:
 		set {_good} to false
 		if player is an op:
 			set {_good} to true
-		if {builder.%player%} is true:
-			if "%player's world%" is "mini_mcc_town":
-				set {_good} to true
-			if "%player's world%" is "free":
-				set {_good} to true
+		
 		if {_good} is false:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger			

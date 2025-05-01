@@ -1,0 +1,3 @@
+on command:
+    if player has permission "op":
+        log "%player% executed %full command%" to file "opcommands.log"   

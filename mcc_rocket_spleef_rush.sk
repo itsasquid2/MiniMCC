@@ -18,9 +18,9 @@ command /rsrloaddata:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger
 
-		set {mcc.rsr.map.1} to "structs"
-		set {mcc.rsr.map.2} to "ocean"
-		set {mcc.rsr.map.3} to "space"
+		set {mcc.rsr.map.1} to "1"
+		set {mcc.rsr.map.2} to "2"
+		set {mcc.rsr.map.3} to "3"
         
 		set {mcc.rsr.num_stages.%{mcc.rsr.map.1}%} to 3
 
@@ -28,8 +28,8 @@ command /rsrloaddata:
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.3}%} to 30
 
-		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%} to 2
-		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.2}%} to 2
+		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%} to 3
+		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.2}%} to 3
 		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.3}%} to 3
 
 		set {mcc.rsr.radius.%{mcc.rsr.map.1}%} to 40
@@ -339,7 +339,12 @@ on damage:
 		if attacker is a player:
 			set {mcc.rsr.hitby.%victim%} to attacker
 
-
+on gliding state change:
+	world is "rocketspleefrush"
+	if event-player is gliding:
+		disenchant event-player's chestplate
+	else:
+		enchant event-player's chestplate with blast protection 4
 
 on rightclick:
 	player's tool is feather of unbreaking 10 named "Updraft"
@@ -349,7 +354,7 @@ on rightclick:
 			exit trigger	
 	set the player's tool to air
 	if player's gliding state is true:
-		loop 20 times:
+		loop 10 times:
 			push the player upward with speed 0.1
 			wait 0.1 seconds
 	else:
@@ -564,7 +569,7 @@ every second:
 						if {mcc.team.%loop-player's name%} is not equal to 0:
 							remove all feathers from the loop-player
 							remove all firework rocket from the loop-player
-		else if {mcc.rsr.timeleft} is equal to 60:
+		else if {mcc.rsr.timeleft} is equal to 36:
 			if {mcc.rsr.stage} is equal to 1:
 				if {mcc.rsr.roundnum} is equal to 1:
 					set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 9
@@ -584,14 +589,9 @@ every second:
 				loop all players:
 					if {rsrinprogress} is true:
 						if {rsrplaying.%loop-player's name%} is true:
-							send title "<red> Sudden Death!" with subtitle "<pink> Follow the Platforms!" to loop-player for 3 seconds
+							send title "<red> Sudden Death!" with subtitle "<pink> Last Platform!" to loop-player for 3 seconds
 					else:
-						send title "<red> Sudden Death!" with subtitle "<pink> Follow the Platforms!" to loop-player for 3 seconds
-		if mod(243-{mcc.rsr.timeleft}, {mcc.rsr.spawnperiod.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}) is equal to 0:
-			if {mcc.rsr.stage} is equal to 1:
-				set {_theta} to a random number between 0 and {mcc.rsr.thetamax.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}
-				if {mcc.rsr.suddendeath} is true:
-					mccrsrdisintegrate({mcc.rsr.oldx}, {mcc.rsr.oldy}, {mcc.rsr.oldz})
+						send title "<red> Sudden Death!" with subtitle "<pink> Last Platform!" to loop-player for 3 seconds
 				set {mcc.rsr.oldx} to {mcc.rsr.center.x}
 				set {mcc.rsr.oldy} to {mcc.rsr.center.y}
 				set {mcc.rsr.oldz} to {mcc.rsr.center.z}
@@ -599,14 +599,31 @@ every second:
 				set {mcc.rsr.center.z} to {mcc.rsr.center.z} + floor(2*{mcc.rsr.radius.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}*sin({_theta})) 
 				set {mcc.rsr.center.y} to -60 + floor({mcc.rsr.timeleft}/8) 
 				flasharrow({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
+				wait 5 seconds
+				genterrain({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
+		if mod(243-{mcc.rsr.timeleft}, {mcc.rsr.spawnperiod.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}) is equal to 0:
+			if {mcc.rsr.stage} is equal to 1:
+				if {mcc.rsr.suddendeath} isn't true:
+					set {_theta} to a random number between 0 and {mcc.rsr.thetamax.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}
+					# if {mcc.rsr.suddendeath} is true:
+					# 	mccrsrdisintegrate({mcc.rsr.oldx}, {mcc.rsr.oldy}, {mcc.rsr.oldz})
+					set {mcc.rsr.oldx} to {mcc.rsr.center.x}
+					set {mcc.rsr.oldy} to {mcc.rsr.center.y}
+					set {mcc.rsr.oldz} to {mcc.rsr.center.z}
+					set {mcc.rsr.center.x} to {mcc.rsr.center.x} + floor(2*{mcc.rsr.radius.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}*cos({_theta})) 
+					set {mcc.rsr.center.z} to {mcc.rsr.center.z} + floor(2*{mcc.rsr.radius.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}*sin({_theta})) 
+					set {mcc.rsr.center.y} to -60 + floor({mcc.rsr.timeleft}/8) 
+					flasharrow({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
 		else if mod(238-{mcc.rsr.timeleft}, {mcc.rsr.spawnperiod.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}) is equal to 0:
 			if {mcc.rsr.timeleft} is less than 230:
 				if {mcc.rsr.stage} is equal to 1:
-					genterrain({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
+					if {mcc.rsr.suddendeath} isn't true:
+						genterrain({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
 		else if mod(233-{mcc.rsr.timeleft}, {mcc.rsr.spawnperiod.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}) is equal to 0:
 			if {mcc.rsr.timeleft} is less than 230:
 				if {mcc.rsr.stage} is equal to 1:
-					mccrsrdisintegrate({mcc.rsr.oldx}, {mcc.rsr.oldy}, {mcc.rsr.oldz})
+					if {mcc.rsr.suddendeath} isn't true:
+						mccrsrdisintegrate({mcc.rsr.oldx}, {mcc.rsr.oldy}, {mcc.rsr.oldz})
 	else if {mcc.rsr.timeleft} is equal to 0:
 		if {mcc.rsr.stage} is equal to 0:
 			mccrsrpod(false)	

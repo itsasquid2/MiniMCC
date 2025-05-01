@@ -64,7 +64,7 @@ command /freeze <player>:
 				if arg 1's inventory contains shulker spawn egg named "&3Heater":
 					set {heatercooldown.%arg's name%} to true
 				set {_counter} to 0
-				while block below player is air:
+				while block below the location of block at player is air:
 					wait 1 tick
 					add 1 to {_counter}
 					if {_counter} > 25:
@@ -75,14 +75,19 @@ command /freeze <player>:
 						if {meltdown.hitby.%arg's name%} is set:
 							ac({meltdown.hitby.%arg's name%},25,"Froze a player",false)
 						broadcast formatted "<%mcccolor({mcc.team.%arg%})%>%arg% <white>Was crushed by their ice block."
+						set gamemode of arg to spectator
+						set {frozen.%arg's name%} to false
+						clear all potion effects of arg
+						apply infinite potion of night vision without any particles whilst hiding the potion icon to arg
+						exit trigger
 				send title "<pink><bold>FROZEN" to arg 1 for 3 seconds
 				loop numbers from 0 to 8:
 					set slot loop-number of arg 1's inventory to blue ice
 				set {frozen.%arg 1's name%} to true
 				if {meltdown.hitby.%arg's name%} is set:
 					ac({meltdown.hitby.%arg's name%},25,"Froze a player",false)
-				apply slowness 255 to arg 1 for 1000 seconds
-				apply mining fatigue 255 to arg 1 for 1000 seconds
+				apply slowness 255 to arg 1 for 100000 seconds
+				apply mining fatigue 255 to arg 1 for 100000 seconds
 				set total experience of arg 1 to 0
 				spawn block display at the location 0.8 block above the location 0.5 blocks west of the location 0.5 blocks north of arg's location with nbt from "{Rotation:[0f,0f],block_state:{Name:packed_ice}}"
 				spawn block display at the location 0.5 blocks north of the location 0.5 blocks west of arg's location with nbt from "{Rotation:[0f,0f],block_state:{Name:packed_ice}}"
@@ -194,7 +199,7 @@ command /meltdowndoortp <number> <number>:
 	permission: op
 	trigger:
 		set {_loc} to {meltdowndoors.%arg 1%::%arg 2%}
-		set {_loc}'s world to world "meltdownmap"
+		set {_loc}'s world to world "meltdown"
 		teleport player to {_loc}
 
 
@@ -345,6 +350,7 @@ function endmeltdown():
 		
 		set {mcc.meltdown.timeleft} to 30
 		execute console command "/mccstandings"
+		teamglow("false")
 
 function transfermeltdowndoorvariablesback():
 	wait 5 seconds
@@ -402,11 +408,24 @@ command /mccmeltdown:
 		execute console command "/setmeltdownmapstage 0"
 		loop 4 times:
 			execute console command "/closedoor %loop-number%"
+		teamglow("true")
 		
 on shoot:
 	world is "meltdown"
 	if {mcc.meltdown.trackarrowsshot} is true:
 		add 1 to {mcc.meltdown.arrowsshot::%shooter%}
+	set {_color} to mcccolor({mcc.team.%shooter's name%})
+	set {_projectile} to event-projectile
+	while {_projectile} is alive:
+		wait 0.25 seconds
+		draw 1 of dust using dustOption({_color}, 3) at {_projectile}'s location
+		#wait 0.25 seconds
+
+
+on projectile hit:
+	world is "meltdown"
+	wait 1 second
+	delete event-projectile
 
 command /meltdowntogglearrowtracker <boolean>:
 	trigger:
@@ -579,6 +598,7 @@ on rightclick:
 								teleport {_shulker} to {shulkerspot}
 								set {heatercooldown.%player's name%} to true
 
+
 			
 on spawn:
 	event-world is {meltdownworld}
@@ -589,7 +609,7 @@ on spawn:
 every second:
 	loop all players in world {meltdownworld}:
 		set {frozencooldown.%loop-player's name%} to false
-		if loop-player's total experience is larger than 5:
+		if loop-player's total experience is larger than 6:
 			execute console command "/unfreeze %loop-player's name%"
 		if {frozen.%loop-player's name%} is true:
 			loop shulkers in radius 3.5 of loop-player:
@@ -597,7 +617,7 @@ every second:
 				
 				if {mcc.team.%the first {_bla} characters of name of loop-entity-2%} is equal to {mcc.team.%loop-player's name%}:
 					
-					give 2 experience to loop-player
+					give 1 experience to loop-player
 			#give 1 experience to loop-player
 		if {frozen.%loop-player's name%} is false:
 			if {heatercooldown.%loop-player's name%} is true:
