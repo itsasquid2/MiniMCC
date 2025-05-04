@@ -5,7 +5,7 @@ function gen_image(n:number, p1:text, p2:text, p3:text, p4:text):
 
 command /mccautoassignteams:
     trigger:
-        if command sender's display name is "itsasquid2":
+        if command sender is "itsasquid2":
             gen_image(8,"ilikecountries",	"Bluized",	"Firebeastmode",	"Beefing")
             gen_image(2,"Adjacentt",	"Cabbenge",	"Anshdaboss",	"Qvrk")
             gen_image(3,"Claralemon",	"ShadowyNinja151",	"Beebuilding",	"Dinamonchi")
@@ -16,3 +16,4 @@ command /mccautoassignteams:
             gen_image(1,"XayBrazy",	"Pokemaster404",	"Milo_wh",	"Ka1d4r3")
             gen_image(9,"Krypticillusion",	"Tr1lu",	"BestBedwarPlayer",	"LargeTortilla")
             gen_image(10,"mr_bean69",	"Bhrefort",	"Queefoholic",	"Malvare_")
+

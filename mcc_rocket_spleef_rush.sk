@@ -291,7 +291,7 @@ on drop of golden shovel:
 	cancel event
 
 every second:
-	loop all players:
+	loop all players in world "rocketspleefrush":
 		if {mcc.rsr.ammo.%loop-player's name%} is less than 9:
 			add 1 to {mcc.rsr.ammo.%loop-player's name%}
 			if {mcc.rsr.ammo.%loop-player's name%} is equal to 1:

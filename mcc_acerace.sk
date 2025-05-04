@@ -472,22 +472,19 @@ on region enter:
 		set {_p} to potion effect of jump boost of tier 5 without particles for 9999 seconds
 		add {_p} to potion effects of event-player
 		send action bar "<lime>[Swift Sprint on]" to event-player
-		wait 1 second
-		send action bar "<lime><[Swift Sprint on]" to event-player
+		
         
 on region enter:
 	if the first 2 characters of "%region%" are "se":
 		clear event-player's potion effects
 		send action bar "<red>[Swift Sprint off]" to event-player
-		wait 1 second
-		send action bar "<red>[Swift Sprint off]" to event-player
+
 
 on region enter:
 	if the first 3 characters of "%region%" are "eln":
 		remove trident from event-player
 		send action bar "<red>[Trident Removed]" to event-player
-		wait 1 second
-		send action bar "<red>[Trident Removed]" to event-player
+	
 
 
 
@@ -495,8 +492,6 @@ on region enter:
 	if the first 3 characters of "%region%" are "ely":
 		if event-player does not have trident:
 			give event-player unbreakable trident of riptide
-			send action bar "<lime>[Trident Given]" to event-player
-			wait 1 second
 			send action bar "<lime>[Trident Given]" to event-player
 
 on region enter:
@@ -510,8 +505,7 @@ on region enter:
 			set gliding of player to true
 			set {flycooldown.%player's name%} to true
 			send action bar "<lime><bold>[Elytra Equipped]" to event-player
-			wait 5 tick
-			send action bar "<lime><bold>[Elytra Equipped]" to event-player
+			
 
 			wait 3 seconds
 			set {flycooldown.%player's name%} to false
@@ -543,8 +537,7 @@ on gliding state change:
 	if the first 7 characters of "%player's world%" are "acerace":
 		set the player's chestplate to air
 		send action bar "<red><bold> [Elytra OFF]" to event-player
-		wait 5 tick
-		send action bar "<red><bold> [Elytra OFF]" to event-player
+		
 
 on region enter:
 	the first 7 characters of "%player's world%" are "acerace"

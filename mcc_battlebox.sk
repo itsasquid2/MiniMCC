@@ -384,34 +384,48 @@ on rightclick:
 	if player's tool is a heart of the sea:
 	#broadcast player's target
 		if player's target is a player:
-			broadcast {mcc.team.%player's target's name%}
+			#broadcast {mcc.team.%player's target's name%}
 			if {mcc.team.%player's target's name%} is equal to {mcc.team.%player's name%}:
-				broadcast {mcc.battlebox.abilitycooldown.%player%}
+				#broadcast {mcc.battlebox.abilitycooldown.%player%}
 				if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
 					damage player by 2 hearts
 					heal player's target by 3 hearts
 					set {mcc.battlebox.abilitycooldown.%player%} to 2
 	if player's tool is end crystal:
-		damage player by 5 hearts
-		create safe explosion of force 3 at player's location
-		set {mcc.battlebox.abilitycooldown.%player%} to 60
+		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
+			create safe explosion of force (player's health^(1/3)) at player's location
+			set {mcc.battlebox.abilitycooldown.%player%} to 60
 	if player's tool is obsidian:
-		set {mcc.battlebox.parrying.%player%} to true
-		set glowing of player to true
-		set {mcc.battlebox.abilitycooldown.%player%} to 10
-		wait 0.3 seconds
-		if {mcc.battlebox.parrying.%player%} is true:
-			set {mcc.battlebox.parrying.%player%} to false
-			set glowing of player to false
-			apply potion of strong slowness to player for 2 seconds
-			message "You did not parry an attack!" to event-player
+		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
+			set {mcc.battlebox.parrying.%player%} to true
+			set glowing of player to true
+			set {mcc.battlebox.abilitycooldown.%player%} to 10
+			wait 0.3 seconds
+			if {mcc.battlebox.parrying.%player%} is true:
+				set {mcc.battlebox.parrying.%player%} to false
+				set glowing of player to false
+				apply slowness of tier 2 to player for 2 seconds
+				message "You did not parry an attack!" to event-player
+	if player's tool is feather:
+		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
+			set {mcc.battlebox.abilitycooldown.%player%} to 5
+			push player forward at speed 2
+
+on player jump:
+	player's world is "battlebox"
+	if player has potion slowness:
+		message "<red>You cannot jump while slowed!"
+		cancel event
+	
 
 on damage:
 	if {mcc.battlebox.parrying.%victim%} is true:
 		cancel event
-		set {_v} to vector between victim and attacker
-		push attacker {_v}
+		set {_v} to vector between victim and the location 2 block above attacker's location
+		broadcast {_v}
+		push attacker {_v} at speed 2
 		set {mcc.battlebox.parrying.%victim%} to false
+		set glowing of victim to false
 		message "Your attack was parried!" to attacker
 		message "Successfully parried an attack!" to victim
 
@@ -424,6 +438,7 @@ every second:
 			send action bar "Ability Cooldown: <light cyan>%{mcc.battlebox.abilitycooldown.%loop-player%}%<reset> Seconds" to loop-player
 
 on damage of item frame:
+	world is "battlebox"
 	cancel event
 
 command /givewool <player> <number>:
