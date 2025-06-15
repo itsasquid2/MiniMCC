@@ -104,6 +104,10 @@ command /addbarrierssg <number>:
 				if loop-block is minecraft:barrier:
 					add loop-block to {hgbarriers::*}
 
+on inventory click:
+	world is "survivalgames" or "survivalgames2"
+	if event-item is elytra:
+		cancel event
 
 function sgspawnchest(x:number, z:number):
 	set {_bla} to 100.5
@@ -553,8 +557,8 @@ every second:
 			if {mcc.team.%loop-player's name%} is not equal to 0:
 				send title "" with subtitle "<pink>Border shrinking" to loop-player for 5 seconds
 		set {_good} to false
-		set size of world border of world "survivalgames" to 340
-		set size of world border of world "survivalgames2" to 340
+		set size of world border of world "survivalgames" to 400
+		set size of world border of world "survivalgames2" to 400
 		set border center of world border of world "survivalgames" to location({sg.worldborderx},0,{sg.worldborderz})
 		set border center of world border of world "survivalgames2" to location({sg.worldborderx},0,{sg.worldborderz})
 		shrink world border of world "survivalgames" to 25 in 200 seconds

@@ -1,56 +1,15 @@
 variables:
-	{mcc.bingo.inprogress} = false
-	{mcc.bingo.timeleft} = 0
-	{mcc.bingo.stage} = 0
-	{bingoclosecooldown.%player%} = false
+	{mcc.bingonew.timeleft} = 0
+	{mcc.bingonew.stage} = 0
+	{mcc.bingonew.portalcooldown.%player%} = false
 
-function checkbingo(p:player):
-	loop 4 times:
-		loop 4 times:
-			if {_p} has {bingo.objectives::%{bingottt.board.%loop-number-1%.%loop-number-2%}%}:
-				if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%{_p}%}%} is false:
-					set {_oldbingos} to mccbingos({mcc.team.%{_p}%})
-					set {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%{_p}%}%} to true
-					remove {bingo.objectives::%{bingottt.board.%loop-number-1%.%loop-number-2%}%} from {_p} 
-					set {_countbad} to 0
-					loop 10 times:
-						if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%loop-number-3%} is true:
-							add 1 to {_countbad}
-					broadcast "<light blue>[Bingo] %{mcc.teams::%{mcc.team.%{_p}%}%}% <white>were the <light blue>%nth({_countbad})%<white> to find %{bingo.objectives::%{bingottt.board.%loop-number-1%.%loop-number-2%}%}%!"
-					set {_newbingos} to mccbingos({mcc.team.%{_p}%})-{_oldbingos}
-					if {_newbingos} is equal to 0:
-						ac({_p}, 144-9*{_countbad}, "Found an item!", false)
-					else:
-						set {_count} to 0
-						loop all players:
-							if {mcc.team.%loop-player's name%} is equal to {mcc.team.%{_p}%}:
-								add 1 to {_count}
-						set {_bla} to ceil(350/{_count}) 
-						ac({_p}, 144-9*{_countbad}+{_bla}*{_newbingos}, "Scored %{_newbingos}% bingos!", true) 
-						loop all players:
-							if {mcc.team.%loop-player's name%} is equal to {mcc.team.%{_p}%}:
-								if loop-player is not equal to {_p}:
-									ac(loop-player, {_bla}*{_newbingos}, "Scored %{_newbingos}% bingos!", true)
-
-function bingostatus(r: number, c: number, team: number) :: number:
-	# 0: unclaimed, 1: team found, -1: enemy found
-	if {mcc.bingo.hasfound.%{_r}%.%{_c}%.%{_team}%} is true:
-		return 1
-	if {bingo.tictactoe} is false:
-		return 0
-	else:
-		loop 10 times:
-			if {mcc.bingo.hasfound.%{_r}%.%{_c}%.%loop-number%} is true:
-				return -1	
-	return 0
-
-function mccbingotutorial(p:player):
+function mccbingonewtutorial(p:player):
 	wait 3 seconds
-	send title "<yellow>Bingo But Fast" to {_p} for 5 seconds
+	send title "<yellow>Bingo" to {_p} for 5 seconds
 	wait 5 seconds
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<yellow>Welcome to Bingo But Fast!" to {_p}
+	send "<yellow>Welcome to Bingo!" to {_p}
 	send "" to {_p}
 	send "<italics>Here's how you play..." to {_p}
 	send "" to {_p}
@@ -61,7 +20,7 @@ function mccbingotutorial(p:player):
 
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>Bingo But Fast is a Minecraft scavenger hunt!" to {_p}
+	send "<bold>Bingo is a Minecraft scavenger hunt!" to {_p}
 	send "" to {_p}
 	send "Your goal is to collect the items shown on your <gold>Bingo Card<white> before time runs out!" to {_p}
 	send "" to {_p}
@@ -72,9 +31,9 @@ function mccbingotutorial(p:player):
 
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>You earn coins for each item found, and every <gold>bingo<white> (complete row, column, or long diagonal)." to {_p}
+	send "<bold>You earn coins for each item found, but other teams are also finding the same items. It's a race to see who can find it first!" to {_p}
 	send "" to {_p}
-	send "Coordination is key! You can also track other players, but keep inventory is on, so you can't steal their stuff." to {_p}
+	send "To score an item, simply pick up the item. <red>Picking it up from a chest does not work, you NEED to pick it up from the ground" to {_p}
 	send "" to {_p}
 	send "" to {_p}
 	send "<lime>--------------------------------------------------" to {_p}
@@ -83,222 +42,262 @@ function mccbingotutorial(p:player):
 
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>One member of your team may teleport to another once every 5 minutes!" to {_p}
+	send "<bold>One member of your team may teleport to another once every 3 minutes!" to {_p}
 	send "" to {_p}
 	send "Use this ability wisely! Teleport using /teamtp [teammate]." to {_p}
 	send "" to {_p}
 	send "" to {_p}
 	send "<lime>--------------------------------------------------" to {_p}
 
+	wait 8 seconds
 
-function mccbingos(t:number) :: number:
-	set {_bingos} to 0
-	loop 4 times:
-		if {mcc.bingo.hasfound.%loop-number%.1.%{_t}%} is true:
-			if {mcc.bingo.hasfound.%loop-number%.2.%{_t}%} is true:
-				if {mcc.bingo.hasfound.%loop-number%.3.%{_t}%} is true:
-					if {mcc.bingo.hasfound.%loop-number%.4.%{_t}%} is true:
-						add 1 to {_bingos}
-	loop 4 times:
-		if {mcc.bingo.hasfound.1.%loop-number%.%{_t}%} is true:
-			if {mcc.bingo.hasfound.2.%loop-number%.%{_t}%} is true:
-				if {mcc.bingo.hasfound.3.%loop-number%.%{_t}%} is true:
-					if {mcc.bingo.hasfound.4.%loop-number%.%{_t}%} is true:
-						add 1 to {_bingos}
-	if {mcc.bingo.hasfound.1.1.%{_t}%} is true:
-		if {mcc.bingo.hasfound.2.2.%{_t}%} is true:
-			if {mcc.bingo.hasfound.3.3.%{_t}%} is true:
-				if {mcc.bingo.hasfound.4.4.%{_t}%} is true:
-					add 1 to {_bingos}
-	if {mcc.bingo.hasfound.1.4.%{_t}%} is true:
-		if {mcc.bingo.hasfound.2.3.%{_t}%} is true:
-			if {mcc.bingo.hasfound.3.2.%{_t}%} is true:
-				if {mcc.bingo.hasfound.4.1.%{_t}%} is true:
-					add 1 to {_bingos}
-	return {_bingos}
-	
-# on join:
-# 	wait 2 seconds
-# 	if {mcc.currentevent} is "bingobutfast":
-# 		if {mcc.team.%player's name%} is not 0:
-# 			execute console command "/mv tp %player% bingo_ttt"
-# 			set {bingoclosecooldown.%player's name%} to false
-# 			if "%player's world%" is equal to "bingo_ttt":
-# 				set {immune.%player's name%} to false
-# 				wait a tick
-# 				set player's game mode to survival
-# 				clear the player's inventory
-# 				set the player's helmet to iron helmet of unbreaking 10
-# 				set the player's chestplate to iron chestplate of unbreaking 10
-# 				set the player's leggings to iron leggings of unbreaking 10
-# 				set the player's boots to iron boots of unbreaking 10
-# 				give an iron sword of sharpness 2 and unbreaking 10 to player
-# 				give an iron axe of efficiency 3 and unbreaking 10 to player
-# 				give an iron shovel of efficiency 3 and unbreaking 10 to player
-# 				give an iron pickaxe of efficiency 3 and unbreaking 10 to player
-# 				give 64 steak to player
-# 				give a white bed to player
-# 				set slot 7 of player's inventory to compass of curse of vanishing named "<gold>Tracking Compass"
-# 				set slot 8 of player's inventory to paper of curse of vanishing named "<gold>Bingo Card"
-# 				apply speed 2 to the player for 20 minutes
-# 				mccbingotutorial(player)
-command /mccbingobutfast:
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Use the portals in the warehouse to get wherever you need to go!" to {_p}
+	send "" to {_p}
+	send "Most portals take you to a biome, but there are exceptions." to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "Note: Other teams completing goals will make them uncompletable, but a new goal will appear after a few seconds." to {_p}
+	send "" to {_p}
+	send "this is similar to lockout bingo. (you also can't actually score bingos)" to {_p}
+	send "" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+	wait 6 seconds	
+
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<bold>Hope you enjoy this MMCC original!" to {_p}
+	send "" to {_p}
+	send "Good luck!" to {_p}
+	send "" to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
+
+command /mccbingonew:
 	permission: op
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if command sender is not "itsasquid2":
 				message "<pink>You cannot do this!"
 				exit trigger
-		
+		if {mcc.bingo.inprogress} is true:
+			message "Bingo already in progress!"
+			exit trigger
 		execute console command "/mccnewgame"
 		set {mcc.bingo.inprogress} to true
-		set {mcc.currentevent} to "bingobutfast"
-		loop 4 times:
-			loop 4 times:
-				loop 10 times:
-					set {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%loop-number-3%} to false
+		set {mcc.currentevent} to "bingonew"
 		set {bingo.tictactoe} to false
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
-				execute console command "/mv tp %loop-player% bingo_ttt"
-				set {bingoclosecooldown.%loop-player's name%} to false
-				if "%loop-player's world%" is equal to "bingo_ttt":
-					set {immune.%loop-player's name%} to false
+			if {mcc.team.%loop-player%} is not equal to 0:
+				execute console command "/mvtp %loop-player% bingo"
+				if "%loop-player's world%" is equal to "bingo":
+					set {immune.%loop-player%} to false
+					set {mcc.bingonew.portalcooldown.%loop-player%} to false
 					wait a tick
-					set loop-player's game mode to survival
+					set loop-player's game mode to adventure
+					feed loop-player
+					heal loop-player
 					clear the loop-player's inventory
-					set the loop-player's helmet to iron helmet of unbreaking 10
-					set the loop-player's chestplate to elytra of unbreaking 10
-					set the loop-player's leggings to iron leggings of unbreaking 10
-					set the loop-player's boots to iron boots of unbreaking 10
-					give an iron sword of sharpness 2 and unbreaking 10 to loop-player
-					give an iron axe of efficiency 3 and unbreaking 10 to loop-player
-					give an iron shovel of efficiency 3 and unbreaking 10 to loop-player
-					give an iron pickaxe of efficiency 3 and unbreaking 10 to loop-player
-					give 64 steak to loop-player
-					give a white bed to loop-player
-					set slot 7 of loop-player's inventory to compass of curse of vanishing named "<gold>Tracking Compass"
+					set {bingo.itemsfound.%loop-player%} to 0
+					set loop-player's chestplate to unbreakable elytra named "<gold>Bingo Elytra"
 					set slot 8 of loop-player's inventory to paper of curse of vanishing named "<gold>Bingo Card"
-					apply speed 2 to the loop-player for 20 minutes
-					mccbingotutorial(loop-player)
+					mccbingonewtutorial(loop-player)
 		loop 10 times:
 			set {mcc.bingo.tpcooldown.%loop-number%} to 0
-		set {mcc.bingo.stage} to 0
-		set {mcc.bingo.timeleft} to 60
+		set {mcc.bingonew.stage} to 0
+		set {mcc.bingonew.timeleft} to 90
 		delete {mcc.bingo.items::*}
-		loop 4 times:
-			loop 4 times:
-				add {bingo.objectives::%{bingottt.board.%loop-number-1%.%loop-number-2%}%} to {mcc.bingo.items::*}	
 
-command /bingoresetcard:
+command /givecard <player>:
+	permission: op
 	trigger:
-		if command sender is "itsasquid2":
-			loop 4 times:
-				loop 4 times:
-					loop 10 times:
-						set {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%loop-number-3%} to false
+		give arg paper of curse of vanishing named "<gold>Bingo Card"
+
+function bingoscoreobjective(player:player, item:item, diff:text):
+	remove 1 of {_item} from {mcc.bingo.%{_diff}%objs::*}
+	set {_pane} to glass pane named formatted "<light cyan>Completed by <%mcccolor({mcc.team.%{_player}'s name%})%>%{_player}'s name%" 
+	set color of {_pane} to mcccolor({mcc.team.%{_player}'s name%})
+	add {_pane} to {mcc.bingo.%{_diff}%objs::*} 
+	if {_diff} is "med":
+		set {_diff} to "medium"
+	if name of {_item} is set:
+		broadcast formatted "<%mcccolor({mcc.team.%{_player}'s name%})%>%{_player}'s name% <light cyan>completed a %{_diff}% %name of {_item}%"
+	else:
+		broadcast formatted "<%mcccolor({mcc.team.%{_player}'s name%})%>%{_player}'s name% <light cyan>completed a %{_diff}% Task: pick up %{_item}%"
+	if {_diff} is "hard":
+		ac({_player}, 90, "Completed a %{_diff}% task!", false)
+	else if {_diff} is "medium":
+		ac({_player}, 30, "Completed a %{_diff}% task!", false)
+	else if {_diff} is "easy":
+		ac({_player}, 5, "Completed a %{_diff}% task!", false)
+	if {_diff} is "medium":
+		set {_diff} to "med"
+	wait 1 tick
+	loop {mcc.bingo.%{_diff}%objs::*}:
+		set slot (20+loop-counter) of {mcc.bingo.board} to loop-value
+	wait 4 seconds
+	generatebingoobjective({_diff})
+	loop {mcc.bingo.%{_diff}%objs::*}:
+		set slot (20+loop-counter) of {mcc.bingo.board} to loop-value
+	add 1 to {bingo.itemsfound.%{_diff}%.%{_player}%}
 
 on rightclick:
-	player's tool is paper of curse of vanishing named "<gold>Bingo Card"
-	{mcc.team.%player's name%} is not equal to 0
-	set {_cardgui} to a new chest inventory with 6 row with name "Bingo Card"
-	loop 54 times:
-		set slot (loop-value)-1 of {_cardgui} to black stained glass pane
-	loop 4 times:
-		loop 4 times:
-			set {_bla} to bingostatus(loop-number-1, loop-number-2, {mcc.team.%player's name%})
-			# if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%player's name%}%} is true:
-			if {_bla} is equal to 1:
-				set slot 1+(loop-value-1)*9+(loop-value-2) of {_cardgui} to blue stained glass pane named "<blue>Your team found this item!"
-			else if {_bla} is equal to 0:
-				set slot 1+(loop-value-1)*9+(loop-value-2) of {_cardgui} to {bingo.objectives::%{bingottt.board.%loop-value-1%.%loop-value-2%}%}
-			else:
-				set slot 1+(loop-value-1)*9+(loop-value-2) of {_cardgui} to red stained glass pane named "<pink>Enemy team found this item!"
-	set slot 16 of {_cardgui} to ender pearl named "<gold>Teleport to team" with lore "<gray>Usable once every 5 minutes"
-	#set slot 34 of {_cardgui} to compass named "<gold>Super Radar" with lore "<gray>Reveals the coordinates of all enemy team members. Usable once per game."
-	#set slot 43 of {_cardgui} to eye of ender named "<gold>Intel Report" with lore "<gray>Peek at one enemy team member's inventory. Usable once per game."
-	open {_cardgui} to the player
+	"%player's world%" starts with "bingo"
+	if player's tool is paper of curse of vanishing named "<gold>Bingo Card":
+		openbingocard(player)
+
+function openbingocard(p:player):
+	if {mcc.bingo.board} is not set:
+		open chest inventory with 3 rows to {_p}
+		set {mcc.bingo.board} to {_p}'s current inventory
+	else:
+		open {mcc.bingo.board} to {_p}
+	set slot 2 of {mcc.bingo.board} to green concrete named "<lime>Easy Tasks"
+	set slot 11 of {mcc.bingo.board} to yellow concrete named "<yellow>Medium Tasks"
+	set slot 20 of {mcc.bingo.board} to red concrete named "<red>Hard Tasks"
+	loop {mcc.bingo.easyobjs::*}:
+		set slot (2+loop-counter) of {mcc.bingo.board} to loop-value
+	loop {mcc.bingo.medobjs::*}:
+		set slot (11+loop-counter) of {mcc.bingo.board} to loop-value
+	loop {mcc.bingo.hardobjs::*}:
+		set slot (20+loop-counter) of {mcc.bingo.board} to loop-value
+
+
+
+function generatebingoobjectives():
+	set {mcc.bingo.easyobjectives.temp::*} to {mcc.bingo.easyobjectives::*}
+	set {mcc.bingo.medobjectives.temp::*} to {mcc.bingo.medobjectives::*}
+	set {mcc.bingo.hardobjectives.temp::*} to {mcc.bingo.hardobjectives::*}
+	delete {mcc.bingo.easyobjs::*}
+	delete {mcc.bingo.medobjs::*}
+	delete {mcc.bingo.hardobjs::*}
+	loop 3 times:
+		set {_rand} to random element out of {mcc.bingo.easyobjectives.temp::*}
+		add {_rand} to {mcc.bingo.easyobjs::*}
+		remove {_rand} from {mcc.bingo.easyobjectives.temp::*}
+	loop 3 times:
+		set {_rand} to random element out of {mcc.bingo.medobjectives.temp::*}
+		add {_rand} to {mcc.bingo.medobjs::*}
+		remove {_rand} from {mcc.bingo.medobjectives.temp::*}
+	loop 3 times:
+		set {_rand} to random element out of {mcc.bingo.hardobjectives.temp::*}
+		add {_rand} to {mcc.bingo.hardobjs::*}
+		remove {_rand} from {mcc.bingo.hardobjectives.temp::*}
+
+command /registerbingoobjectves <text>:
+	permission: op
+	trigger:
+		delete {mcc.bingo.%arg%objectives::*}
+		loop items in inventory of player's target block:
+			message loop-value
+			add loop-value to {mcc.bingo.%arg%objectives::*}
+
+command /addbingoobjectves <text>:
+	permission: op
+	trigger:
+		#delete {mcc.bingo.%arg%objectives::*}
+		loop items in inventory of player's target block:
+			message loop-value
+			add loop-value to {mcc.bingo.%arg%objectives::*}
 
 on inventory click:
-	if name of event-inventory is "Bingo Card":
-		if index of event-slot is equal to 16:
-			message "<light blue>[Bingo] You may teleport to a teammate using /teamtp [playername]. One team member may use this every 5 minutes!"
+	if event-inventory is {mcc.bingo.board}:
 		cancel event
 
-on damage:
-	attacker is a player
-	victim is a player
-	attacker's world is equal to "bingo_ttt"
-	{mcc.bingo.timeleft} is greater than 0
-	{mcc.bingo.stage} is equal to 0
-	send "<pink>You cannot attack other players during the Bingo tutorial!" to attacker
-	cancel event
+function generatebingoobjective(diff:text):
+	loop {mcc.bingo.%{_diff}%objs::*}:
+		if loop-value is glass pane:
+			if name of loop-value starts with "<light cyan>Completed by":
+				remove loop-value from {mcc.bingo.%{_diff}%objs::*}
+	set {_rand} to random element out of {mcc.bingo.%{_diff}%objectives.temp::*}
+	add {_rand} to {mcc.bingo.%{_diff}%objs::*}
+	if name of {_rand} isn't set:
+		if {_diff} is "easy":
+			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <lime>easy<reset> objective: pick up %{_rand}%"
+		else if {_diff} is "med":
+			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <yellow>medium<reset> objective: pick up %{_rand}%"
+		else if {_diff} is "hard":
+			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <red>hard<reset> objective: pick up %{_rand}%"
+	else:
+		if {_diff} is "easy":
+			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <lime>easy<reset> %name of {_rand}%"
+		else if {_diff} is "med":
+			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <yellow>medium<reset> %name of {_rand}%"
+		else if {_diff} is "hard":
+			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <red>hard<reset> %name of {_rand}%"
+	remove {_rand} from {mcc.bingo.%{_diff}%objectives.temp::*}
+	loop {mcc.bingo.%{_diff}%objs::*}:
+		set slot (11+loop-counter) of {mcc.bingo.board} to loop-value
 
-
+on pick up:
+	"%player's world%" starts with "bingo"
+	{mcc.bingo.inprogress} is true
+	loop {mcc.bingo.easyobjs::*}:
+		if type of loop-value is type of event-item:
+			bingoscoreobjective(event-player, event-item, "easy")
+	loop {mcc.bingo.medobjs::*}:
+		if type of loop-value is type of event-item:
+			bingoscoreobjective(event-player, event-item, "med")
+	loop {mcc.bingo.hardobjs::*}:
+		if type of loop-value is type of event-item:
+			bingoscoreobjective(event-player, event-item, "hard")
 
 every second:
-	if {mcc.bingo.timeleft} is greater than 0:
+	if {mcc.bingonew.timeleft} is greater than 0:
 		if {mcc.paused} is true:
 			exit trigger
 		loop 10 times:
 			if {mcc.bingo.tpcooldown.%loop-number%} is greater than 0:
 				subtract 1 from {mcc.bingo.tpcooldown.%loop-number%}
-		subtract 1 from {mcc.bingo.timeleft}
-		if {mcc.bingo.timeleft} is equal to 3:
-			if {mcc.bingo.stage} is equal to 0:
+		subtract 1 from {mcc.bingonew.timeleft}
+		#if {mcc.bingonew.timeleft} is equal to 900 or 650 or 400 or 150:
+		#	execute console command "/playmusic buildmart"
+		if {mcc.bingonew.timeleft} is equal to 3:
+			if {mcc.bingonew.stage} is equal to 0:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						execute console command "/boopboopboopbeep %loop-player%"
-		else if {mcc.bingo.timeleft} is less than or equal to 0:
-			if {mcc.bingo.stage} is equal to 0:
-				set {mcc.bingo.timeleft} to 600 
-				set {mcc.bingo.stage} to 1
-				execute console command "/playmusic bingobutfast"
+		else if {mcc.bingonew.timeleft} is equal to 0:
+			if {mcc.bingonew.stage} is equal to 0:
+				set {mcc.bingonew.timeleft} to 900 
+				set {mcc.bingonew.stage} to 1
+				loop blocks in radius 10 of {mcc.bingonew.locs::9}:
+					if loop-block is barrier:
+						set loop-block to air
+			else if {mcc.bingonew.stage} is equal to 1:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
-						set loop-player's game mode to survival
-						loop blocks in radius 3 of loop-player:
-							if loop-block is minecraft:barrier:
-								set loop-block to air
-			else if {mcc.bingo.stage} is equal to 1:
-				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						send title "<pink>Game over!" to loop-player for 3 seconds
 				set {mcc.bingo.inprogress} to false
-				set {mcc.bingo.timeleft} to 30
-				set {mcc.bingo.stage} to 2
-				execute console command "/playmusic none"
+				set {mcc.bingonew.timeleft} to 30
+				set {mcc.bingonew.stage} to 2
 				execute console command "/mccstandings"					
-			else if {mcc.bingo.stage} is equal to 2:
+			else if {mcc.bingonew.stage} is equal to 2:
 				execute console command "/mccbreak"
-				set {mcc.bingo.timeleft} to -1
-		else if {mcc.bingo.timeleft} is 284:
-			execute console command "/playmusic bingobutfast"
-		loop all players in "bingo_ttt" and "bingo_ttt_nether":
-			if {mcc.team.%loop-player's name%} is not equal to 0:
-#				loop 4 times:
-#					loop 4 times:
-#						if loop-player has {bingo.objectives::%{bingottt.board.%loop-number-1%.%loop-number-2%}%}:
-#							if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%loop-player's name%}%} is false:
-#								set {_oldbingos} to mccbingos({mcc.team.%loop-player's name%})
-#								set {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%loop-player's name%}%} to true
-#								remove {bingo.objectives::%{bingottt.board.%loop-number-1%.%loop-number-2%}%} from loop-player
-#								broadcast "<light blue>[Bingo] %{mcc.teams::%{mcc.team.%loop-player's name%}%}% <white>have found %{bingo.objectives::%{bingottt.board.%loop-number-1%.%loop-number-2%}%}%!"
-#								set {_newbingos} to mccbingos({mcc.team.%loop-player's name%})-{_oldbingos}
-#								if {_newbingos} is equal to 0:
-#									ac(loop-player, 75, "Found an item!", false)
-#								else:
-#									set {_count} to 0
-#									loop all players:
-#										if {mcc.team.%loop-player-2%} is equal to {mcc.team.%loop-player-1%}:
-#											add 1 to {_count}
-#									set {_bla} to ceil(250/{_count}) 
-#									ac(loop-player, 75+{_bla}*{_newbingos}, "Scored %{_newbingos}% bingos!", true) 
-#									loop all players:
-#										if {mcc.team.%loop-player-2%} is equal to {mcc.team.%loop-player-1%}:
-#											if loop-player-2 is not equal to loop-player-1:
-#												ac(loop-player-2, {_bla}*{_newbingos}, "Scored %{_newbingos}% bingos!", true)
+				set {mcc.bingonew.timeleft} to -1
 
+command /resetbingonew:
+	permission: op
+	trigger:
+		execute console command "/mvdelete bingo_overworld"
+		execute console command "/mvconfirm"
+		execute console command "/mvdelete bingo_nether"
+		execute console command "/mvconfirm"
+		execute console command "/mvdelete bingo_end"
+		execute console command "/mvconfirm"
+		wait 1 second
+		execute console command "/mvclone bingo_overworld_copy bingo_overworld"
+		execute console command "/mvclone bingo_nether_copy bingo_nether"
+		execute console command "/mvclone bingo_end_copy bingo_end"
 
 command /teamtp <player>:
 	trigger:
@@ -317,112 +316,233 @@ command /teamtp <player>:
 		teleport player to arg 1
 		set {mcc.bingo.tpcooldown.%{mcc.team.%player's name%}%} to 180
 
+on portal enter:
+	"%player's world%" starts with "bingo"
+	block at player is ender portal block
+	cancel event
+	if {mcc.bingonew.portalcooldown.%player%} is true:
+		exit trigger
+	set {mcc.bingonew.portalcooldown.%player%} to true	
 
-#on pickup:
-#	{mcc.currentevent} is equal to "bingobutfast"
-#	{mcc.team.%player's name%} is not equal to 0
-#	{mcc.bingo.stage} is equal to 1
-#	event-item is not dirt
-#	event-item is not cobblestone
-#	event-item is not netherrack
-#	{mcc.bingo.items::*} contains type of event-item 
-#	wait a tick
-#	checkbingo(player)	
+	if block below event-location is blue ice:
+		set {_ind} to 7
+		set {_str} to "Snowy Taiga"
+	else if block below event-location is huge red mushroom block:
+		set {_ind} to 8
+		set {_str} to "Dark Forest"
+	else if block below event-location is andesite:
+		set {_ind} to 10
+		set {_str} to "Mountains"
+	else if block below event-location is oak log:
+		set {_ind} to 11
+		set {_str} to "Forest"
+	else if block below event-location is terracotta:
+		set {_ind} to 12
+		set {_str} to "Badlands"
+	else if block below event-location is mossy cobblestone:
+		set {_ind} to 13
+		set {_str} to "Jungle"
+	else if block below event-location is obsidian:
+		set {_ind} to 14
+		set {_str} to "Center End Island"
+	else if block below event-location is endstone:
+		set {_ind} to random integer between 15 and 17
+		set {_str} to "Outer End Islands"
+	else if block below event-location is purpur block:
+		set {_ind} to 18
+		set {_str} to "End City"
+	else if block below event-location is bedrock:
+		set {_ind} to 9
+		set {_str} to "Spawn"
+	if {_ind} is set:
+		#message {mcc.bingonew.locs::%{_ind}%}
+		teleport player to {mcc.bingonew.locs::%{_ind}%}
+		message "<lime>Teleported you to the %{_str}%<lime>! Coordinates: x: %round(x-coordinate of player)%, y: %round(y-coordinate of player)%, z: %round(z-coordinate of player)%"
+		if {_ind} is 9:
+			give player player's chestplate
+			set player's chestplate to unbreakable elytra named "<gold>Bingo Elytra"
+			set player's gamemode to adventure
+		else if player's chestplate is unbreakable elytra named "<gold>Bingo Elytra":
+			set player's chestplate to air
+			set player's gamemode to survival
+	wait 3 seconds
+	set {mcc.bingonew.portalcooldown.%player%} to false
 
-on swap hand items:
-	{mcc.currentevent} is equal to "bingobutfast" or "bingoisland"
-	{mcc.team.%player's name%} is not equal to 0
-	if player's tool is paper of curse of vanishing:
+on gliding state change:
+	if player's world is "bingo":
+		wait 1 tick
+		if gliding of player is on:
+			push player forwards
+	else:
+		if "%player's world%" starts with "bingo":
+			if player's chestplate is unbreakable elytra named "<gold>Bingo Elytra":
+				set player's chestplate to air
+
+on damage:
+	if victim's world is "bingo":
 		cancel event
 
-on inventory close:
-	{mcc.currentevent} is equal to "bingobutfast" or "bingoisland"
-	{mcc.team.%player's name%} is not equal to 0
-	if slot 8 of player is not paper of curse of vanishing:
-		loop numbers from 9 to 35:
-			if slot loop-number of player is paper of curse of vanishing:
-				set slot loop-number of player to slot 8 of player 
-				set slot 8 of player to paper of curse of vanishing named "<gold>Bingo Card" 
-#	{bingoclosecooldown.%player's name%} is false
-#	checkbingo(player)
-#	set {bingoclosecooldown.%player's name%} to true
-#	wait 3 seconds
-#	set {bingoclosecooldown.%player's name%} to false 
+on respawn:
+	wait 1 tick
+	if player's world is "bingo":
+		give player player's chestplate
+		set player's chestplate to unbreakable elytra named "<gold>Bingo Elytra"
+		set player's gamemode to adventure
 
-command /givecard <player>:
-	permission: op
-	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
-			message "<pink>You do not have permission to run this command!"
-			exit trigger
-		give a paper of curse of vanishing named "<gold>Bingo Card" to arg 1
-
-
-on death of player:
-	"%victim's world%" is equal to "bingo_ttt"
-	wait 5 seconds
-	#apply speed 2 to the victim for 15 minutes
-
-on drop:
-	event-item is paper of curse of vanishing named "<gold>Bingo Card"
-	message "<pink>You might want to keep that!" to event-player
+on portal enter:
+	"%player's world%" starts with "bingo"
+	block at player is nether portal block
+	if {mcc.bingonew.portalcooldown.%player%} is true:
+		exit trigger
+	set {mcc.bingonew.portalcooldown.%player%} to true
+	loop blocks in radius 4 of player:
+		if loop-block is nether brick:
+			set {_ind} to 1
+			set {_str} to "Fortress" 
+		if loop-block is netherrack:
+			set {_ind} to 2
+			set {_str} to "Nether Wastes" 
+		if loop-block is warped nylium:
+			set {_ind} to 3
+			set {_str} to "Warped Forest" 
+		if loop-block is crimson nylium:
+			set {_ind} to 4
+			set {_str} to "Crimson Forest" 
+		if loop-block is basalt:
+			set {_ind} to 5
+			set {_str} to "Basalt Deltas" 
+		if loop-block is soul soil:
+			set {_ind} to 6
+			set {_str} to "Soul Sand Valley" 
+	if {_ind} is set:
+		teleport player to {mcc.bingonew.locs::%{_ind}%}		
+		message "<lime>Teleported you to the %{_str}%<lime>! Coordinates: x: %round(x-coordinate of player)%, y: %round(y-coordinate of player)%, z: %round(z-coordinate of player)%"
+		if player's chestplate is unbreakable elytra named "<gold>Bingo Elytra":
+			set player's chestplate to air
+		set player's gamemode to survival
+	wait 3 seconds
+	set {mcc.bingonew.portalcooldown.%player%} to false
+on teleport:
+	player's world is "bingo"
+	"%teleport cause%" is "end portal"
 	cancel event
 
+command /mccbingonewsetloc <number>:
+	trigger:
+		if command sender is not the console:
+			if command sender is not "itsasquid2":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		set {mcc.bingonew.locs::%arg 1%} to player's location
 
-on inventory click:
-	name of event-inventory is "Bingo Card"
-	event-slot is not black stained glass pane
-	event-slot is not blue stained glass pane or ender pearl named "<gold>Teleport to team"
-	event-inventory's amount of rows is 6
-	if player has event-slot:
-		set {_col} to mod(index of event-slot, 9) - 1
-		set {_row} to (index of event-slot - {_col} - 1)/9
-		#if {mcc.bingo.hasfound.%{_row}%.%{_col}%.%{mcc.team.%player's name%}%} is false:
-		if bingostatus({_row}, {_col}, {mcc.team.%player's name%}) is equal to 0:
-			set {_oldbingos} to mccbingos({mcc.team.%player's name%})
-			set {mcc.bingo.hasfound.%{_row}%.%{_col}%.%{mcc.team.%player's name%}%} to true
-			remove {bingo.objectives::%{bingottt.board.%{_row}%.%{_col}%}%} from player 
-			set {_countbad} to 0
-			loop 10 times:
-				if {mcc.bingo.hasfound.%{_row}%.%{_col}%.%loop-number%} is true:
-					add 1 to {_countbad}
-			broadcast "<light blue>[Bingo] %{mcc.teams::%{mcc.team.%player's name%}%}% <white>were the <light blue>%nth({_countbad})%<white> to find %{bingo.objectives::%{bingottt.board.%{_row}%.%{_col}%}%}%!"
-			set {_newbingos} to mccbingos({mcc.team.%player's name%})-{_oldbingos}
-			set event-slot to blue stained glass pane named "<blue>Your team found this item!"
-			if {_newbingos} is equal to 0:
-				ac(player, 144-9*{_countbad}, "Found an item!", false)
-			else:
-				set {_count} to 0
-				loop all players:
-					if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:
-						add 1 to {_count}
-				set {_bla} to ceil(350/{_count}) 
-				ac(player, 144-9*{_countbad}+{_bla}*{_newbingos}, "Scored %{_newbingos}% bingos!", true) 
-				loop all players:
-					if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:
-						if loop-player is not equal to player:
-							ac(loop-player, {_bla}*{_newbingos}, "Scored %{_newbingos}% bingos!", true)
-		else:
-			message "<pink>Your team has already found this item!"
+on place:
+	"%event-world%" is equal to "bingo"
+	distance between event-location and {mcc.bingonew.locs::9} is less than 130
+	player's game mode is survival
+	message "<pink>You cannot place blocks this close to spawn!" to event-player
+	cancel event
 
-on pick up:
-	if event-player's world is "bingo_ttt":
-		if event-item is raw iron:
-			wait 5 ticks
-			remove 1 raw iron from event-player
-			give event-player iron ingot
-		if event-item is raw gold:
-			wait 5 ticks
-			give event-player gold ingot
-			remove 1 raw gold from event-player
-		if event-item is raw copper:
-			wait 5 ticks
-			give event-player copper ingot
-			remove 1 raw copper from event-player
+on break:
+	"%event-world%" is equal to "bingo"
+	distance between event-location and {mcc.bingonew.locs::9} is less than 130
+	player's game mode is survival
+	if event-block is not birch log:
+		if event-block is not oak log:
+			if event-block is not stripped birch log:
+				if event-block is not stripped oak log:
+					if event-block is not birch leaves:
+						if event-block is not oak leaves:
+							message "<pink>You cannot break the trees this close to spawn!" to event-player
+							cancel event
+
+command /disablemobspawning:
+	permission: op
+	trigger:
+		loop all worlds:
+			if loop-value isn't world "bingo_end" or "bingo_nether" or "bingo_overworld":
+				make player execute command "/mvgamerule doMobSpawning false %loop-value%"
+		
+#--------------------------tasks------------------------------------
+on death:
+	"%event-world%" starts with "bingo"
+	victim is a player
+	broadcast damage type of damage source
+	if {bingo.currentdeathcauses::*} contains damage type of damage source:
+		set {_source} to damage source 
+		if {mcc.bingo.easyobjs::*} contains {bingo.taskitem.deaths.%damage type of damage source%}:
+			bingoscoreobjective(victim, {bingo.taskitem.deaths.%damage type of damage source%}, "easy")
 			
+		if {mcc.bingo.medobjs::*} contains {bingo.taskitem.deaths.%damage type of damage source%}:
+			bingoscoreobjective(victim, {bingo.taskitem.deaths.%damage type of damage source%}, "med")
 
-on spawn:
-	if "%event-world%" starts with "bingo":
+		if {mcc.bingo.hardobjs::*} contains {bingo.taskitem.deaths.%damage type of damage source%}:
+			
+			bingoscoreobjective(victim, {bingo.taskitem.deaths.%damage type of damage source%}, "hard")
 
-		if spawn reason = natural:
-			cancel event
+command /registerbingodeathtask <damage type>:
+	permission: op
+	trigger:
+		add arg to {bingo.currentdeathcauses::*}
+		set {bingo.taskitem.deaths.%arg%} to player's tool
+		message "registered %name of {bingo.taskitem.deaths.%arg%}% as the item for %arg%"
+
+on tab complete of "/registerbingodeathtask":
+	set tab completions for position 1 to all damage types
+
+on rightclick:
+	"%player's world%" starts with "bingo"
+	if {bingo.rcontasks::*} contains type of player's tool:
+		if {mcc.bingo.easyobjs::*} contains {bingo.taskitem.rcitem.%type of player's tool%}:
+			bingoscoreobjective(player, {bingo.taskitem.rcitem.%type of player's tool%}, "easy")
+		if {mcc.bingo.medobjs::*} contains {bingo.taskitem.rcitem.%type of player's tool%}:
+			bingoscoreobjective(player, {bingo.taskitem.rcitem.%type of player's tool%}, "med")
+		if {mcc.bingo.hardobjs::*} contains {bingo.taskitem.rcitem.%type of player's tool%}:
+			bingoscoreobjective(player, {bingo.taskitem.rcitem.%type of player's tool%}, "hard")
+
+command /registerbingorightclickwithtask:
+	permission: op
+	trigger:
+		add type of player's offhand tool to {bingo.rcontasks::*}
+		set {bingo.taskitem.rcitem.%type of player's offhand tool%} to player's tool
+		message "registered %name of {bingo.taskitem.rcitem.%type of player's offhand tool%}% as the item for %type of player's offhand tool%"
+
+on consume:
+	"%player's world%" starts with "bingo"
+	if {bingo.consumetasks::*} contains type of event-item:
+		if {mcc.bingo.easyobjs::*} contains {bingo.taskitem.foods.%type of event-item%}:
+			bingoscoreobjective(player, {bingo.taskitem.foods.%type of event-item%}, "easy")
+			
+		if {mcc.bingo.medobjs::*} contains {bingo.taskitem.foods.%type of event-item%}:
+			bingoscoreobjective(player, {bingo.taskitem.foods.%type of event-item%}, "med")
+
+		if {mcc.bingo.hardobjs::*} contains {bingo.taskitem.foods.%type of event-item%}:
+			
+			bingoscoreobjective(player, {bingo.taskitem.foods.%type of event-item%}, "hard")
+
+command /registerbingoeattask:
+	permission: op
+	trigger:
+		add type of player's offhand tool to {bingo.consumetasks::*} 
+		set {bingo.taskitem.foods.%type of player's offhand tool%} to player's tool
+		message "registered %name of {bingo.taskitem.foods.%type of player's offhand tool%}% as the item for %player's offhand tool%"
+	
+on break:
+	"%player's world%" starts with "bingo"
+	if {bingo.breaktasks::*} contains type of event-block:
+		if {mcc.bingo.easyobjs::*} contains {bingo.taskitem.break.%type of event-block%}:
+			bingoscoreobjective(player, {bingo.taskitem.break.%type of event-block%}, "easy")
+			
+		if {mcc.bingo.medobjs::*} contains {bingo.taskitem.break.%type of event-block%}:
+			bingoscoreobjective(player, {bingo.taskitem.break.%type of event-block%}, "med")
+
+		if {mcc.bingo.hardobjs::*} contains {bingo.taskitem.break.%type of event-block%}:
+			
+			bingoscoreobjective(player, {bingo.taskitem.break.%type of event-block%}, "hard")
+
+command /registerbingobreaktask:
+	permission: op
+	trigger:
+		add type of player's target block to {bingo.breaktasks::*} 
+		set {bingo.taskitem.break.%type of player's target block%} to player's tool
+		message "registered %name of {bingo.taskitem.break.%type of player's target block%}% as the item for %type of player's target block%"
+

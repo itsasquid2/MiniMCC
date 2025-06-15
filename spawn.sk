@@ -1,9 +1,10 @@
 on shoot:
-    if event-projectile is snowball:
-        if {spleef.playing.%shooter%} isn't true:
-            if amount of snowball in shooter's inventory is 1:
-                give shooter 15 snowballs
-                set item cooldown of snowball for shooter to 5 seconds
+    if world is "world":
+        if event-projectile is snowball:
+            if {spleef.playing.%shooter%} isn't true:
+                if amount of snowball in shooter's inventory is 1:
+                    give shooter 15 snowballs
+                    set item cooldown of snowball for shooter to 5 seconds
 
 
 

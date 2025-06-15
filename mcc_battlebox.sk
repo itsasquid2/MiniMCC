@@ -25,10 +25,17 @@ command /tptest:
 		bbtptostart()
 
 function bbtptostart():
+	# loop all players:
+	# 	loop blocks in radius 15 around loop-player:
+	# 		if loop-block is calcite:
+	# 			teleport loop-player to location(x-coordinate of loop-block, (y-coordinate of loop-block)+1, (z-coordinate of loop-block), world "battlebox", yaw of loop-player, pitch of loop-player)
 	loop all players:
-		loop blocks in radius 15 around loop-player:
-			if loop-block is calcite:
-				teleport loop-player to location(x-coordinate of loop-block, (y-coordinate of loop-block)+1, (z-coordinate of loop-block), world "battlebox", yaw of loop-player, pitch of loop-player)
+		loop 5 times:
+			if {mcc.team.%loop-player's name%} is {mcc.bb.teama.%loop-number%}:
+				teleport loop-player to {mcc.bb.startpoints.%loop-number%.teama}
+			if {mcc.team.%loop-player's name%} is {mcc.bb.teamb.%loop-number%}:
+				teleport loop-player to {mcc.bb.startpoints.%loop-number%.teamb}
+
 
 on break:
 	world is "battlebox"
@@ -38,8 +45,10 @@ on break:
 function roundrobin():
 	delete {_teamlist::*}
 	loop all players:
-		if {_teamlist::*} doesn't contain {mcc.team.%loop-player's name%}:
-			add {mcc.team.%loop-player's name%} to {_teamlist::*}
+		if {mcc.team.%loop-player's name%} is less than 11:
+			if {mcc.team.%loop-player's name%} is greater than 0:
+				if {_teamlist::*} doesn't contain {mcc.team.%loop-player's name%}:
+					add {mcc.team.%loop-player's name%} to {_teamlist::*}
 	if mod(size of {_teamlist::*},2) isn't 0:
 		add "Bye" to {_teamlist::*}
 	loop (size of {_teamlist::*})/2 times:
@@ -64,35 +73,20 @@ function roundrobin():
 		set {mcc.bb.ready} to false
 		while {mcc.bb.ready} is false:
 			wait 1 second
-		
 		add 1 to {mcc.bb.round}
 		loop all players:
 			set {mcc.battlebox.abilitycooldown.%loop-player%} to 0
-		if {mcc.bb.round} is {mcc.bb.roundamount}:
-			set {_over} to true
-		if {_over} is true:
-			set {mcc.bb.timeleft} to 30
-			set {mcc.bb.inprogress} to false
-			set {mcc.bb.kits} to false
-			loop all players:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
-					send title "<pink>Game over!" to loop-player for 3 seconds
-					set loop-player's gamemode to spectator
-			execute console command "/mccstandings"
-			wait 30 seconds
-			execute console command "/mccbreak"
-			exit trigger
-		if {_over} isn't true:
-			set {mcc.bb.timeleft} to 30
-			set {mcc.bb.inprogress} to false
-			set {mcc.bb.kits} to false
-			loop all players:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
-					send title "<pink>Game over!" to loop-player for 3 seconds
-					set loop-player's gamemode to spectator
-			execute console command "/mccstandings"
-			wait 30 seconds
-			execute console command "/mccbreak"
+	if {_over} isn't true:
+		set {mcc.bb.timeleft} to 30
+		set {mcc.bb.inprogress} to false
+		set {mcc.bb.kits} to false
+		loop all players:
+			if {mcc.team.%loop-player's name%} is not equal to 0:
+				send title "<pink>Game over!" to loop-player for 3 seconds
+				set loop-player's gamemode to spectator
+		execute console command "/mccstandings"
+		wait 30 seconds
+		execute console command "/mccbreak"
 		
 
 				
@@ -127,7 +121,8 @@ command /mccbb <number> <number> <number>:
 				feed loop-player
 				send title "Round %{mcc.bb.round}%" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
 				set slot 8 of loop-player to recovery compass named "<purple>Kit Selection"
-				
+		drop {mcc.bb.droppeditem1} at ({mcc.bb.center.%arg 3%} ~ {mcc.bb.prison.items::vectors::1}) without velocity
+		drop {mcc.bb.droppeditem2} at ({mcc.bb.center.%arg 3%} ~ {mcc.bb.prison.items::vectors::2}) without velocity
 		set {mcc.bb.timeleft} to 40
 		set {mcc.bb.kits} to true
 		loop all players:
@@ -144,6 +139,12 @@ command /bbsetspawn <number> <text>:
 		if {mmcc.hoster.%command sender%} is true:
 			set {mcc.bb.spawnpoints.%arg 1%.%arg 2%} to player's location
 			broadcast "%{mcc.bb.spawnpoints.%arg 1%.%arg 2%}%"
+		
+command /bbsetstart <number> <text>:
+	trigger:
+		if {mmcc.hoster.%command sender%} is true:
+			set {mcc.bb.startpoints.%arg 1%.%arg 2%} to player's location
+			broadcast "%{mcc.bb.startpoints.%arg 1%.%arg 2%}%"
 
 on rightclick:
 	player's world is "battlebox"
@@ -348,7 +349,7 @@ function givewool(p:player, c:number):
 		set {_color} to "purple"
 	if {_c} is 10:
 		set {_color} to "pink"
-	execute console command "/give %{_p}'s name% %{_color}%_wool[can_place_on={predicates:[{blocks:blue_wool},{blocks:bedrock},{blocks:cyan_wool},{blocks:green_wool},{blocks:lime_wool},{blocks:light_blue_wool},{blocks:magenta_wool},{blocks:red_wool},{blocks:purple_wool},{blocks:yellow_wool},{blocks:white_wool}],show_in_tooltip:false}] 64"
+	execute console command "/give %{_p}'s name% %{_color}%_wool[can_place_on={predicates:[{blocks:wool}],show_in_tooltip:false}] 64"
 	execute console command "/give %{_p}'s name% shears[can_break={predicates:[{blocks:wool}],show_in_tooltip:false}] 1"
 
 function setboots(p:player, c:number):
@@ -409,7 +410,7 @@ on rightclick:
 	if player's tool is feather:
 		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
 			set {mcc.battlebox.abilitycooldown.%player%} to 5
-			push player forward at speed 2
+			push player forward at speed 1
 
 on player jump:
 	player's world is "battlebox"
@@ -515,14 +516,7 @@ on damage:
 					cancel event
 
 on spawn:
-	"%event-world%" is equal to "battlebox"
-#	if first 3 characters of "%event-entity%" is equal to "zom":
-#		cancel event
-#		exit trigger
-#	if "%event-entity%" is equal to "slime" or "skeleton" or "spider" or "creeper" or "enderman":
-	if "%event-entity%" is not equal to "creeper" or "arrow" or "spectral arrow" or "thrown potion" or "dropped splash potions of strong harming" or "item frame":
-		cancel event
-		exit trigger
+	event-world is "battlebox"
 	if "%event-entity%" is equal to "creeper":
 		if "%spawn reason%" is not equal to "spawn egg":
 			cancel event
@@ -547,6 +541,7 @@ every second:
 					if {mcc.bb.teama.%loop-value%} is set:
 						loop all players:
 							if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teama.%loop-value-1%}:
+								clear loop-player's inventory
 								givekittoplayer(loop-player)
 								givewool(loop-player, {mcc.team.%loop-player's name%})
 								setboots(loop-player, {mcc.team.%loop-player's name%})
@@ -555,6 +550,7 @@ every second:
 								set loop-player's hunger to 10
 								set loop-player's saturation to 5
 							if {mcc.team.%loop-player's name%} is equal to {mcc.bb.teamb.%loop-value-1%}:
+								clear loop-player's inventory
 								givekittoplayer(loop-player)
 								givewool(loop-player, {mcc.team.%loop-player's name%})
 								setboots(loop-player, {mcc.team.%loop-player's name%})
@@ -591,6 +587,8 @@ every second:
 					send title "<pink>Round over!" to loop-player for 3 seconds
 			loop 20 times:
 				if {mcc.bb.teama.%loop-value%} is set:
+					set {_count1} to 0
+					set {_count2} to 0
 					if {mcc.bb.teama.%loop-value%} is equal to 1:
 						set {_ba} to red wool
 					else if {mcc.bb.teama.%loop-value%} is equal to 2:

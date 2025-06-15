@@ -107,7 +107,6 @@ function mccgetaceracestandings():
 
 
 function mccupdatescoreboard(p:player):
-	clear {_p}'s scoreboard
 	if {mcc.currentevent} is equal to "none":
 		clear {_p}'s scoreboard
 	else if {mcc.currentevent} is equal to "intro":
@@ -273,38 +272,33 @@ function mccupdatescoreboard(p:player):
 				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcmonday.parkourwarrior.timeleft})%"
 			set line 13 of {_p}'s scoreboard to ""	
 			set line 4 of {_p}'s scoreboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
-		else if {mcc.currentevent} is equal to "bingobutfast":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo But Fast"
-			if {mcc.bingo.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.bingo.timeleft})%"
-			else if {mcc.bingo.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.bingo.timeleft})%"
-			else if {mcc.bingo.stage} is equal to 2:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingo.timeleft})%"
+		# else if {mcc.currentevent} is equal to "bingobutfast":	
+		# 	set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo But Fast"
+		# 	if {mcc.bingo.stage} is equal to 0:
+		# 		set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.bingo.timeleft})%"
+		# 	else if {mcc.bingo.stage} is equal to 1:
+		# 		set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.bingo.timeleft})%"
+		# 	else if {mcc.bingo.stage} is equal to 2:
+		# 		set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingo.timeleft})%"
+		# 	set line 13 of {_p}'s scoreboard to ""	
+		# 	set {_itemsfound} to 0
+		# 	loop 4 times:
+		# 		loop 4 times:
+		# 			if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%{_p}%}%} is true:
+		# 				add 1 to {_itemsfound}
+		# 	set line 4 of {_p}'s scoreboard to "<yellow><bold>Items found: <white>%{_itemsfound}%"
+		# 	set line 3 of {_p}'s scoreboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
+		else if {mcc.currentevent} is equal to "bingonew":	
+			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo!"
+			if {mcc.bingonew.stage} is equal to 0:
+				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.bingonew.timeleft})%"
+			else if {mcc.bingonew.stage} is equal to 1:
+				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.bingonew.timeleft})%"
+			else if {mcc.bingonew.stage} is equal to 2:
+				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingonew.timeleft})%"
 			set line 13 of {_p}'s scoreboard to ""	
-			set {_itemsfound} to 0
-			loop 4 times:
-				loop 4 times:
-					if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%{_p}%}%} is true:
-						add 1 to {_itemsfound}
-			set line 4 of {_p}'s scoreboard to "<yellow><bold>Items found: <white>%{_itemsfound}%"
-			set line 3 of {_p}'s scoreboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
-		else if {mcc.currentevent} is equal to "bingoisland":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo Island"
-			if {mcc.bingoisland.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.bingoisland.timeleft})%"
-			else if {mcc.bingoisland.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.bingoisland.timeleft})%"
-			else if {mcc.bingoisland.stage} is equal to 2:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingoisland.timeleft})%"
-			set line 13 of {_p}'s scoreboard to ""	
-			set {_itemsfound} to 0
-			loop 4 times:
-				loop 4 times:
-					if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%{_p}%}%} is true:
-						add 1 to {_itemsfound}
-			set line 4 of {_p}'s scoreboard to "<yellow><bold>Items found: <white>%{_itemsfound}%"
-			set line 3 of {_p}'s scoreboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
+			set line 4 of {_p}'s scoreboard to "<yellow><bold>Items found: <white>%{bingo.itemsfound.%{_p}%}%"
+			#set line 3 of {_p}'s scoreboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
 		else if {mcc.currentevent} is equal to "tgttosawaf":
 			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>TGTTOSAWAF"
 			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.tgttosawaf.roundnum}%/6"

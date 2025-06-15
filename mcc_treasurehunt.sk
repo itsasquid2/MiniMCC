@@ -504,7 +504,7 @@ every second:
 		exit trigger
 	if {mcc.pg.timeleft} is greater than 0:
 		subtract 1 from {mcc.pg.timeleft}
-		if mod({mcc.pg.timeleft}, 12) is 0:
+		if mod({mcc.pg.timeleft}, 20) is 0:
 			loop {mcc.pg.attackerchests::*}:
 				add 1 ender pearl to inventory of block at loop-value
 		if {mcc.pg.timeleft} is equal to 10:

@@ -113,6 +113,15 @@ command /gridreg <number> <text> <number> <text> <number> <number>:
 			add loop-item to {mcc.grid.%arg 1%.kit::*}
 		message "Registered new room with ID %arg 1%, name %arg 2%, type %arg 3%, blurb %arg 4%, points required %arg 5%, and kit %{mcc.grid.%arg 1%.kit::*}%"
 
+command /gridsetroom <number> <number>:
+	usage: /gridsetroom <id> <roomnumber>
+	trigger:
+		if {mmcc.hoster.%command sender%} isn't true:
+			message "<pink>You do not have permission to run this command!"
+			exit trigger
+		set {mcc.grid.challenge.%arg 2%} to arg 1
+		message "Registered new room with ID %arg 1%, name %{mcc.grid.%arg 1%.name}%, type %{mcc.grid.%arg 1%.type}%, blurb %{mcc.grid.%arg 1%.blurb}%, points required %{mcc.grid.%arg 1%.pointsreq}%, and kit %{mcc.grid.%arg 1%.kit::*}%"
+
 command /gridregkit <number>:
 	trigger:
 		if {mmcc.hoster.%command sender%} is true:
@@ -155,6 +164,13 @@ command /gridpoint <number> <number>:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		gridpoint(arg 1, arg 2)
+
+command /gridrunnersskiproomall:
+	permission: op
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			loop 10 times:
+				gridpoint(loop-number, 1000)
 
 on entity drop of an egg:
 	
@@ -285,6 +301,16 @@ on death:
 	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{_team}%}%}%.blurb} is equal to "Defeat the Beasts!":
 		gridpoint({_team},1)
 
+on damage:
+	event-world is "gridrunners"
+	damage cause is lava
+	set {_team} to floor((z-coordinate of event-location + 16)/33)
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{_team}%}%}%.blurb} is equal to "Defeat the Beasts!":
+		if victim isn't a player:
+			kill victim
+			gridpoint({_team},1)
+		else:
+			push victim upwards at speed 2
 
 on leftclick on warped button:
 	event-world is "gridrunners"
@@ -292,7 +318,12 @@ on leftclick on warped button:
 		set block at event-location to air
 		gridpoint({mcc.team.%player's name%}, 1)
 
-
+command /gridmakeentitiesnotdespawn:
+	permission: op
+	trigger:
+		if command sender is "itsasquid2":
+			loop all entities in world "gridrunners":
+				set loop-entity's name to "."
 
 on inventory pickup:
 	world of event-entity is "gridrunners"

@@ -246,6 +246,13 @@ on place:
 	player's game mode is survival
 	if {mcc.skybattle.stage} is not equal to 1:
 		cancel event
+	if event-block's y coordinate is greater than 48:
+		cancel event
+		send action bar "Build height for skybattle is 48" to event-player
+	if event-block's y coordinate is less than 10:
+		cancel event
+		send action bar "Sorry, but you can't build there!" to event-player
+
 	
 on rightclick on chest:
 	"%event-world%" is equal to "skybattle"

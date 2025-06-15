@@ -68,7 +68,7 @@ on region enter:
 		add player to {mcc.acerace.windeast::*}
 	else if the first 5 characters of "%region%" are "windw":
 		add player to {mcc.acerace.windwest::*}
-	else if the first 5 characters of "%region%" are "windup":
+	else if the first 6 characters of "%region%" are "windup":
 		add player to {mcc.acerace.windup::*}
 
 on region exit:
@@ -81,7 +81,7 @@ on region exit:
 		remove player from {mcc.acerace.windeast::*}
 	else if the first 5 characters of "%region%" are "windw":
 		remove player from {mcc.acerace.windwest::*}
-	else if the first 5 characters of "%region%" are "windup":
+	else if the first 6 characters of "%region%" are "windup":
 		remove player from {mcc.acerace.windup::*}
 
 
@@ -125,8 +125,8 @@ every tick:
 		set {_regions::*} to regions at loop-value's location
 		if {_regions::*} is set:
 			loop {_regions::*}:
-				if the first 5 characters of "%loop-value-2%" are "windup":
-					push loop-value-1 upwards with speed 0.1
+				if the first 6 characters of "%loop-value-2%" are "windup":
+					push loop-value-1 upwards with speed 0.2
 					#set {_v} to velocity of loop-value-1
 					#set {_v} to {_v} ++ vector(-0.5,0,0)
 					#set velocity of loop-value-1 to {_v}
@@ -324,7 +324,10 @@ on jump:
 	#	message "You jumped! %{jumps}%"
 	#	add 1 to {jumps}
 	if block below player is netherrack:
+		
 		if block 2 meters below player is minecraft:barrier:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch 
 			set {_bla} to (x of {_v})*(x of {_v}) + (z of {_v})*(z of {_v})
@@ -333,8 +336,11 @@ on jump:
 			set y of {_v} to 0.3
 			push the player {_v} at speed 2.4 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player
+			add {_p::*} to potion effects of player
 	if block 2 blocks below player is netherrack:
 		if block 3 meters below player is minecraft:barrier:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch 
 			set {_bla} to (x of {_v})*(x of {_v}) + (z of {_v})*(z of {_v})
@@ -343,6 +349,7 @@ on jump:
 			set y of {_v} to 0.3
 			push the player {_v} at speed 2.4 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player
+			add {_p::*} to potion effects of player
 		
 on jump:
 	#if player is op:
@@ -350,6 +357,8 @@ on jump:
 	#	add 1 to {jumps}
 	if block below player is warped planks:
 		if block 2 meters below player is minecraft:barrier:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch 
 			set {_bla} to (x of {_v})*(x of {_v}) + (z of {_v})*(z of {_v})
@@ -358,8 +367,11 @@ on jump:
 			set y of {_v} to 0.2
 			push the player {_v} at speed 1 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player
+			add {_p::*} to potion effects of player
 	if block 2 blocks below player is warped planks:
 		if block 3 meters below player is minecraft:barrier:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch 
 			set {_bla} to (x of {_v})*(x of {_v}) + (z of {_v})*(z of {_v})
@@ -368,6 +380,7 @@ on jump:
 			set y of {_v} to 0.2
 			push the player {_v} at speed 1 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player
+			add {_p::*} to potion effects of player
 		
 on jump:
 	#if player is op:
@@ -375,22 +388,31 @@ on jump:
 	#	add 1 to {jumps}
 	if block below player is oxidized copper block:
 		if block 2 meters below player is minecraft:barrier:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector 0, 0.3, 0
 			push the player {_v} at speed 0.6 
 			play sound "ENTITY_GUARDIAN_HURT" to the player
+			add {_p::*} to potion effects of player
 			exit trigger
 	if block 2 blocks below player is oxidized copper block:
 		if block 3 meters below player is minecraft:barrier:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector 0, 0.3, 0
 			push the player {_v} at speed 0.6
 			play sound "ENTITY_GUARDIAN_HURT" to the player
+			add {_p::*} to potion effects of player
 			exit trigger
+			
 
 on jump:
 	block below player is acacia planks
 	block 2 meters below player is minecraft:barrier
+	set {_p::*} to potion effects of player
+	clear potion effects of player
 	#if {bouncepadcooldown.%player's name%} is false:
 	wait a tick
 	set {_v} to vector from yaw player's yaw and pitch player's pitch 
@@ -400,6 +422,7 @@ on jump:
 	set y of {_v} to 0.5
 	push the player {_v} at speed 5 
 	play sound "ENTITY_ELDER_GUARDIAN_HURT" with volume 5 to the player
+	add {_p::*} to potion effects of player
 	#set {bouncepadcooldown.%player's name%} to true
 	#set {falldamageimmune.%player's name%} to true
 	#wait 0.5 seconds
@@ -410,6 +433,8 @@ on jump:
 on jump:
 	if block 2 meters below player is minecraft:barrier:
 		if block under player is red terracotta:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch
 			set {_bla} to (x of {_v})*(x of {_v})+(z of {_v})*(z of {_v})
@@ -418,7 +443,10 @@ on jump:
 			set y of {_v} to 0.075
 			push the player {_v} at speed 1.35 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player 
+			add {_p::*} to potion effects of player
 		else if block under player is lime terracotta:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch
 			set {_bla} to (x of {_v})*(x of {_v})+(z of {_v})*(z of {_v})
@@ -427,8 +455,11 @@ on jump:
 			set y of {_v} to 1
 			push the player {_v} at speed 0.70 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player
+			add {_p::*} to potion effects of player
 	else if block 3 meters below player is minecraft:barrier:
 		if block 2 meter under player is red terracotta:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch
 			set {_bla} to (x of {_v})*(x of {_v})+(z of {_v})*(z of {_v})
@@ -437,7 +468,10 @@ on jump:
 			set y of {_v} to 0.075
 			push the player {_v} at speed 1.35 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player 
+			add {_p::*} to potion effects of player
 		else if block 2 meters under player is lime terracotta:
+			set {_p::*} to potion effects of player
+			clear potion effects of player
 			wait a tick
 			set {_v} to vector from yaw player's yaw and pitch player's pitch
 			set {_bla} to (x of {_v})*(x of {_v})+(z of {_v})*(z of {_v})
@@ -446,6 +480,7 @@ on jump:
 			set y of {_v} to 1
 			push the player {_v} at speed 0.70 
 			play sound "ENTITY_GUARDIAN_HURT" with volume 5 to the player
+			add {_p::*} to potion effects of player
 	
 
 on damage:
@@ -456,8 +491,12 @@ on damage:
 
 on walking on yellow glazed terracotta:
 	#block below event-block is minecraft:barrier
-	if world is "acerace4" or "acerace5" or "acerace6":
+	if world is "acerace5":
 		set {_p} to potion effect of speed of tier 3 without particles for 3 seconds
+		add {_p} to potion effects of the player
+		play sound "ENTITY_GUARDIAN_DEATH" with volume 0.2 to the player
+	if world is "acerace4" or "acerace6":
+		set {_p} to potion effect of speed of tier 2 without particles for 4 seconds
 		add {_p} to potion effects of the player
 		play sound "ENTITY_GUARDIAN_DEATH" with volume 0.2 to the player
 	else:
@@ -466,11 +505,18 @@ on walking on yellow glazed terracotta:
 		play sound "ENTITY_GUARDIAN_DEATH" with volume 0.2 to the player
 
 on region enter:
-	if the first 2 characters of "%region%" are "ss":
-		set {_p} to potion effect of speed of tier 5 without particles for 9999 seconds
-		add {_p} to potion effects of event-player
-		set {_p} to potion effect of jump boost of tier 5 without particles for 9999 seconds
-		add {_p} to potion effects of event-player
+	"%player's world%" starts with "acerace"
+	if the first 2 characters of "%region%" are "ss":	
+		if "%player's world%" ends with "4" or "6":
+			set {_p} to potion effect of speed of tier 4 without particles for 9999 seconds
+			add {_p} to potion effects of event-player
+			set {_p} to potion effect of jump boost of tier 4 without particles for 9999 seconds
+			add {_p} to potion effects of event-player
+		else:
+			set {_p} to potion effect of speed of tier 5 without particles for 9999 seconds
+			add {_p} to potion effects of event-player
+			set {_p} to potion effect of jump boost of tier 5 without particles for 9999 seconds
+			add {_p} to potion effects of event-player
 		send action bar "<lime>[Swift Sprint on]" to event-player
 		
         
@@ -493,6 +539,14 @@ on region enter:
 		if event-player does not have trident:
 			give event-player unbreakable trident of riptide
 			send action bar "<lime>[Trident Given]" to event-player
+	if the first 3 characters of "%region%" are "dsy":
+		
+		enchant event-player's boots with depth strider 1
+		send action bar "<lime>[Depth Strider Given]" to event-player
+	if the first 3 characters of "%region%" are "dsn":
+		
+		disenchant event-player's boots
+		send action bar "<red>[Depth Strider Removed]" to event-player
 
 on region enter:
 	if the first 2 characters of "%region%" are "aq":
@@ -659,7 +713,10 @@ command /mccacerace:
 				set {immune.%loop-player's name%} to false
 				set loop-player's game mode to adventure
 				clear the loop-player's inventory
+				clear the loop-player's scoreboard
 				give a trident of riptide 3 and unbreaking 10 to the loop-player
+				set loop-player's leggings to leather pants of swift sneak 2
+				dye the loop-player's leggings mcccolor({mcc.team.%loop-player's name%})
 				give a paper named "<gold>Teleport Scroll" with lore "right click to return to your checkpoint!" to loop-player
 				set the loop-player's boots to leather boots
 				dye the loop-player's boots mcccolor({mcc.team.%loop-player's name%})

@@ -99,6 +99,9 @@ function genterrain(x: number, y: number, z: number):
 		if {_stage} is equal to 4:
 			if {_bla} is less than 4:
 				set {_bla} to 3
+	if {mcc.rsr.suddendeath} is true:
+		set {_stage} to 4
+		set {_bla} to 1
 	#set {_rand} to a random integer between 1 and {mcc.rsr.mapsperstage.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}
 	set {_rand} to a random integer between 1 and {_bla}
 	set {_count} to 1
@@ -571,33 +574,20 @@ every second:
 							remove all firework rocket from the loop-player
 		else if {mcc.rsr.timeleft} is equal to 36:
 			if {mcc.rsr.stage} is equal to 1:
-				if {mcc.rsr.roundnum} is equal to 1:
-					set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 9
-					set {mcc.rsr.radius.%{mcc.rsr.map.1}%} to 20
-					set {mcc.rsr.suddendeath} to true
-					
-		
-				if {mcc.rsr.roundnum} is equal to 2:
-					set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 9
-					set {mcc.rsr.radius.%{mcc.rsr.map.2}%} to 20
-					set {mcc.rsr.suddendeath} to true
-
-				if {mcc.rsr.roundnum} is equal to 3:
-					set {mcc.rsr.radius.%{mcc.rsr.map.3}%} to 20
-					set {mcc.rsr.spawnperiod.%{mcc.rsr.map.3}%} to 9
-					set {mcc.rsr.suddendeath} to true
+				set {mcc.rsr.suddendeath} to true
 				loop all players:
 					if {rsrinprogress} is true:
 						if {rsrplaying.%loop-player's name%} is true:
 							send title "<red> Sudden Death!" with subtitle "<pink> Last Platform!" to loop-player for 3 seconds
 					else:
 						send title "<red> Sudden Death!" with subtitle "<pink> Last Platform!" to loop-player for 3 seconds
+				set {_theta} to a random number between 0 and {mcc.rsr.thetamax.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}
 				set {mcc.rsr.oldx} to {mcc.rsr.center.x}
 				set {mcc.rsr.oldy} to {mcc.rsr.center.y}
 				set {mcc.rsr.oldz} to {mcc.rsr.center.z}
 				set {mcc.rsr.center.x} to {mcc.rsr.center.x} + floor(2*{mcc.rsr.radius.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}*cos({_theta})) 
 				set {mcc.rsr.center.z} to {mcc.rsr.center.z} + floor(2*{mcc.rsr.radius.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}*sin({_theta})) 
-				set {mcc.rsr.center.y} to -60 + floor({mcc.rsr.timeleft}/8) 
+				set {mcc.rsr.center.y} to -30
 				flasharrow({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
 				wait 5 seconds
 				genterrain({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
@@ -612,7 +602,7 @@ every second:
 					set {mcc.rsr.oldz} to {mcc.rsr.center.z}
 					set {mcc.rsr.center.x} to {mcc.rsr.center.x} + floor(2*{mcc.rsr.radius.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}*cos({_theta})) 
 					set {mcc.rsr.center.z} to {mcc.rsr.center.z} + floor(2*{mcc.rsr.radius.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}*sin({_theta})) 
-					set {mcc.rsr.center.y} to -60 + floor({mcc.rsr.timeleft}/8) 
+					set {mcc.rsr.center.y} to -30
 					flasharrow({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
 		else if mod(238-{mcc.rsr.timeleft}, {mcc.rsr.spawnperiod.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}) is equal to 0:
 			if {mcc.rsr.timeleft} is less than 230:

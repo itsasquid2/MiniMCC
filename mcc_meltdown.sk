@@ -64,7 +64,7 @@ command /freeze <player>:
 				if arg 1's inventory contains shulker spawn egg named "&3Heater":
 					set {heatercooldown.%arg's name%} to true
 				set {_counter} to 0
-				while block below the location of block at player is air:
+				while block below arg is air:
 					wait 1 tick
 					add 1 to {_counter}
 					if {_counter} > 25:
@@ -550,7 +550,8 @@ every second:
 	
 
 on join:
-	set {frozen.%player's name%} to false
+	if {mcc.currentevent} is "meltdown":
+		set {frozen.%player's name%} to false
 
 
 
@@ -646,11 +647,12 @@ on damage:
 		cancel event
 	if victim is a shulker:
 		if damage cause is not projectile:
-			set {_bla} to the length of name of victim - 9
-			
-			set {_p} to the first {_bla} characters of name of victim parsed as player
-			teleport victim to {shulkerspot}
-			set {heatercooldown.%{_p}%} to true
+			if {frozen.%attacker%} isn't true:
+				set {_bla} to the length of name of victim - 9
+				
+				set {_p} to the first {_bla} characters of name of victim parsed as player
+				teleport victim to {shulkerspot}
+				set {heatercooldown.%{_p}%} to true
 		else:
 			cancel event
 	
@@ -711,10 +713,11 @@ on break:
 		cancel event
 	if event-block is gold block:
 		if event-player's tool is a diamond pickaxe:
-			loop all players:
-				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%event-player's name%}:
-					ac(loop-player,2.5,"<gold>Collected a Coin Pile", false)
-			clear drops
+			if {frozen.%event-player%} isn't true:
+				loop all players:
+					if {mcc.team.%loop-player's name%} is equal to {mcc.team.%event-player's name%}:
+						ac(loop-player,2.5,"<gold>Collected a Coin Pile", false)
+				clear drops
 		else:
 			cancel event
 

@@ -52,7 +52,10 @@ command /getcoinsevent:
 on tab complete of "/getcoins":
 	set tab completions for position 1 to offline players
 
-
+on rightclick on armor stand:
+	if world is "mini_mcc_town":
+		if player's gamemode is adventure:
+			cancel event
 	
 command /setgame <number>:
 	trigger:
@@ -393,99 +396,89 @@ command /jointeam <text>:
 		if {teamjoining} is true:
 			if arg is "spectators":
 				if {testeventteamamount.0} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.0} to {testeventteamamount.0} + 1
 					set {mcc.team.%player's name%} to 0
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team Spectators!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Red":
 				if {testeventteamamount.1} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.1} to {testeventteamamount.1} + 1
 					set {mcc.team.%player's name%} to 1
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <red>Red!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Yellow":
 				if {testeventteamamount.2} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.2} to {testeventteamamount.2} + 1
 					set {mcc.team.%player's name%} to 3
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <yellow>Yellow!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Orange":
 				if {testeventteamamount.3} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.3} to {testeventteamamount.3} + 1
 					set {mcc.team.%player's name%} to 2
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <orange>Orange!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Lime":
 				if {testeventteamamount.4} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.4} to {testeventteamamount.4} + 1
 					set {mcc.team.%player's name%} to 4
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <light green>Lime!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Green":
 				if {testeventteamamount.5} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.5} to {testeventteamamount.5} + 1
 					set {mcc.team.%player's name%} to 5
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <green>Green!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Teal":
 				if {testeventteamamount.6} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.6} to {testeventteamamount.6} + 1
 					set {mcc.team.%player's name%} to 6
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <cyan>Teal!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Aqua":
 				if {testeventteamamount.7} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.7} to {testeventteamamount.7} + 1
 					set {mcc.team.%player's name%} to 7
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <aqua>Aqua!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Blue":
 				if {testeventteamamount.8} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.8} to {testeventteamamount.8} + 1
 					set {mcc.team.%player's name%} to 8
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <blue>Blue!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Purple":
 				if {testeventteamamount.9} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.9} to {testeventteamamount.9} + 1
 					set {mcc.team.%player's name%} to 9
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <purple>Purple!" to player
 					colorname(player)
 				else:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Pink":
 				if {testeventteamamount.10} is less than 5:
-					set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-					set {testeventteamamount.10} to {testeventteamamount.10} + 1
+
 					set {mcc.team.%player's name%} to 10
+					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <pink>Pink!" to player
 					colorname(player)
 				else:
@@ -493,17 +486,21 @@ command /jointeam <text>:
 			else:
 				message "<red>Sorry, but you can't join non-existant teams!"
 				exit trigger
-			
-			
-			
 		else:
 			message "<red>You can't join teams at this moment!"
 
 on leave:
 	if {teamjoining} is true:
-		set {testeventteamamount.%{mcc.team.%player's name%}%} to {testeventteamamount.%{mcc.team.%player's name%}%} - 1
-		execute console command "/mccpre %player's name% 0"
 		
+		execute console command "/mccpre %player's name% 0"
+	wait 1 tick
+	updateteamjoinnumbers()
+		
+function updateteamjoinnumbers():
+	loop 10 times:
+		set {testeventteamamount.%loop-number%} to 0
+	loop all players:
+		add 1 to {testeventteamamount.%{mcc.team.%loop-player's name%}%}
 
 command /mccrandomteams <number>:
 	trigger:
@@ -960,8 +957,6 @@ command /mccchangemultiplier <number>:
 		
 		loop 10 times:
 			add (arg 1 - {mcc.coinmultiplier})*{mcc.teamgamecoins.%loop-number%} to {mcc.teamcoins.%loop-number%}
-
-
 
 
 

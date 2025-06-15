@@ -25,7 +25,7 @@ on inventory click:
             set item amount of event-item to 64
 
 on hunger bar change:
-    if player's world is not "survivalgames" or "survivalgames2" or "smp" or "smp_nether" or "smp_end" or "skybattle" or "bingo_ttt_" or "bingo_ttt_nether" or "bingo_ttt_end":
+    if player's world is not "survivalgames" or "survivalgames2" or "smp" or "smp_nether" or "smp_end" or "skybattle" or "bingo_overworld" or "bingo_nether" or "bingo_end" or "bingo":
         set player's hunger to 10
 
 command /hideplayer <player> <player>:
