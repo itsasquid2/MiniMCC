@@ -74,7 +74,7 @@ every 10 seconds:
 
 command /testviewdata:
     trigger:
-        if {mmcc.hoster.%command sender%} is true:
+        if {mmcc.hosts::*} contains command sender:
             set custom model data of player's tool to 3
 
 every 0.5 seconds:

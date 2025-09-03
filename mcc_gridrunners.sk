@@ -120,7 +120,7 @@ function gridpoint(n:number, pts:number):
 
 command /setcrowbar <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			add arg 1 to {mcc.grid.crowbars::*}
 			broadcast "%{mcc.grid.crowbars::*}%"
 

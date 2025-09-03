@@ -15,9 +15,3 @@ command /motd <text> [<color>]:
 
 on server list ping:
 	set the motd to {motd}
-
-command /resetlifetimecoinsall:
-	trigger:
-		if command sender is "itsasquid2":
-			loop all players:
-				set {mcc.lifetimecoins.%loop-player%} to 0	

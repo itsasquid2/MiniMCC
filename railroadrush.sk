@@ -62,35 +62,33 @@ command /rrrspawnminecarts:
         loop 10 times:
             # delete {rrr.minecart.%loop-number%}
             if {rrr.minecartspawn.%loop-number%} is set:
-                spawn minecart with spawner at {rrr.minecartspawn.%loop-number%}
-                add {rrrtntminecart} to nbt of spawned entity
+                spawn minecart with spawner at {rrr.minecartspawn.%loop-number%} with nbt from "{DisplayState:{Name:""minecraft:tnt"",Properties:{}},CustomNameVisible:1b}"
                 set spawned entity's velocity to vector(0,0,0)
                 teleport spawned entity to {rrr.minecartspawn.%loop-number%}
                 set {rrr.minecart.%loop-number%} to last spawned entity
                 set last spawned entity's yaw to -90
                 set {rrr.minecarthealth.%{rrr.minecart.%loop-number%}%} to 20
                 set {rrr.minecart.%loop-number%}'s display name to "<lime>||||||||||||||||||||"
-                set byte tag "CustomNameVisible" of nbt of {rrr.minecart.%loop-number%} to 1
+                
                 
 
 
 function rrrspawnminecart(n:number):
-    spawn minecart with spawner at {rrr.minecartspawn.%{_n}%}
-    add {rrrtntminecart} to nbt of spawned entity
+    spawn minecart with spawner at {rrr.minecartspawn.%{_n}%} with nbt nbt compound from "{DisplayState:{Name:""minecraft:tnt"",Properties:{}}}"
     set spawned entity's velocity to vector(0,0,0)
     teleport spawned entity to {rrr.minecartspawn.%{_n}%}
     set {rrr.minecart.%{_n}%} to last spawned entity
     set last spawned entity's yaw to -90
     set {rrr.minecarthealth.%{rrr.minecart.%{_n}%}%} to 20
     set {rrr.minecart.%{_n}%}'s display name to "<lime>||||||||||||||||||||"
-    set byte tag "CustomNameVisible" of nbt of {rrr.minecart.%{_n}%} to 1
+    
     
 
 command /rrrkillminecarts:
     permission: op
     trigger:
         if command sender is not the console:
-            if {mmcc.hoster.%command sender%} isn't true:
+            if {mmcc.hosts::*} doesn't contain command sender:
                 if command sender isn't "itsasquid2":
                     message "<red>You do not have permission to execute this command!"
                     exit trigger
@@ -111,12 +109,12 @@ command /rrrkillminecarts:
 every 0.15 second:
     loop 10 times:
         if {rrr.minecarthealth.%{rrr.minecart.%loop-number%}%} is 0:
-            if {mcc.rrr.team%loop-number%.furthestdistance} is less than (x-coord of {rrr.minecart.%loop-number%})+6:
-                set {mcc.rrr.team%loop-number%.furthestdistance} to (x-coord of {rrr.minecart.%loop-number%})+6
-                set {_score} to ((x-coord of {rrr.minecart.%loop-number%})+6-{mcc.rrr.team%loop-number%.furthestdistance})*2
+            if {mcc.rrr.team%loop-number%.furthestdistance} is less than (x-coord of {rrr.minecart.%loop-number%})+98:
+                set {_score} to ((x-coord of {rrr.minecart.%loop-number%})+98-{mcc.rrr.team%loop-number%.furthestdistance})*2
+                set {mcc.rrr.team%loop-number%.furthestdistance} to (x-coord of {rrr.minecart.%loop-number%})+98
                 loop all players:
-                    if {mcc.team.%loop-player's name%} is loop-number:
-                        message "<cyan>A tnt Minecart crashed <light cyan>%(x-coord of {rrr.minecart.%loop-number%})+6% blocks <cyan>away from spawn" to loop-player
+                    if {mcc.team.%loop-player%} is loop-number:
+                        message "<cyan>A tnt Minecart crashed <light cyan>%(x-coord of {rrr.minecart.%loop-number%})+98% blocks <cyan>away from spawn" to loop-player
                         ac(loop-player,{_score},"Minecart went further than before",false)
             spawn a creeper at {rrr.minecart.%loop-number%}'s location
             
@@ -173,19 +171,20 @@ every 0.15 second:
         if velocity of {rrr.minecart.%loop-number%} is vector(0,0,0):
             wait 0.25 second
             if velocity of {rrr.minecart.%loop-number%} is vector(0,0,0):
-                if floor({mcc.rrr.team%loop-number%.furthestdistance}) is less than floor((x-coord of {rrr.minecart.%loop-number%})+6):
-                    set {_score} to (floor((x-coord of {rrr.minecart.%loop-number%})+6)-floor({mcc.rrr.team%loop-number%.furthestdistance}))*2
-                    set {mcc.rrr.team%loop-number%.furthestdistance} to floor((x-coord of {rrr.minecart.%loop-number%})+6)
+                if floor({mcc.rrr.team%loop-number%.furthestdistance}) is less than floor((x-coord of {rrr.minecart.%loop-number%})+98):
+                    set {_score} to (floor((x-coord of {rrr.minecart.%loop-number%})+98)-floor({mcc.rrr.team%loop-number%.furthestdistance}))*2
+                    set {mcc.rrr.team%loop-number%.furthestdistance} to floor((x-coord of {rrr.minecart.%loop-number%})+98)
                     loop all players:
-                        if {mcc.team.%loop-player's name%} is loop-number:
-                            message "<cyan>A tnt Minecart crashed <light cyan>%floor((x-coord of {rrr.minecart.%loop-number%})+6)% blocks <cyan>away from spawn" to loop-player
+                        if {mcc.team.%loop-player%} is loop-number:
+                            message "<cyan>A tnt Minecart crashed <light cyan>%floor((x-coord of {rrr.minecart.%loop-number%})+98)% blocks <cyan>away from spawn" to loop-player
                             ac(loop-player,{_score},"Minecart went further than before",false)
                 spawn a creeper at {rrr.minecart.%loop-number%}'s location
                 
                 #set explosive yield of last spawned entity to 1
-                instantly explode last spawned entity
                 kill {rrr.minecart.%loop-number%}
                 delete {rrr.minecart.%loop-number%}
+                instantly explode last spawned entity
+                
                 wait 1 second
                 rrrspawnminecart(loop-number)
 
@@ -206,6 +205,10 @@ on place of golden rail:
     set block below event-block to redstone block
     add event-block to {mcc.rrr.placedrails::*}
     
+on item spawn of minecart:
+    world is "railroadrush"
+    cancel event
+
 on death:
     world is "railroadrush"
     clear drops
@@ -249,7 +252,7 @@ on break:
 on break of emerald ore:
     world is "railroadrush"
     loop all players:
-        if {mcc.team.%loop-player's name%} is equal to {mcc.team.%event-player's name%}:
+        if {mcc.team.%loop-player%} is equal to {mcc.team.%event-player's name%}:
             ac(loop-player,6.25,"%event-player's name% Mined an Emerald Ore!", false)
 
 on trade select:
@@ -272,7 +275,7 @@ on player trade:
             
 on inventory close:
     loop all players:
-        if {mcc.team.%loop-player's name%} is equal to {mcc.team.%event-player's name%}:
+        if {mcc.team.%loop-player%} is equal to {mcc.team.%event-player's name%}:
             set {_count} to 0
             loop {mss.rr.%event-player%.trademessage::*}:
                 if loop-value-2 is formatted "<%mcccolor({mcc.team.%event-player's name%})%>%event-player's name% <reset><cyan>Traded 1 gold for 1 rail":
@@ -312,10 +315,11 @@ function rrrgoldrush(n:number):
     wait 10 seconds
     loop all players:
         set loop-player's gamemode to survival
-        set loop-player's chestplate to elytra
-        loop blocks in radius 7 around loop-player:
-            if loop-block is light blue stained glass:
-                set loop-block to air
+        #set loop-player's chestplate to elytra
+        # loop blocks in radius 7 around loop-player:
+        #     if loop-block is light blue stained glass:
+        #         set loop-block to air
+        add potion effect of dolphin's grace 1 for 60 seconds to potion effects of loop-player
     wait 60 seconds
     set {mcc.rrr.event} to "main"
     loop all players:
@@ -360,7 +364,7 @@ command /setrrrminecartcheckpointloc <number>:
         set {mcc.rrr.checkpoint%arg%.minecartspawn} to player's location
         message "Set minecart repsawn location for checkpoint %arg% to %player's location%"
 
-on place of red candle:
+on place of red candle or light blue candle:
     world is "railroadrush"
     le spawn text display at the location 0.4 block above event-location
     set display text of last spawned entity to "<lime>||||"
@@ -388,7 +392,7 @@ on explode:
     set {_copperexploded} to false
     if event-entity does not have the scoreboard tag "dynamite":
         create a safe explosion of force 4 at event-location
-        loop exploded blocks:
+        loop blocks in radius 4 of event-location:
             if loop-block is cobblestone:
                 set loop-block to gravel
             else if loop-block is concrete:
@@ -448,6 +452,13 @@ on damage:
     victim is an item
     cancel event
 
+on damage:
+    world is "railroadrush"
+    victim is minecart
+    cancel event
+
+
+
 on break of rail or golden rail:
     world is "railroadrush"
     player's gamemode is survival
@@ -458,39 +469,39 @@ on break of rail or golden rail:
         else:
             cancel event
             message "<red>You cannot break pre-placed rails!" to event-player
-    # if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 1:
+    # if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 1:
     #     if x-coord of event-block is less than 21.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 2:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 2:
     #     if x-coord of event-block is less than 72.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 3:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 3:
     #     if x-coord of event-block is less than 142.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 4:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 4:
     #     if x-coord of event-block is less than 225.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 5:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 5:
     #     if x-coord of event-block is less than 295.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 6:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 6:
     #     if x-coord of event-block is less than 344.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 7:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 7:
     #     if x-coord of event-block is less than 414.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 8:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 8:
     #     if x-coord of event-block is less than 484.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
-    # else if {mcc.rrr.checkpoint.%{mcc.team.%player's name%}%} is 9:
+    # else if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 9:
     #     if x-coord of event-block is less than 554.5:
     #         cancel event
     #         message "<red>You cannot take rails from previous sections!" to event-player
@@ -500,11 +511,11 @@ function rrrcheckpoints(cp:number, team:number):
         set {mcc.rrr.checkpoint.%{_team}%} to {_cp}
         if {_cp} isn't 1:
             loop all players:
-                if {mcc.team.%loop-player's name%} is {_team}:
+                if {mcc.team.%loop-player%} is {_team}:
                     ac(loop-player,25,"You Reached a Checkpoint!", false)
         else:
             loop all players:
-                if {mcc.team.%loop-player's name%} is {_team}:
+                if {mcc.team.%loop-player%} is {_team}:
                     ac(loop-player,2.5,"You Reached a Checkpoint!", false)
         set {rrr.minecartspawn.%{_team}%} to the location 29*({_team}-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%{_team}%}%.minecartspawn}
 
@@ -523,7 +534,10 @@ on break:
                                 if event-block isn't gravel:
                                     if event-block isn't raw gold block:
                                         if event-block isn't brown wool:
-                                            cancel event
+                                            if event-block isn't seagrass or tall seagrass or top-half tall seagrass:
+                                                cancel event
+    if event-block is seagrass or tall seagrass or top-half tall seagrass:
+        clear drops
     if event-block is brown wool:
         clear drops
     if event-block is cobblestone or gravel:
@@ -548,7 +562,7 @@ on place:
     if event-block isn't concrete:
         if event-block isn't rail:
             if event-block isn't golden rail:
-                if event-block isn't red candle:
+                if event-block isn't red candle or light blue candle:
                     if event-block isn't brown wool:
                         cancel event
     if event-block is brown wool:
@@ -558,7 +572,7 @@ on place:
 command /mccrailroadrush:
     trigger:
         if command sender is not the console:
-            if {mmcc.hoster.%command sender%} isn't true:
+            if {mmcc.hosts::*} doesn't contain command sender:
                 if command sender isn't "itsasquid2":
                     message "<red>You do not have permission to execute this command!"
                     exit trigger
@@ -572,14 +586,16 @@ command /mccrailroadrush:
             set {rrr.minecartspawn.%loop-number%} to the location 29*((loop-number)-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
             set {rrr.playerspawn.%loop-number%} to the location 29*((loop-number)-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%loop-number%}%.minecartspawn}
         loop all players:
-            teleport loop-player to {rrr.playerspawn.%{mcc.team.%loop-player's name%}%}
+            teleport loop-player to {rrr.playerspawn.%{mcc.team.%loop-player%}%}
             clear loop-player's inventory
-            
+            add potion effect of conduit power 1 for 15 minutes to potion effects of loop-player
             give loop-player {mcc.rrr.startingitems::*}
-            set loop-player's helmet to {mcc.rrr.minerhat}
-            dye loop-player's helmet mcccolor({mcc.team.%loop-player's name%})
-            set loop-player's boots to {mcc.rrr.boots}
-            dye loop-player's boots mcccolor({mcc.team.%loop-player's name%})
+            # set loop-player's helmet to {mcc.rrr.minerhat}
+            # dye loop-player's helmet mcccolor({mcc.team.%loop-player%})
+            # set loop-player's boots to {mcc.rrr.boots}
+            # dye loop-player's boots mcccolor({mcc.team.%loop-player%})
+            set loop-player's helmet to {mcc.rrr.divehelmet}
+            set loop-player's boots to {mcc.rrr.diveboots}
             give loop-player 320 brown wool named "Temporary Block" with lore "It decays after 5 seconds!"
             railroadrushtutorial(loop-player)
         wait 1 second
@@ -641,8 +657,8 @@ every second:
                 sort {mcc.rrr.lengthlist::*}
             loop {mcc.rrr.lengthlist::*}:
                 loop 10 times:
-                    if {mcc.rrr.team%loop-number%.furthestdistance} is equal to loop-value-1:
-                        rrrendingscoring(loop-number,11-(loop-iteration-1))
+                    if {mcc.rrr.team%loop-number-2%.furthestdistance} is equal to loop-value-1:
+                        rrrendingscoring(loop-number-2,11-(loop-iteration-1))
             execute console command "/mccstandings"
     else if {mcc.rrr.stage} is 2:
         if {mcc.rrr.timeleft} is 0:
@@ -651,43 +667,43 @@ every second:
 function rrrendingscoring(team:number,place:number):
     if {_place} is 1:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,650/4,"First place",false)
     else if {_place} is 2:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,525/4,"Second place",false)
     else if {_place} is 3:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,475/4,"Third place",false)
     else if {_place} is 4:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,425/4,"4th place",false)
     else if {_place} is 5:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,350/4,"5th place",false)
     else if {_place} is 6:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,300/4,"6th place",false)
     else if {_place} is 7:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,250/4,"7th place",false)
     else if {_place} is 8:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,200/4,"8th place",false)
     else if {_place} is 9:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,175/4,"9th place",false)
     else if {_place} is 10:
         loop all players:
-            if {mcc.team.%loop-player's name%} is {_team}:
+            if {mcc.team.%loop-player%} is {_team}:
                 ac(loop-player,150/4,"10th place",false)
 command /setrrritems:
     permission: op
@@ -712,42 +728,5 @@ on hunger bar change:
     world is "railroadrush"
     feed event-player
 
-command /spawnrrrvillager <text>:
-    permission: op
-    trigger:
-        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%arg%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
-        #spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:1},sell:{id:rail,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:3},sell:{id:%arg%_concrete,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:5},sell:{id:powered_rail,Count:1}},{maxUses:999,buy:{id:raw_gold,Count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,PersistenceRequired:1b}"
-        set spawned entity's name to "<gold>Golden Gabriel"
 
-command /spawnrrrvillager_in_all_lanes:
-    permission: op
-    trigger:
-        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
-        set spawned entity's name to "<gold>Golden Gabriel"
-        loop 9 times:
-            if "%mcccolor(loop-number + 1)%" is "light cyan":
-                set {_color} to "cyan"
-
-                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
-            else if "%mcccolor(loop-number + 1)%" is "light green":
-                set {_color} to "lime"
-
-                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
-            else:
-                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number + 1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
-            set spawned entity's name to "<gold>Golden Gabriel"
-
-command /maxlvlrrrvillagers:
-    permission: op
-    trigger:
-        loop entities in world "railroadrush":
-            if loop-entity is a villager:
-                set villager level of loop-entity to 5
-
-command /killrrrvillagers:
-    permission: op
-    trigger:
-        loop entities in world "railroadrush":
-            if loop-entity is a villager:
-                kill loop-entity
 

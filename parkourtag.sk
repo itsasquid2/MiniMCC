@@ -25,7 +25,7 @@ function pktdead(p:player):
 	send title "<pink>Tagged!" to {_p} for 3 seconds
 	#set {pkt.playing.%{_p}%} to false
 	set {pkt.role.%{_p}%} to "none"
-	clear {_p}'s scoreboard
+	clear {_p}'s fastboard
 	subtract 1 from {pkt.runners}
 	if {pkt.runners} is equal to 0:
 		pktendgame(1)	
@@ -53,7 +53,7 @@ function pktendgame(n:number):
 		if {pkt.playing.%loop-player%} is true:
 			loop all players:
 				execute console command "/glow %loop-player-1% %loop-player-2% false"
-			clear loop-player's scoreboard
+			clear loop-player's fastboard
 			set {pkt.playing.%loop-player%} to false
 			set {pkt.role.%loop-player%} to "none"
 			teleport loop-player to {pktout}	
@@ -75,11 +75,11 @@ function pktstartgame():
 			if {pkt.role.%loop-player%} is equal to "runner":
 				apply glowing to the loop-player for 65 seconds replacing existing effect
 			execute console command "/boopboopboopbeep %loop-player%"
-			clear loop-player's scoreboard
-			set title of loop-player's scoreboard to "<green>Parkour Tag"
-			set line 15 of loop-player's scoreboard to ""
-			set line 14 of loop-player's scoreboard to "<lime>Get ready!"
-			set line 13 of loop-player's scoreboard to "<yellow>Runners alive: %{pkt.runners}%"
+			clear loop-player's fastboard
+			set title of loop-player's fastboard to "<green>Parkour Tag"
+			set line 15 of loop-player's fastboard to ""
+			set line 14 of loop-player's fastboard to "<lime>Get ready!"
+			set line 13 of loop-player's fastboard to "<yellow>Runners alive: %{pkt.runners}%"
 	wait 3 seconds
 	loop {pktrunnercages::*}:
 		set block at loop-value to air
@@ -214,15 +214,15 @@ on join:
 			set {pkt.role.%player%} to "none"
 			teleport player to {pktout}
 			set player's game mode to adventure
-			clear player's scoreboard
+			clear player's fastboard
 
 every second:
 	if {pkt.ongoing} is true:
 		subtract 1 from {pkt.timeleft}
 		loop all players:
 			if {pkt.playing.%loop-player%} is true:
-				set line 14 of loop-player's scoreboard to "<pink>Time left: <white>%time({pkt.timeleft})%"	
-				set line 13 of loop-player's scoreboard to "<yellow>Runners alive: %{pkt.runners}%" 
+				set line 14 of loop-player's fastboard to "<pink>Time left: <white>%time({pkt.timeleft})%"	
+				set line 13 of loop-player's fastboard to "<yellow>Runners alive: %{pkt.runners}%" 
 		if {pkt.timeleft} is equal to 0:
 			pktendgame(2)
 

@@ -15,7 +15,7 @@ variables:
 
 command /seteventnum <text>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {mcc.eventnum} to arg 1
 
 function mccsp(n:number) :: text:
@@ -50,9 +50,9 @@ every second:
 		mccgetgamestandings()
 	loop all players:
 		if {mcc.team.%loop-player%} is not equal to 0: 
-			mccupdatescoreboard(loop-player)
+			mccupdatefastboard(loop-player)
 		else if loop-player is "itsasquid2":
-			mccupdatescoreboard(loop-player)
+			mccupdatefastboard(loop-player)
 
 
 function mccplacenum(p:player) :: number:
@@ -82,7 +82,7 @@ function mccgetaceracestandings():
 	mccupdateaceracescores()
 	set {mcc.acerace.numplayers} to 0
 	loop all players:
-		if {mcc.team.%loop-player%} is not equal to 0:
+		if {mcc.team.%loop-player%} isn't 0:
 			if {mcc.team.%loop-player%} is less than 11:
 				add 1 to {mcc.acerace.numplayers}
 				add {mcc.acerace.score.%loop-player's name%} to {_aceracescores::*}
@@ -91,118 +91,151 @@ function mccgetaceracestandings():
 	set {_num} to size of {_already::*}
 	loop numbers from (size of {_already::*}) to 1:
 		set {_good} to false
+		
 		loop all players:
-			if {mcc.team.%loop-player%} is not equal to 0:
+			
+			if {mcc.team.%loop-value-2%} isn't 0:
 				if {_good} is false:
-					if {_already::*} contains loop-player:
-						if {mcc.acerace.score.%loop-player%} is equal to {_aceracescores::%loop-number%}:
-							#broadcast {mcc.acerace.score.%loop-player%}
-							set {mcc.acerace.place.%{_num} + 1 - loop-number-1%} to loop-player
-							set {mcc.acerace.placenum.%loop-player%} to {_num} + 1 - loop-number-1
+					
+					if {_already::*} contains loop-value-2:
+						#broadcast {mcc.acerace.score.%loop-value-2%} 
+						if {mcc.acerace.score.%loop-value-2's name%} is equal to {_aceracescores::%loop-value-1%}:
+							#broadcast {mcc.acerace.score.%loop-value-2%}
+							set {mcc.acerace.place.%{_num} + 1 - loop-value-1%} to loop-value-2
+							set {mcc.acerace.placenum.%loop-value-2%} to {_num} + 1 - loop-value-1
 							#broadcast "%loop-player% - %{_num} + 1 - loop-number-1%"
 							set {_good} to true
-							remove loop-player from {_already::*}
+							remove loop-value-2 from {_already::*}
 		
 	
 
 
-function mccupdatescoreboard(p:player):
+function mccupdatefastboard(p:player):
 	if {mcc.currentevent} is equal to "none":
-		clear {_p}'s scoreboard
+		clear {_p}'s fastboard
 	else if {mcc.currentevent} is equal to "intro":
 		set {_bla} to 0
 	else if {mcc.currentevent} is equal to "startingsoon":
-		set title of {_p}'s scoreboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
-		set line 15 of {_p}'s scoreboard to "<pink><bold>Event begins in:"
-		set line 14 of {_p}'s scoreboard to "Waiting..."
-		set line 13 of {_p}'s scoreboard to ""
-		set line 12 of {_p}'s scoreboard to "<lime><bold>Players: <reset>%player count%"
-		set line 11 of {_p}'s scoreboard to ""
-		set line 10 of {_p}'s scoreboard to "<bold>Your team:"
-		set line 9 of {_p}'s scoreboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%"
-		set line 8 of {_p}'s scoreboard to ""
-		set line 7 of {_p}'s scoreboard to "<lime><bold>Last Event Coins: <reset>%{mcc.indivcoins.%{_p}%}%"
-		set line 6 of {_p}'s scoreboard to "<lime>Lifetime Coins: <reset>%{mcc.lifetimecoins.%{_p}%}%"
+		set title of {_p}'s fastboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
+		set line 6 of {_p}'s fastboard to "<pink><bold>Event begins in:"
+		set line 7 of {_p}'s fastboard to "Waiting..."
+		set line 8 of {_p}'s fastboard to ""
+		set line 9 of {_p}'s fastboard to "<lime><bold>Players: <reset>%player count%"
+		set line 10 of {_p}'s fastboard to ""
+		set line 11 of {_p}'s fastboard to "<bold>Your team:"
+		set line 12 of {_p}'s fastboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%"
+		set line 13 of {_p}'s fastboard to ""
+		set line 14 of {_p}'s fastboard to "<lime><bold>Last Event Coins: <reset>%{mcc.indivcoins.%{_p}%}%"
+		set line 15 of {_p}'s fastboard to "<lime>Lifetime Coins: <reset>%{mcc.lifetimecoins.%{_p}%}%"
 
 	else if {mcc.currentevent} is equal to "decisiondome":	
-		set title of {_p}'s scoreboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
+		set title of {_p}'s fastboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
 		if {mcc.decisiondome.votingtime} is greater than or equal to 55:
-			set line 10 of {_p}'s scoreboard to "<pink><bold>Voting begins in:"	
-			set line 9 of {_p}'s scoreboard to time({mcc.decisiondome.votingtime}-55)
+			set line 1 of {_p}'s fastboard to "<pink><bold>Voting begins in:"	
+			set line 2 of {_p}'s fastboard to time({mcc.decisiondome.votingtime}-55)
 		else if {mcc.decisiondome.votingtime} is greater than or equal to 25:
-			set line 10 of {_p}'s scoreboard to "<pink><bold>Voting closes in:"	
-			set line 9 of {_p}'s scoreboard to time({mcc.decisiondome.votingtime}-25)
+			set line 1 of {_p}'s fastboard to "<pink><bold>Voting closes in:"	
+			set line 2 of {_p}'s fastboard to time({mcc.decisiondome.votingtime}-25)
 			if {mcc.decisiondome.votingtime} is equal to 25:
 				remove 1 egg from {_p}
 		else if {mcc.decisiondome.votingtime} is greater than or equal to 10:
-			set line 10 of {_p}'s scoreboard to "<pink><bold>Game chosen in:"	
-			set line 9 of {_p}'s scoreboard to time({mcc.decisiondome.votingtime}-10)
+			set line 1 of {_p}'s fastboard to "<pink><bold>Game chosen in:"	
+			set line 2 of {_p}'s fastboard to time({mcc.decisiondome.votingtime}-10)
 		else:
-			set line 10 of {_p}'s scoreboard to "<pink><bold>Teleporting to game in:"
-			set line 9 of {_p}'s scoreboard to time({mcc.decisiondome.votingtime})
-		set line 8 of {_p}'s scoreboard to ""
-		set line 7 of {_p}'s scoreboard to "<lime><bold>Players: <white>%player count%"
-		set line 6 of {_p}'s scoreboard to ""
-		set line 5 of {_p}'s scoreboard to "<bold>Your team:"
-		set line 4 of {_p}'s scoreboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%"
-		set line 3 of {_p}'s scoreboard to ""
-		set line 2 of {_p}'s scoreboard to "<lime><bold>Event coins: <white>%{mcc.indivcoins.%{_p}%}%"
-		set line 1 of {_p}'s scoreboard to "<lime><bold>Lifetime coins: <white>%{mcc.lifetimecoins.%{_p}%}%"
+			set line 1 of {_p}'s fastboard to "<pink><bold>Teleporting to game in:"
+			set line 2 of {_p}'s fastboard to time({mcc.decisiondome.votingtime})
+		set line 3 of {_p}'s fastboard to ""
+		set line 4 of {_p}'s fastboard to "<lime><bold>Players: <white>%player count%"
+		set line 5 of {_p}'s fastboard to ""
+		set line 6 of {_p}'s fastboard to "<bold>Your team:"
+		set line 7 of {_p}'s fastboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%"
+		set line 8 of {_p}'s fastboard to ""
+		set line 9 of {_p}'s fastboard to "<lime><bold>Event coins: <white>%{mcc.indivcoins.%{_p}%}%"
+		set line 10 of {_p}'s fastboard to "<lime><bold>Lifetime coins: <white>%{mcc.lifetimecoins.%{_p}%}%"
 	else if {mcc.currentevent} is equal to "break":	
-		set title of {_p}'s scoreboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
-		set line 10 of {_p}'s scoreboard to "<pink><bold>Break ends in:"
-		set line 9 of {_p}'s scoreboard to time({mcc.break.timeleft})
-		set line 8 of {_p}'s scoreboard to ""
-		set line 7 of {_p}'s scoreboard to "<lime><bold>Players: <white>%player count%"
-		set line 6 of {_p}'s scoreboard to ""
-		set line 5 of {_p}'s scoreboard to "<bold>Your team:"
-		set line 4 of {_p}'s scoreboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%"
-		set line 3 of {_p}'s scoreboard to ""
-		set line 2 of {_p}'s scoreboard to "<lime><bold>Event coins: <white>%{mcc.indivcoins.%{_p}%}%"
-		set line 1 of {_p}'s scoreboard to "<lime><bold>Lifetime coins: <white>%{mcc.lifetimecoins.%{_p}%}%"
+		set title of {_p}'s fastboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
+		set line 1 of {_p}'s fastboard to "<pink><bold>Break ends in:"
+		set line 2 of {_p}'s fastboard to time({mcc.break.timeleft})
+		set line 3 of {_p}'s fastboard to ""
+		set line 4 of {_p}'s fastboard to "<lime><bold>Players: <white>%player count%"
+		set line 5 of {_p}'s fastboard to ""
+		set line 6 of {_p}'s fastboard to "<bold>Your team:"
+		set line 7 of {_p}'s fastboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%"
+		set line 8 of {_p}'s fastboard to ""
+		set line 9 of {_p}'s fastboard to "<lime><bold>Event coins: <white>%{mcc.indivcoins.%{_p}%}%"
+		set line 10 of {_p}'s fastboard to "<lime><bold>Lifetime coins: <white>%{mcc.lifetimecoins.%{_p}%}%"
 	else if {mcc.currentevent} is equal to "dodgebolt":	
-		set title of {_p}'s scoreboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
-		set line 15 of {_p}'s scoreboard to "<light blue><bold>Final Game:<white> Dodgebolt"
+		set title of {_p}'s fastboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
+		set line 1 of {_p}'s fastboard to "<light blue><bold>Final Game:<white> Dodgebolt"
 		if {mcc.db.timeleft} is equal to -1:
-			set line 14 of {_p}'s scoreboard to "<pink><bold>In Game"
+			set line 2 of {_p}'s fastboard to "<pink><bold>In Game"
 		else:
-			set line 14 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.db.timeleft})%"
-		set line 13 of {_p}'s scoreboard to ""
-		set line 12 of {_p}'s scoreboard to "%{mcc.teams::%{db.color1}%}%: %{db.teamwinsa}%"
-		set line 11 of {_p}'s scoreboard to "%{mcc.teams::%{db.color2}%}%: %{db.teamwinsb}%"
+			set line 2 of {_p}'s fastboard to "<pink><bold>Next round in: <white>%time({mcc.db.timeleft})%"
+		set line 3 of {_p}'s fastboard to ""
+		set line 4 of {_p}'s fastboard to "%{mcc.teams::%{db.color1}%}%: %{db.teamwinsa}%"
+		set line 5 of {_p}'s fastboard to "%{mcc.teams::%{db.color2}%}%: %{db.teamwinsb}%"
 	else:
-		set title of {_p}'s scoreboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
+		set title of {_p}'s fastboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
 		if {mcc.currentevent} is not equal to "gridrunners":
-			set line 11 of {_p}'s scoreboard to "<light blue><bold>Game coins: <white>(<yellow>x%{mcc.coinmultiplier}%<white>)"
-			set line 10 of {_p}'s scoreboard to ""
-			set line 5 of {_p}'s scoreboard to ""
-			if mccplacenum({_p}) is equal to 1:
-				set line 9 of {_p}'s scoreboard to "1. <bold>%{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
-				set line 8 of {_p}'s scoreboard to "2. %{mcc.teams::%{mcc.gameplace.2}%}% %mccsp({mcc.gameplace.2})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.2}%}*{mcc.coinmultiplier})%"
-				set line 7 of {_p}'s scoreboard to "3. %{mcc.teams::%{mcc.gameplace.3}%}% %mccsp({mcc.gameplace.3})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.3}%}*{mcc.coinmultiplier})%"
-				set line 6 of {_p}'s scoreboard to "4. %{mcc.teams::%{mcc.gameplace.4}%}% %mccsp({mcc.gameplace.4})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.4}%}*{mcc.coinmultiplier})%"
-			else if mccplacenum({_p}) is equal to 2:
-				set line 9 of {_p}'s scoreboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
-				set line 8 of {_p}'s scoreboard to "2. <bold>%{mcc.teams::%{mcc.gameplace.2}%}% %mccsp({mcc.gameplace.2})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.2}%}*{mcc.coinmultiplier})%"
-				set line 7 of {_p}'s scoreboard to "3. %{mcc.teams::%{mcc.gameplace.3}%}% %mccsp({mcc.gameplace.3})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.3}%}*{mcc.coinmultiplier})%"
-				set line 6 of {_p}'s scoreboard to "4. %{mcc.teams::%{mcc.gameplace.4}%}% %mccsp({mcc.gameplace.4})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.4}%}*{mcc.coinmultiplier})%"
-			else if mccplacenum({_p}) is equal to 10:
-				set line 9 of {_p}'s scoreboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
-				set line 8 of {_p}'s scoreboard to "8. %{mcc.teams::%{mcc.gameplace.8}%}% %mccsp({mcc.gameplace.8})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.8}%}*{mcc.coinmultiplier})%"
-				set line 7 of {_p}'s scoreboard to "9. %{mcc.teams::%{mcc.gameplace.9}%}% %mccsp({mcc.gameplace.9})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.9}%}*{mcc.coinmultiplier})%"
-				set line 6 of {_p}'s scoreboard to "10. <bold>%{mcc.teams::%{mcc.gameplace.10}%}% %mccsp({mcc.gameplace.10})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.10}%}*{mcc.coinmultiplier})%"
-			else:
-				set {_bla1} to mccplacenum({_p})-1
-				set {_bla2} to {_bla1}+1 
-				set {_bla3} to {_bla1}+2 
-				set line 9 of {_p}'s scoreboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
-				set line 8 of {_p}'s scoreboard to "%{_bla1}%. %{mcc.teams::%{mcc.gameplace.%{_bla1}%}%}% %mccsp({mcc.gameplace.%{_bla1}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla1}%}%}*{mcc.coinmultiplier})%"
-				set line 7 of {_p}'s scoreboard to "%{_bla2}%. <bold>%{mcc.teams::%{mcc.gameplace.%{_bla2}%}%}% %mccsp({mcc.gameplace.%{_bla2}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla2}%}%}*{mcc.coinmultiplier})%"
-				set line 6 of {_p}'s scoreboard to "%{_bla3}%. %{mcc.teams::%{mcc.gameplace.%{_bla3}%}%}% %mccsp({mcc.gameplace.%{_bla3}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla3}%}%}*{mcc.coinmultiplier})%"
+			if {mcc.currentevent} is not equal to "acerace":
+				if {mcc.currentevent} is not equal to "railroadrush":
+					set line 1 of {_p}'s fastboard to "<light blue><bold>Game coins: <white>(<yellow>x%{mcc.coinmultiplier}%<white>)"
+					set line 2 of {_p}'s fastboard to ""
+					set line 5 of {_p}'s fastboard to ""
+					if mccplacenum({_p}) is equal to 1:
+						set line 3 of {_p}'s fastboard to "1. <bold>%{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 4 of {_p}'s fastboard to "2. %{mcc.teams::%{mcc.gameplace.2}%}% %mccsp({mcc.gameplace.2})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.2}%}*{mcc.coinmultiplier})%"
+						set line 5 of {_p}'s fastboard to "3. %{mcc.teams::%{mcc.gameplace.3}%}% %mccsp({mcc.gameplace.3})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.3}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "4. %{mcc.teams::%{mcc.gameplace.4}%}% %mccsp({mcc.gameplace.4})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.4}%}*{mcc.coinmultiplier})%"
+					else if mccplacenum({_p}) is equal to 2:
+						set line 3 of {_p}'s fastboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 4 of {_p}'s fastboard to "2. <bold>%{mcc.teams::%{mcc.gameplace.2}%}% %mccsp({mcc.gameplace.2})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.2}%}*{mcc.coinmultiplier})%"
+						set line 5 of {_p}'s fastboard to "3. %{mcc.teams::%{mcc.gameplace.3}%}% %mccsp({mcc.gameplace.3})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.3}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "4. %{mcc.teams::%{mcc.gameplace.4}%}% %mccsp({mcc.gameplace.4})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.4}%}*{mcc.coinmultiplier})%"
+					else if mccplacenum({_p}) is equal to 10:
+						set line 3 of {_p}'s fastboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 4 of {_p}'s fastboard to "8. %{mcc.teams::%{mcc.gameplace.8}%}% %mccsp({mcc.gameplace.8})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.8}%}*{mcc.coinmultiplier})%"
+						set line 5 of {_p}'s fastboard to "9. %{mcc.teams::%{mcc.gameplace.9}%}% %mccsp({mcc.gameplace.9})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.9}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "10. <bold>%{mcc.teams::%{mcc.gameplace.10}%}% %mccsp({mcc.gameplace.10})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.10}%}*{mcc.coinmultiplier})%"
+					else:
+						set {_bla1} to mccplacenum({_p})-1
+						set {_bla2} to {_bla1}+1 
+						set {_bla3} to {_bla1}+2 
+						set line 3 of {_p}'s fastboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 4 of {_p}'s fastboard to "%{_bla1}%. %{mcc.teams::%{mcc.gameplace.%{_bla1}%}%}% %mccsp({mcc.gameplace.%{_bla1}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla1}%}%}*{mcc.coinmultiplier})%"
+						set line 5 of {_p}'s fastboard to "%{_bla2}%. <bold>%{mcc.teams::%{mcc.gameplace.%{_bla2}%}%}% %mccsp({mcc.gameplace.%{_bla2}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla2}%}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "%{_bla3}%. %{mcc.teams::%{mcc.gameplace.%{_bla3}%}%}% %mccsp({mcc.gameplace.%{_bla3}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla3}%}%}*{mcc.coinmultiplier})%"
+				else:
+					set line 9 of {_p}'s fastboard to "<light blue><bold>Game coins: <white>(<yellow>x%{mcc.coinmultiplier}%<white>)"
+					# set line 2 of {_p}'s fastboard to ""
+					# set line 5 of {_p}'s fastboard to ""
+					if mccplacenum({_p}) is equal to 1:
+						set line 5 of {_p}'s fastboard to "1. <bold>%{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "2. %{mcc.teams::%{mcc.gameplace.2}%}% %mccsp({mcc.gameplace.2})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.2}%}*{mcc.coinmultiplier})%"
+						set line 7 of {_p}'s fastboard to "3. %{mcc.teams::%{mcc.gameplace.3}%}% %mccsp({mcc.gameplace.3})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.3}%}*{mcc.coinmultiplier})%"
+						set line 8 of {_p}'s fastboard to "4. %{mcc.teams::%{mcc.gameplace.4}%}% %mccsp({mcc.gameplace.4})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.4}%}*{mcc.coinmultiplier})%"
+					else if mccplacenum({_p}) is equal to 2:
+						set line 5 of {_p}'s fastboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "2. <bold>%{mcc.teams::%{mcc.gameplace.2}%}% %mccsp({mcc.gameplace.2})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.2}%}*{mcc.coinmultiplier})%"
+						set line 7 of {_p}'s fastboard to "3. %{mcc.teams::%{mcc.gameplace.3}%}% %mccsp({mcc.gameplace.3})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.3}%}*{mcc.coinmultiplier})%"
+						set line 8 of {_p}'s fastboard to "4. %{mcc.teams::%{mcc.gameplace.4}%}% %mccsp({mcc.gameplace.4})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.4}%}*{mcc.coinmultiplier})%"
+					else if mccplacenum({_p}) is equal to 10:
+						set line 5 of {_p}'s fastboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "8. %{mcc.teams::%{mcc.gameplace.8}%}% %mccsp({mcc.gameplace.8})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.8}%}*{mcc.coinmultiplier})%"
+						set line 7 of {_p}'s fastboard to "9. %{mcc.teams::%{mcc.gameplace.9}%}% %mccsp({mcc.gameplace.9})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.9}%}*{mcc.coinmultiplier})%"
+						set line 8 of {_p}'s fastboard to "10. <bold>%{mcc.teams::%{mcc.gameplace.10}%}% %mccsp({mcc.gameplace.10})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.10}%}*{mcc.coinmultiplier})%"
+					else:
+						set {_bla1} to mccplacenum({_p})-1
+						set {_bla2} to {_bla1}+1 
+						set {_bla3} to {_bla1}+2 
+						set line 5 of {_p}'s fastboard to "1. %{mcc.teams::%{mcc.gameplace.1}%}% %mccsp({mcc.gameplace.1})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.1}%}*{mcc.coinmultiplier})%"
+						set line 6 of {_p}'s fastboard to "%{_bla1}%. %{mcc.teams::%{mcc.gameplace.%{_bla1}%}%}% %mccsp({mcc.gameplace.%{_bla1}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla1}%}%}*{mcc.coinmultiplier})%"
+						set line 7 of {_p}'s fastboard to "%{_bla2}%. <bold>%{mcc.teams::%{mcc.gameplace.%{_bla2}%}%}% %mccsp({mcc.gameplace.%{_bla2}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla2}%}%}*{mcc.coinmultiplier})%"
+						set line 8 of {_p}'s fastboard to "%{_bla3}%. %{mcc.teams::%{mcc.gameplace.%{_bla3}%}%}% %mccsp({mcc.gameplace.%{_bla3}%})% <white>%ceil({mcc.teamgamecoins.%{mcc.gameplace.%{_bla3}%}%}*{mcc.coinmultiplier})%"
 		if {mcc.currentevent} is equal to "hungergames":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Hunger Games"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Hunger Games"
 			if {hg.choosingkit} is greater than 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Kit selection: <white>%time({hg.choosingkit})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Kit selection: <white>%time({hg.choosingkit})%"
 			else:
 				if {hg.time} is less than 120:
 					set {_event} to "Invincibility gone"
@@ -227,16 +260,16 @@ function mccupdatescoreboard(p:player):
 					set {_time} to 2000
 				set {_tim} to {_time}-{hg.time}
 				if {hg.backtohub} is greater than 0:
-					set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({hg.backtohub})%"
+					set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({hg.backtohub})%"
 				else if mod({_tim}, 60) is less than 10:
-					set line 14 of {_p}'s scoreboard to "<pink><bold>%{_event}% in: <white>%floor({_tim}/60)%:0%mod({_tim},60)%"
+					set line 2 of {_p}'s fastboard to "<pink><bold>%{_event}% in: <white>%floor({_tim}/60)%:0%mod({_tim},60)%"
 				else:
-					set line 14 of {_p}'s scoreboard to "<pink><bold>%{_event}% in: <white>%floor({_tim}/60)%:%mod({_tim},60)%"
-			set line 13 of {_p}'s scoreboard to ""
-			set line 4 of {_p}'s scoreboard to "<lime><bold>Players remaining: <white>%{hg.numplayers}%"
-			set line 3 of {_p}'s scoreboard to "<yellow><bold>Your kills: <white>%{hg.gamekills.%{_p}%}%"
+					set line 2 of {_p}'s fastboard to "<pink><bold>%{_event}% in: <white>%floor({_tim}/60)%:%mod({_tim},60)%"
+			set line 3 of {_p}'s fastboard to ""
+			set line 11 of {_p}'s fastboard to "<lime><bold>Players remaining: <white>%{hg.numplayers}%"
+			set line 12 of {_p}'s fastboard to "<yellow><bold>Your kills: <white>%{hg.gamekills.%{_p}%}%"
 		if {mcc.currentevent} is equal to "holeinthewall":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Hole in the Wall"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Hole in the Wall"
 			if {mcc.hitw.stage} is more than 0:
 				if {mcc.hitw.timeleft} is less than 36:
 					set {_event} to "Difficulty: <red>Extreme"
@@ -257,221 +290,221 @@ function mccupdatescoreboard(p:player):
 				set {_event} to "Intermission"
 			if {mcc.hitw.stage} is -1:
 				if {mcc.hitw.timeleft} is greater than 0:
-					set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.hitw.timeleft})%"
+					set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.hitw.timeleft})%"
 			else:
-				set line 14 of {_p}'s scoreboard to {_event}
-			set line 13 of {_p}'s scoreboard to "<pink><bold>Time Left: <white>%time({mcc.hitw.timeleft})%"
-			set line 4 of {_p}'s scoreboard to "<lime><bold>Players remaining: <white>%{hitw.numplayers}%"
+				set line 2 of {_p}'s fastboard to {_event}
+			set line 3 of {_p}'s fastboard to "<pink><bold>Time Left: <white>%time({mcc.hitw.timeleft})%"
+			set line 11 of {_p}'s fastboard to "<lime><bold>Players remaining: <white>%{hitw.numplayers}%"
 		else if {mcc.currentevent} is equal to "parkourwarrior":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Parkour Warrior"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Parkour Warrior"
 			if {mcc.parkourwarrior.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcmonday.parkourwarrior.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcmonday.parkourwarrior.timeleft})%"
 			else if {mcc.parkourwarrior.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcmonday.parkourwarrior.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcmonday.parkourwarrior.timeleft})%"
 			else if {mcc.parkourwarrior.stage} is equal to 2:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcmonday.parkourwarrior.timeleft})%"
-			set line 13 of {_p}'s scoreboard to ""	
-			set line 4 of {_p}'s scoreboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcmonday.parkourwarrior.timeleft})%"
+			set line 3 of {_p}'s fastboard to ""	
+			set line 11 of {_p}'s fastboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
 		# else if {mcc.currentevent} is equal to "bingobutfast":	
-		# 	set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo But Fast"
+		# 	set line 15 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo But Fast"
 		# 	if {mcc.bingo.stage} is equal to 0:
-		# 		set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.bingo.timeleft})%"
+		# 		set line 14 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.bingo.timeleft})%"
 		# 	else if {mcc.bingo.stage} is equal to 1:
-		# 		set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.bingo.timeleft})%"
+		# 		set line 14 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.bingo.timeleft})%"
 		# 	else if {mcc.bingo.stage} is equal to 2:
-		# 		set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingo.timeleft})%"
-		# 	set line 13 of {_p}'s scoreboard to ""	
+		# 		set line 14 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingo.timeleft})%"
+		# 	set line 13 of {_p}'s fastboard to ""	
 		# 	set {_itemsfound} to 0
 		# 	loop 4 times:
 		# 		loop 4 times:
 		# 			if {mcc.bingo.hasfound.%loop-number-1%.%loop-number-2%.%{mcc.team.%{_p}%}%} is true:
 		# 				add 1 to {_itemsfound}
-		# 	set line 4 of {_p}'s scoreboard to "<yellow><bold>Items found: <white>%{_itemsfound}%"
-		# 	set line 3 of {_p}'s scoreboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
+		# 	set line 4 of {_p}'s fastboard to "<yellow><bold>Items found: <white>%{_itemsfound}%"
+		# 	set line 3 of {_p}'s fastboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
 		else if {mcc.currentevent} is equal to "bingonew":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo!"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Bingo!"
 			if {mcc.bingonew.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.bingonew.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.bingonew.timeleft})%"
 			else if {mcc.bingonew.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.bingonew.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.bingonew.timeleft})%"
 			else if {mcc.bingonew.stage} is equal to 2:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingonew.timeleft})%"
-			set line 13 of {_p}'s scoreboard to ""	
-			set line 4 of {_p}'s scoreboard to "<yellow><bold>Items found: <white>%{bingo.itemsfound.%{_p}%}%"
-			#set line 3 of {_p}'s scoreboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
+				set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.bingonew.timeleft})%"
+			set line 3 of {_p}'s fastboard to ""	
+			set line 11 of {_p}'s fastboard to "<yellow><bold>Items found: <white>%{bingo.itemsfound.%{_p}%}%"
+			#set line 3 of {_p}'s fastboard to "<gold><bold>Bingos scored: <white>%mccbingos({mcc.team.%{_p}%})%"	
 		else if {mcc.currentevent} is equal to "tgttosawaf":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>TGTTOSAWAF"
-			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.tgttosawaf.roundnum}%/6"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>TGTTOSAWAF"
+			set line 2 of {_p}'s fastboard to "<lime><bold>Round: <white>%{mcc.tgttosawaf.roundnum}%/6"
 			if {mcc.tgttosawaf.middle} is true:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.tgttosawaf.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Next round in: <white>%time({mcc.tgttosawaf.timeleft})%"
 			else:
 				if {mcc.tgttosawaf.inprogress} is true:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.tgttosawaf.timeleft})%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.tgttosawaf.timeleft})%"
 				else:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.tgttosawaf.timeleft})%"
-			set line 12 of {_p}'s scoreboard to ""
-			set line 4 of {_p}'s scoreboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.tgttosawaf.timeleft})%"
+			set line 4 of {_p}'s fastboard to ""
+			set line 11 of {_p}'s fastboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
 		else if {mcc.currentevent} is equal to "battlebox":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Battle Box"
-			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.bb.round}%/%{mcc.bb.roundamount}%"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Battle Box"
+			set line 2 of {_p}'s fastboard to "<lime><bold>Round: <white>%{mcc.bb.round}%/%{mcc.bb.roundamount}%"
 			if {mcc.bb.kits} is true:
 				if {mcc.bb.timeleft} is greater than 10:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Kit selection: <white>%time({mcc.bb.timeleft}-10)%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Kit selection: <white>%time({mcc.bb.timeleft}-10)%"
 				else:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Battle begins in: <white>%time({mcc.bb.timeleft})%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Battle begins in: <white>%time({mcc.bb.timeleft})%"
 			else:
 				if {mcc.bb.inprogress} is true:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.bb.timeleft})%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.bb.timeleft})%"
 				else:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.bb.timeleft})%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.bb.timeleft})%"
 		else if {mcc.currentevent} is equal to "acerace":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Ace Race"
-			set line 6 of {_p}'s scoreboard to ""
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Ace Race"
+			#set line 6 of {_p}'s fastboard to ""
 			if {mcc.acerace.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Race begins in: <white>%time({mcc.acerace.timeleft})%" 
+				set line 2 of {_p}'s fastboard to "<pink><bold>Race begins in: <white>%time({mcc.acerace.timeleft})%" 
 			else if {mcc.acerace.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.acerace.timeleft})%" 
-				set line 13 of {_p}'s scoreboard to ""
-				set line 12 of {_p}'s scoreboard to "<light blue><bold>Standings:"
-				set line 11 of {_p}'s scoreboard to "1. %mccname({mcc.acerace.place.1})%"
-				set line 10 of {_p}'s scoreboard to ""
+				set line 2 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.acerace.timeleft})%" 
+				set line 3 of {_p}'s fastboard to ""
+				set line 4 of {_p}'s fastboard to "<light blue><bold>Standings:"
+				set line 5 of {_p}'s fastboard to "1. %mccname({mcc.acerace.place.1})%"
+				set line 6 of {_p}'s fastboard to ""
 				if {mcc.acerace.placenum.%{_p}%} is equal to 1:
-					set line 9 of {_p}'s scoreboard to "1. %mccname({mcc.acerace.place.1})%" 
-					set line 8 of {_p}'s scoreboard to "2. %mccname({mcc.acerace.place.2})%" 
-					set line 7 of {_p}'s scoreboard to "3. %mccname({mcc.acerace.place.3})%" 
+					set line 7 of {_p}'s fastboard to "1. %mccname({mcc.acerace.place.1})%" 
+					set line 8 of {_p}'s fastboard to "2. %mccname({mcc.acerace.place.2})%" 
+					set line 9 of {_p}'s fastboard to "3. %mccname({mcc.acerace.place.3})%" 
 				else if {mcc.acerace.placenum.%{_p}%} is equal to {mcc.acerace.numplayers}:
-					set line 9 of {_p}'s scoreboard to "%{mcc.acerace.numplayers}-2%. %mccname({mcc.acerace.place.%{mcc.acerace.numplayers}-2%})%" 
-					set line 8 of {_p}'s scoreboard to "%{mcc.acerace.numplayers}-1%. %mccname({mcc.acerace.place.%{mcc.acerace.numplayers}-1%})%" 
-					set line 7 of {_p}'s scoreboard to "%{mcc.acerace.numplayers}%. %mccname({mcc.acerace.place.%{mcc.acerace.numplayers}%})%" 
+					set line 7 of {_p}'s fastboard to "%{mcc.acerace.numplayers}-2%. %mccname({mcc.acerace.place.%{mcc.acerace.numplayers}-2%})%" 
+					set line 8 of {_p}'s fastboard to "%{mcc.acerace.numplayers}-1%. %mccname({mcc.acerace.place.%{mcc.acerace.numplayers}-1%})%" 
+					set line 9 of {_p}'s fastboard to "%{mcc.acerace.numplayers}%. %mccname({mcc.acerace.place.%{mcc.acerace.numplayers}%})%" 
 				else:
-					set line 9 of {_p}'s scoreboard to "%{mcc.acerace.placenum.%{_p}%}-1%. %mccname({mcc.acerace.place.%{mcc.acerace.placenum.%{_p}%}-1%})%" 
-					set line 8 of {_p}'s scoreboard to "%{mcc.acerace.placenum.%{_p}%}%. %mccname({mcc.acerace.place.%{mcc.acerace.placenum.%{_p}%}%})%" 
-					set line 7 of {_p}'s scoreboard to "%{mcc.acerace.placenum.%{_p}%}+1%. %mccname({mcc.acerace.place.%{mcc.acerace.placenum.%{_p}%}+1%})%" 
+					set line 7 of {_p}'s fastboard to "%{mcc.acerace.placenum.%{_p}%}-1%. %mccname({mcc.acerace.place.%{mcc.acerace.placenum.%{_p}%}-1%})%" 
+					set line 8 of {_p}'s fastboard to "%{mcc.acerace.placenum.%{_p}%}%. %mccname({mcc.acerace.place.%{mcc.acerace.placenum.%{_p}%}%})%" 
+					set line 9 of {_p}'s fastboard to "%{mcc.acerace.placenum.%{_p}%}+1%. %mccname({mcc.acerace.place.%{mcc.acerace.placenum.%{_p}%}+1%})%" 
 			else:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.acerace.timeleft})%" 
+				set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.acerace.timeleft})%" 
 		else if {mcc.currentevent} is equal to "pirategame":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Treasure Hunt"
-			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.pg.round}%/%{mcc.pg.numteams}%"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Treasure Hunt"
+			set line 2 of {_p}'s fastboard to "<lime><bold>Round: <white>%{mcc.pg.round}%/%{mcc.pg.numteams}%"
 			if {mcc.pg.stage} is equal to 0:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.pg.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.pg.timeleft})%"
 			else if {mcc.pg.stage} is equal to 1:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.pg.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Next round in: <white>%time({mcc.pg.timeleft})%"
 			else if {mcc.pg.stage} is equal to 2:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.pg.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.pg.timeleft})%"
 			else if {mcc.pg.stage} is equal to 3:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.pg.timeleft})%"
-			set line 4 of {_p}'s scoreboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.pg.timeleft})%"
+			set line 11 of {_p}'s fastboard to "<yellow><bold>Your coins: <white>%{mcc.gamecoins.%{_p}%}%"
 		else if {mcc.currentevent} is equal to "wiisports":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Wii Sports"
-			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.wii.round}%/5"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Wii Sports"
+			set line 2 of {_p}'s fastboard to "<lime><bold>Round: <white>%{mcc.wii.round}%/5"
 		else if {mcc.currentevent} is equal to "parkourtag":	
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Parkour Tag"
-			set line 14 of {_p}'s scoreboard to "<lime><bold>Round: <white>%{mcc.pkt.round}%/5"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Parkour Tag"
+			set line 2 of {_p}'s fastboard to "<lime><bold>Round: <white>%{mcc.pkt.round}%/5"
 			if {mcc.pkt.stage} is equal to 0:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.pkt.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.pkt.timeleft})%"
 			else if {mcc.pkt.stage} is equal to 1:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.pkt.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Next round in: <white>%time({mcc.pkt.timeleft})%"
 			else if {mcc.pkt.stage} is equal to 2:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.pkt.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.pkt.timeleft})%"
 				if {mcc.pkt.ready} is false:
-					set line 4 of {_p}'s scoreboard to "<bold>Runners alive:"
-					set line 3 of {_p}'s scoreboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%: %{mcc.pkt.numalive.%{mcc.team.%{_p}%}%}%"
-					set line 2 of {_p}'s scoreboard to "%{mcc.teams::%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%}%: %{mcc.pkt.numalive.%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%}%"
+					set line 11 of {_p}'s fastboard to "<bold>Runners alive:"
+					set line 12 of {_p}'s fastboard to "%{mcc.teams::%{mcc.team.%{_p}%}%}%: %{mcc.pkt.numalive.%{mcc.team.%{_p}%}%}%"
+					set line 13 of {_p}'s fastboard to "%{mcc.teams::%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%}%: %{mcc.pkt.numalive.%{mcc.pkt.opponent.%{mcc.team.%{_p}%}%}%}%"
 				else:
-					set line 4 of {_p}'s scoreboard to ""
-					set line 3 of {_p}'s scoreboard to ""
-					set line 2 of {_p}'s scoreboard to ""
+					set line 11 of {_p}'s fastboard to ""
+					set line 12 of {_p}'s fastboard to ""
+					set line 13 of {_p}'s fastboard to ""
 			else if {mcc.pkt.stage} is equal to 3:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.pkt.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.pkt.timeleft})%"
 		else if {mcc.currentevent} is equal to "survivalgames":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Hunger Games"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Hunger Games"
 			if {mcc.sg.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.sg.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.sg.timeleft})%"
 			else if {mcc.sg.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>%{sg.event}% <pink><bold>in: <white>%time({sg.tim}-{sg.time})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>%{sg.event}% <pink><bold>in: <white>%time({sg.tim}-{sg.time})%"
 			else if {mcc.sg.stage} is equal to 2:				
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.sg.timeleft})%"
-			set line 13 of {_p}'s scoreboard to ""
-			set line 4 of {_p}'s scoreboard to "<lime><bold>Players remaining: <white>%{sg.playersleft}%"
-			set line 3 of {_p}'s scoreboard to "<yellow><bold>Your kills: <white>%{sg.kills.%{_p}%}%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.sg.timeleft})%"
+			set line 3 of {_p}'s fastboard to ""
+			set line 11 of {_p}'s fastboard to "<lime><bold>Players remaining: <white>%{sg.playersleft}%"
+			set line 12 of {_p}'s fastboard to "<yellow><bold>Your kills: <white>%{sg.kills.%{_p}%}%"
 		else if {mcc.currentevent} is equal to "meltdown":
-			set line 16 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Meltdown"
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Round %{mcc.meltdown.roundnum}%/3"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Meltdown"
+			set line 2 of {_p}'s fastboard to "<light blue><bold>Round %{mcc.meltdown.roundnum}%/3"
 			if {mcc.meltdown.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.meltdown.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.meltdown.timeleft})%"
 			else if {mcc.meltdown.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time Left: <white>%time({mcc.meltdown.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Time Left: <white>%time({mcc.meltdown.timeleft})%"
 			else if {mcc.meltdown.stage} is equal to 2:				
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.meltdown.timeleft})%"
-			set line 13 of {_p}'s scoreboard to ""
-			set line 4 of {_p}'s scoreboard to "<lime><bold>Players remaining: <white>%{meltdown.playersleft}%"
-			set line 3 of {_p}'s scoreboard to "<yellow><bold>Your kills: <white>%{meltdown.kills.%{_p}%}%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.meltdown.timeleft})%"
+			set line 4 of {_p}'s fastboard to ""
+			set line 12 of {_p}'s fastboard to "<lime><bold>Players remaining: <white>%{meltdown.playersleft}%"
+			set line 11 of {_p}'s fastboard to "<yellow><bold>Your kills: <white>%{meltdown.kills.%{_p}%}%"
 		else if {mcc.currentevent} is equal to "skybattle":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Sky Battle"
-			set line 14 of {_p}'s scoreboard to "<green><bold>Round: <white>%{mcc.skybattle.roundnum}%/3"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Sky Battle"
+			set line 2 of {_p}'s fastboard to "<green><bold>Round: <white>%{mcc.skybattle.roundnum}%/3"
 			if {mcc.skybattle.overtimetriggered} is false:
 				if {mcc.skybattle.stage} is equal to 0:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.skybattle.timeleft})%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Next round in: <white>%time({mcc.skybattle.timeleft})%"
 				else if {mcc.skybattle.stage} is equal to 1:
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Time left <white>%time({mcc.skybattle.timeleft})%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Time left <white>%time({mcc.skybattle.timeleft})%"
 				else if {mcc.skybattle.stage} is equal to 2:				
-					set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.skybattle.timeleft})%"
+					set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.skybattle.timeleft})%"
 			else:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Overtime: <white>%time({mcc.skybattle.timeleft})%"
-			set line 12 of {_p}'s scoreboard to ""
-			set line 4 of {_p}'s scoreboard to "<lime><bold>Players remaining: <white>%{mcc.skybattle.playersleft}%"
-			set line 3 of {_p}'s scoreboard to "<yellow><bold>Your kills: <white>%{mcc.skybattle.kills.%{_p}%}%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Overtime: <white>%time({mcc.skybattle.timeleft})%"
+			set line 4 of {_p}'s fastboard to ""
+			set line 11 of {_p}'s fastboard to "<lime><bold>Players remaining: <white>%{mcc.skybattle.playersleft}%"
+			set line 12 of {_p}'s fastboard to "<yellow><bold>Your kills: <white>%{mcc.skybattle.kills.%{_p}%}%"
 		else if {mcc.currentevent} is equal to "railroadrush":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Railroad Rush"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Railroad Rush"
 			if {mcc.rrr.stage} is equal to 0:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Starting in: <white>%time({mcc.rrr.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Starting in: <white>%time({mcc.rrr.timeleft})%"
 			else if {mcc.rrr.stage} is equal to 1:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Time left <white>%time({mcc.rrr.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Time left <white>%time({mcc.rrr.timeleft})%"
 			else if {mcc.rrr.stage} is equal to 2:				
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.rrr.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.rrr.timeleft})%"
 			if {mcc.rrr.event} is "goldrush":
-				set line 14 of {_p}'s scoreboard to "<gold><bold>Gold Rush!"
+				set line 2 of {_p}'s fastboard to "<gold><bold>Gold Rush!"
 			else:
-				set line 14 of {_p}'s scoreboard to "<cyan><bold>Build!"
-			set line 12 of {_p}'s scoreboard to ""
+				set line 2 of {_p}'s fastboard to "<cyan><bold>Build!"
+			set line 4 of {_p}'s fastboard to ""
 		else if {mcc.currentevent} is equal to "gridrunners":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Grid Runners"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Grid Runners"
 			if {mcc.grid.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.grid.timeleft})%" 
+				set line 2 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.grid.timeleft})%" 
 			else if {mcc.grid.stage} is equal to 1:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.grid.timeleft})%" 
-				set line 9 of {_p}'s scoreboard to ""
-				set line 8 of {_p}'s scoreboard to "<lime><bold>Current room: <white>%{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%{_p}%}%}%}%.name}%"
-				set line 7 of {_p}'s scoreboard to ""
+				set line 2 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.grid.timeleft})%" 
+				set line 7 of {_p}'s fastboard to ""
+				set line 8 of {_p}'s fastboard to "<lime><bold>Current room: <white>%{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%{_p}%}%}%}%.name}%"
+				set line 9 of {_p}'s fastboard to ""
 				if {mcc.grid.transitioning.%{mcc.team.%{_p}%}%} is true:
-					set line 6 of {_p}'s scoreboard to "<yellow><bold>Rooms completed: <white>%{mcc.grid.room.%{mcc.team.%{_p}%}%}%"
+					set line 10 of {_p}'s fastboard to "<yellow><bold>Rooms completed: <white>%{mcc.grid.room.%{mcc.team.%{_p}%}%}%"
 				else:
-					set line 6 of {_p}'s scoreboard to "<yellow><bold>Rooms completed: <white>%{mcc.grid.room.%{mcc.team.%{_p}%}%}-1%"
+					set line 10 of {_p}'s fastboard to "<yellow><bold>Rooms completed: <white>%{mcc.grid.room.%{mcc.team.%{_p}%}%}-1%"
 			else:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.grid.timeleft})%" 
+				set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.grid.timeleft})%" 
 		else if {mcc.currentevent} is equal to "rocketspleefrush":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Rocket Spleef Rush"
-			set line 14 of {_p}'s scoreboard to "<green><bold>Round: <white>%min({mcc.rsr.roundnum}, 3)%/3"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Rocket Spleef Rush"
+			set line 2 of {_p}'s fastboard to "<green><bold>Round: <white>%min({mcc.rsr.roundnum}, 3)%/3"
 			if {mcc.rsr.stage} is equal to 0:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Next round in: <white>%time({mcc.rsr.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Next round in: <white>%time({mcc.rsr.timeleft})%"
 			else if {mcc.rsr.stage} is equal to 1:
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Time left <white>%time({mcc.rsr.timeleft})%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Time left <white>%time({mcc.rsr.timeleft})%"
 			else if {mcc.rsr.stage} is equal to 2:				
-				set line 13 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.rsr.timeleft})%"
-			set line 12 of {_p}'s scoreboard to ""
-			set line 4 of {_p}'s scoreboard to "<lime><bold>Players remaining: <white>%{mcc.rsr.playersleft}%"
+				set line 3 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.rsr.timeleft})%"
+			set line 4 of {_p}'s fastboard to ""
+			set line 11 of {_p}'s fastboard to "<lime><bold>Players remaining: <white>%{mcc.rsr.playersleft}%"
 		else if {mcc.currentevent} is equal to "pkwnew":
-			set line 15 of {_p}'s scoreboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Parkour Warrior"
+			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Parkour Warrior"
 			if {mcc.pkwnew.stage} is equal to 0:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Game begins in: <white>%time({mcc.pkwnew.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.pkwnew.timeleft})%"
 			else if {mcc.pkwnew.stage} is equal to 1 or 2:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Time left: <white>%time({mcc.pkwnew.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Time left: <white>%time({mcc.pkwnew.timeleft})%"
 			else:
-				set line 14 of {_p}'s scoreboard to "<pink><bold>Back to hub in: <white>%time({mcc.pkwnew.timeleft})%"
+				set line 2 of {_p}'s fastboard to "<pink><bold>Back to hub in: <white>%time({mcc.pkwnew.timeleft})%"
 			
-			set line 5 of {_p}'s scoreboard to ""
-			set line 4 of {_p}'s scoreboard to "<lime><bold>Main challenges left: <white>%{mcc.pkwnew.mainchallengesleft.%{_p}%}%"
-			set line 3 of {_p}'s scoreboard to "<lime><bold>Team multiplier: <white>%{mcc.pkwnew.multiplier.%{mcc.team.%{_p}%}%}%"
+			set line 10 of {_p}'s fastboard to ""
+			set line 11 of {_p}'s fastboard to "<lime><bold>Main challenges left: <white>%{mcc.pkwnew.mainchallengesleft.%{_p}%}%"
+			set line 12 of {_p}'s fastboard to "<lime><bold>Team multiplier: <white>%{mcc.pkwnew.multiplier.%{mcc.team.%{_p}%}%}%"
 
 			
 			

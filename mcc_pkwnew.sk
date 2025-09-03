@@ -15,10 +15,10 @@
 
 
 
-# {mcc.pkwnew.idof.(stage)}: ID of stage: Mx-y for main stage x-y, Bx-y for bonus stage x-y, D--x for ending
+# ID of stage: Mx-y for main stage x-y, Bx-y for bonus stage x-y, D--x for ending
 # of difficulty D, substage x
 
-# {mcc.pkwnew.respawnloc.(region)}: respawn location if a player last visited region (region) 
+# {mcc.pkwnew.respawnloc.(region)}: respawn location of a player last visited region (region) 
 
 # {mcc.pkwnew.lastregion.%player's name%}: the last region the player entered (if they enter a "lesser" region, this is not updated)
 # {mcc.pkwnew.lastdojo.%player's name%}: last dojo number of player (a number between 0 and 5). The final fork is counted as dojo number 5 
@@ -31,12 +31,6 @@
 # Region D--x is the ending of the difficulty D ending, substage x
 # (difficulties: 1 easy, 2 medium, 3 hard)
 
-command /pkwnewrenamestage <number> <text>:
-	permission: op
-	usage: "/pkwnewrenamestage <id> <name>"
-	trigger:
-		set {mcc.pkwnew.%arg 1%.name} to arg 2
-		set {mcc.pkwnew.idof.%arg 2%} to arg 1
 
 
 function mccpkwnewtutorial(p: player):
@@ -107,7 +101,7 @@ function mccpkwnewtutorial(p: player):
 function mccpkwnewgetscores(n: number):
 	delete {_members::*}
 	loop all players:
-		if {mcc.team.%loop-player's name%} is equal to {_n}:
+		if {mcc.team.%loop-player%} is equal to {_n}:
 			add loop-player to {_members::*}
 	loop {_members::*}:
 		wait 3 seconds
@@ -145,18 +139,18 @@ function mccpkwnewgetscores(n: number):
 command /mccpkwnew:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
 		execute console command "/mccnewgame"
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				execute console command "/mv tp %loop-player% parkourwarriornew"
 				clear the loop-player's inventory
 				set player's gamemode to adventure
 				set loop-player's boots to leather boots
-				dye loop-player's boots mcccolor({mcc.team.%loop-player's name%})
+				dye loop-player's boots mcccolor({mcc.team.%loop-player%})
 				set slot 8 of loop-player's inventory to paper of unbreaking 10 named "<green>Teleportation scroll"
 				delete {mcc.pkwnew.lastregion.%loop-player's name%}
 				set {mcc.pkwnew.lastdojo.%loop-player's name%} to 0
@@ -179,7 +173,7 @@ command /mccpkwnew:
 
 command /pkwsetbarriers:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			loop blocks in radius 25 of player:
 				if loop-block is minecraft:barrier:
 					add loop-block to {mcc.pkwnew.barriers::*}
@@ -188,7 +182,7 @@ command /pkwsetbarriers:
 every second:
 	if {mcc.currentevent} is equal to "pkwnew":
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				if loop-player's y-coordinate is less than -64:
 					if {mcc.pkwnew.lastregion.%loop-player's name%} is not set:
 						execute console command "/mv tp %loop-player% parkourwarriornew"
@@ -206,7 +200,7 @@ every second:
 		if {mcc.pkwnew.timeleft} is equal to 3:
 			if {mcc.pkwnew.stage} is equal to 0:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						execute console command "/boopboopboopbeep %loop-player%"
 		else if {mcc.pkwnew.timeleft} is equal to 0:
 			if {mcc.pkwnew.stage} is equal to 0:
@@ -225,7 +219,7 @@ every second:
 				set {mcc.pkwnew.stage} to 3
 				set {mcc.pkwnew.timeleft} to 60
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						send title "<pink>Game over!" to loop-player for 3 seconds
 						loop all players:
 							reveal loop-player-1 to loop-player-2
@@ -256,10 +250,10 @@ command /setpkwstagename <string>:
 				set {_title1} to "%the last character of {_bla} parsed as an integer + 1%"
 				set {_title2} to the first 3 characters of {_bla}
 				set {_title} to "%{_title2}%%{_title1}%"
-				set {mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name} to arg
+				set {mcc.pkwnew.%{_title}%.name} to arg
 				send title "<yellow>%{_title}%" to player
-				if {mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name} is set:
-					send subtitle "<white>%{mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name}%" to player
+				if {mcc.pkwnew.%{_title}%.name} is set:
+					send subtitle "<white>%{mcc.pkwnew.%{_title}%.name}%" to player
 		
   		
 on region enter:
@@ -273,8 +267,8 @@ on region enter:
 	if last character of "%{_title}%" is not "4":
 		if {mcc.pkwnew.titlesdone.%player's name%::*} does not contain "%{_title}%":
 			send title "<yellow>%{_title}%" to event-player
-			if {mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name} is set:
-				send subtitle "<white>%{mcc.pkwnew.%{mcc.pkwnew.idof.%{_title}%}%.name}%" to event-player
+			if {mcc.pkwnew.%{_title}%.name} is set:
+				send subtitle "<white>%{mcc.pkwnew.%{_title}%.name}%" to event-player
 			add "%{_title}%" to {mcc.pkwnew.titlesdone.%player's name%::*}
 			
 	if {mcc.pkwnew.stagesdone.%player's name%::*} does not contain {_bla}:
@@ -283,7 +277,7 @@ on region enter:
 		if the last 1 characters of {_bla} is "0":
 			exit trigger
 
-		add 1 to {mcc.pkwnew.challenges.%{mcc.team.%player's name%}%}
+		add 1 to {mcc.pkwnew.challenges.%{mcc.team.%player%}%}
 
 		if the first 1 characters of {_bla} is "M":
 			set {_text} to formatted "<gray>stone medal"
@@ -292,19 +286,19 @@ on region enter:
 			# stone medal	
 			if the last 1 characters of {_bla} is "3":
 				add 1 to {mcc.pkwnew.lastdojo.%player's name%}
-			ac(player, 2, "You completed %{mcc.pkwnew.%{mcc.pkwnew.idof.%{_bla}%}%.name}% and earned a %{_text}%!", false) 
+			ac(player, 2, "You completed %region% and earned a %{_text}%!", false) 
 			add 2 to {mcc.pkwnew.medalcoins.%player's name%}
 			give {_item} to the player
 		else if the first 1 characters of {_bla} is "B":
 			if the last 1 characters of {_bla} is "1":
-				set {_text} to formatted "<##cd7f32>bronze medal"
+				set {_text} to formatted "<#cd7f32>bronze medal"
 				set {_item} to copper ingot of unbreaking 10 named "<pink>Bronze Medal"
 				set {_special} to false
 				set {_coins} to 10
 				# bronze medal 
 			else if the last 1 characters of {_bla} is "2":
 				# silver medal 
-				set {_text} to formatted "<##9aa6a6>silver medal"
+				set {_text} to formatted "<#9aa6a6>silver medal"
 				set {_item} to iron ingot of unbreaking 10 named "<light gray>Silver Medal"
 				set {_coins} to 20
 				set {_special} to false
@@ -316,7 +310,7 @@ on region enter:
 				set {_special} to true 
 				# Also, teleport the player back to the last dojo
 				teleport player to {mcc.pkwnew.dojospawn.%{mcc.pkwnew.lastdojo.%player's name%}%}
-			ac(player, {_coins}, "You completed %{mcc.pkwnew.%{mcc.pkwnew.idof.%{_bla}%}%.name}% and earned a %{_text}%!", {_special}) 
+			ac(player, {_coins}, "You completed %region% and earned a %{_text}%!", {_special}) 
 			add {_coins} to {mcc.pkwnew.medalcoins.%player's name%}
 			give {_item} to the player
 		else if the last 1 characters of {_bla} is "3":
@@ -325,20 +319,20 @@ on region enter:
 			reveal all players to player
 			if the first 1 characters of {_bla} is "1":
 				give a leather horse armor to the player
-				add 0.15 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+				add 0.15 to {mcc.pkwnew.multiplier.%{mcc.team.%player%}%}
 			else if the first 1 characters of {_bla} is "2":
 				give a iron horse armor to the player
-				add 0.35 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+				add 0.35 to {mcc.pkwnew.multiplier.%{mcc.team.%player%}%}
 			else if the first 1 characters of {_bla} is "3":
 				give a gold horse armor to the player
-				add 0.8 to {mcc.pkwnew.multiplier.%{mcc.team.%player's name%}%}
+				add 0.8 to {mcc.pkwnew.multiplier.%{mcc.team.%player%}%}
 			set {_teamdone} to true
 			loop all players:
-				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:
+				if {mcc.team.%loop-player%} is equal to {mcc.team.%player%}:
 					if loop-player's game mode is adventure:
 						set {_teamdone} to false
 			if {_teamdone} is true:
-				broadcast "%{mcc.teams::%{mcc.team.%player's name%}%}% <magenta>have all finished the course!"
+				broadcast "%{mcc.teams::%{mcc.team.%player%}%}% <magenta>have all finished the course!"
 				
 on hunger bar change:
 	if player's world is "parkourwarriornew":

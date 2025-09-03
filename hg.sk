@@ -70,7 +70,7 @@ function mcchgtutorial(p:player):
 
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>There will also be supply drops in the form of 'feasts', which are announced in chat and on the scoreboard." to {_p}
+	send "<bold>There will also be supply drops in the form of 'feasts', which are announced in chat and on the fastboard." to {_p}
 	send "" to {_p}
 	send "The feast and bonus feast have a ton of gear, so make sure not to miss them!" to {_p}
 	send "" to {_p}
@@ -161,7 +161,7 @@ on death:
 		set death message to "<light blue>%death message%"
 		set {_wasover} to mcchggameover()
 		set {hg.playing.%victim%} to false
-		clear the victim's scoreboard
+		clear the victim's fastboard
 		set {hg.ingame.%victim%} to false
 		subtract 1 from {hg.numplayers}
 		wait 0.5 seconds
@@ -439,15 +439,15 @@ every second:
 	loop all players:
 		if {hg.playing.%loop-player%} is true:
 			if {mcc.inprogress} is false:
-				set title of loop-player's scoreboard to "<purple>Hunger Games"
-				set line 15 of loop-player's scoreboard to ""
+				set title of loop-player's fastboard to "<purple>Hunger Games"
+				set line 15 of loop-player's fastboard to ""
 		
 				if mod({_tim}, 60) is less than 10:
-					set line 14 of loop-player's scoreboard to "%{_event}% in <lime>%floor({_tim}/60)%:0<lime>%mod({_tim},60)%"	
+					set line 14 of loop-player's fastboard to "%{_event}% in <lime>%floor({_tim}/60)%:0<lime>%mod({_tim},60)%"	
 				else:
-					set line 14 of loop-player's scoreboard to "%{_event}% in <lime>%floor({_tim}/60)%:<lime>%mod({_tim},60)%"	
-				set line 13 of loop-player's scoreboard to ""
-				set line 12 of loop-player's scoreboard to "<yellow>Players remaining: %{hg.numplayers}%"
+					set line 14 of loop-player's fastboard to "%{_event}% in <lime>%floor({_tim}/60)%:<lime>%mod({_tim},60)%"	
+				set line 13 of loop-player's fastboard to ""
+				set line 12 of loop-player's fastboard to "<yellow>Players remaining: %{hg.numplayers}%"
 	if {hg.numplayers} is less than or equal to 1:
 		loop all players:
 			if {hg.playing.%loop-player%} is true:
@@ -464,7 +464,7 @@ every second:
 			if {hg.playing.%loop-player%} is true:
 				set {hg.playing.%loop-player%} to false
 				set {hg.ingame.%loop-player%} to false
-				clear the loop-player's scoreboard
+				clear the loop-player's fastboard
 				wait 5 seconds
 				teleport loop-player to {lastloc.%loop-player%}
 	if {hg.time} is equal to 2:
@@ -602,7 +602,7 @@ function mcchgendgame():
 command /mcchg:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		execute console command "/mccnewgame"

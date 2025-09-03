@@ -1,0 +1,103 @@
+
+command /rrrgencoursewater:
+	trigger:
+		if {mmcc.hosts::*} doesn't contain command sender:
+			if command sender is not "MiniMCC":
+				message "<pink>You do not have permission to run this command!"
+				exit trigger
+		kill all entities in world "railroadrush"
+		wait 1 second
+		set {_list2::*} to numbers between 1 and 5
+		loop 10 times:
+			execute console command "/schempaste railroadrush_summer_begin railroadrush -100 1 %loop-number * 29%"
+			broadcast location(-77.5,-5, loop-number*29 + 5.5, world "railroadrush")
+			broadcast "%mcccolor(loop-number-1)%"
+			set {_color} to "%mcccolor(loop-number-1)%"
+			if mcccolor(loop-number-1) is light cyan:
+				set {_color} to "light_blue"
+			else if mcccolor(loop-number-1) is light green:
+				set {_color} to "lime"
+			#spawn villager at location(-78.5,-5, loop-number*29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:farmer,level:5},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:blue_candle,Count:1,components:{custom_name:'["""",{""text"":""Water Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""It explodes, even when underwater!"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+			spawn villager at location(-78.5,-5, loop-number*29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:toolsmith,level:99},Offers:{Recipes:[{maxUses:999999,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:999999,buy:{id:raw_gold,count:3},sell:{id:powered_rail,count:1}},{maxUses:999999,buy:{id:raw_gold,count:2},sell:{id:%{_color}%_concrete,count:1}},{maxUses:999999,buy:{id:raw_gold,count:3},sell:{id:light_blue_candle,count:1,components:{custom_name:[{text:Dynamite,italic:false}],lore:[[{text:""but it works underwater!"",italic:false}]]}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+			set spawned entity's name to "<gold>Golden Gabriel"
+			set spawned entity's yaw to 90
+			# wait 20 ticks
+			# teleport event-player to location(-100, 0, loop-number*33, world "railroadrush")
+			# make event-player execute command "//schem load grid_pool"
+			# make event-player execute command "//paste"
+			
+			loop 5 times:
+				execute console command "/schempaste railroadrush_summer_%{_list2::%loop-number-2%}% railroadrush %(loop-number-2)*99-169% 0 %loop-number-1 * 29%"	
+				spawn villager at location(((loop-number-2)*99-171)+8.5,-5, loop-number-1 * 29 + 5.5, world "railroadrush") with nbt from "{VillagerData:{type:plains,profession:toolsmith,level:99},Offers:{Recipes:[{maxUses:999999,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:999999,buy:{id:raw_gold,count:3},sell:{id:powered_rail,count:1}},{maxUses:999999,buy:{id:raw_gold,count:2},sell:{id:%{_color}%_concrete,count:1}},{maxUses:999999,buy:{id:raw_gold,count:3},sell:{id:light_blue_candle,count:1,components:{custom_name:[{text:Dynamite,italic:false}],lore:[[{text:""but it works underwater!"",italic:false}]]}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				set spawned entity's name to "<gold>Golden Gabriel"
+				set spawned entity's yaw to 90
+					# wait 20 ticks
+						# teleport event-player to location((loop-number-2)*45-30, 0, (loop-number-1) * 33, world "railroadrush")
+						# make event-player execute command "//schem load railroadrush_summer_%{mcc.grid.challenge.%loop-number-2%}% -e"
+						# make event-player execute command "//paste -e"
+				set {_loc} to location((loop-number-2)*99-169.5, 0, loop-number-1 * 29+0.5, world "railroadrush")
+				set {_loc} to {_loc} ~ {mcc.rrr.vectorwater%{_list2::%loop-number-2%}%}
+				set {_loc} to the location 1 block east of {_loc}
+				spawn villager at {_loc} with nbt from "{VillagerData:{type:plains,profession:toolsmith,level:99},Offers:{Recipes:[{maxUses:999999,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:999999,buy:{id:raw_gold,count:3},sell:{id:powered_rail,count:1}},{maxUses:999999,buy:{id:raw_gold,count:2},sell:{id:%{_color}%_concrete,count:1}},{maxUses:999999,buy:{id:raw_gold,count:3},sell:{id:light_blue_candle,count:1,components:{custom_name:[{text:Dynamite,italic:false}],lore:[[{text:""but it works underwater!"",italic:false}]]}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+				set spawned entity's name to "<gold>Golden Gabriel"
+				set spawned entity's yaw to {mcc.rrr.villageryawwater.%{_list2::%loop-number-2%}%}
+				loop {mcc.rrr.secretvectorswater.%{_list2::%loop-number-2%}%::*}:
+					chance of (1.2 - loop-number-2*0.2):
+						set {_loc} to location((loop-number-2)*99-171.5, 0, loop-number-1 * 29+0.5, world "railroadrush")
+						set {_loc} to {_loc} ~ loop-value-3
+						set {_loc} to location 1 block east of {_loc}
+						set block at {_loc} to barrel
+						add random element out of {mcc.rrr.secretswater::*} to inventory of block at {_loc}
+					# wait 20 ticks
+						# teleport event-player to location((loop-number-2)*45-30, 0, (loop-number-1) * 33, world "railroadrush")
+						# make event-player execute command "//schem load railroadrush_summer_%{mcc.grid.challenge.%loop-number-2%}% -e"
+						# make event-player execute command "//paste -e"
+			execute console command "/schempaste railroadrush_summer_end railroadrush %6*99-171% 0 %loop-number * 29%"
+			# wait 20 ticks
+			# teleport event-player to location(360, 0, (loop-number-1) * 33, world "railroadrush")
+			# make event-player execute command "//schem load grid_finish_2"
+			# make event-player execute command "//paste"
+			# wait 20 ticks
+		execute console command "/schempaste railroadrush_summer_gold railroadrush -279 84 -40"
+		execute console command "/schempaste railroadrush_summer_gold railroadrush -554 115 -6"
+		execute console command "/schempaste railroadrush_summer_gold railroadrush -318 101 455"
+
+command /rrrreginitwater <number>:
+	permission: op
+	trigger:
+		set {rrr.registeringwater.%player%} to arg
+		set {rrr.registeringwater.%player%.loc} to player's location
+		message "rrr Map registration in progress for map %arg%"
+		message "Please go to the location of the extra villager and run /rrrregvillagerwater"
+		message "To add secrets to this map, please go to the location of the container with the secret and run /rrrregsecretwater"
+		message "To clear secrets, run /rrrclearsecretswater <map_num>"
+		message "If you did not run this command at the copy location, please do so now."
+		message "If you ran this command on accident, please run /rrrregcancelwater"
+
+command /rrrregvillagerwater:
+	permission: op
+	trigger:
+		if {rrr.registeringwater.%player%} is set:
+			set {mcc.rrr.vectorwater%{rrr.registeringwater.%player%}%} to vector between {rrr.registeringwater.%player%.loc} and player's location
+			set {mcc.rrr.villageryawwater.%{rrr.registeringwater.%player%}%} to player's yaw
+			message "registered villager position with vector of %{mcc.rrr.vectorwater%{rrr.registeringwater.%player%}%}% and yaw of %{mcc.rrr.villageryawwater.%{rrr.registeringwater.%player%}%}% to map %{rrr.registeringwater.%player%}%"
+
+command /rrrregsecretwater:
+	permission: op
+	trigger:
+		if {rrr.registeringwater.%player%} is set:
+			add vector between {rrr.registeringwater.%player%.loc} and player's location to {mcc.rrr.secretvectorswater.%{rrr.registeringwater.%player%}%::*}
+			message "registered secret container with vector of %vector between {rrr.registeringwater.%player%.loc} and player's location% to map %{rrr.registeringwater.%player%}%"
+
+command /rrrclearsecretswater <number>:
+	permission: op
+	trigger:
+		delete {mcc.rrr.secretvectorswater.%arg%::*}
+		message "cleared secrets of map %arg%"
+
+command /rrrregcancelwater:
+	permission: op
+	trigger:
+		delete {rrr.registeringwater.%player%}
+		message "canceled rrr map registering"
+

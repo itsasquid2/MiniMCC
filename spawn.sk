@@ -159,10 +159,10 @@ function spleefstartgame():
             set loop-player's health to 10
             set loop-player's hunger to 10
             set loop-player's game mode to adventure
-            clear the loop-player's scoreboard
-            set title of loop-player's scoreboard to "<light blue>Spleef"
-            set line 14 of loop-player's scoreboard to ""
-            set line 13 of loop-player's scoreboard to "<lime>Get ready!"	
+            clear the loop-player's fastboard
+            set title of loop-player's fastboard to "<light blue>Spleef"
+            set line 14 of loop-player's fastboard to ""
+            set line 13 of loop-player's fastboard to "<lime>Get ready!"	
     loop all players:
         if {spleef.playing.%loop-player%} is true:
             execute console command "/note 6 %loop-player%"
@@ -200,9 +200,9 @@ every second in "world":
             spleefendgame(1)
         loop all players:
             if {spleef.playing.%loop-player%} is true:
-                set line 13 of loop-player's scoreboard to "<pink>Time left: <white>%time({spleef.timeleft})%"	
-                set line 12 of loop-player's scoreboard to ""
-                set line 11 of loop-player's scoreboard to "<lime>Players left: %{_spleefplayers}%"
+                set line 13 of loop-player's fastboard to "<pink>Time left: <white>%time({spleef.timeleft})%"	
+                set line 12 of loop-player's fastboard to ""
+                set line 11 of loop-player's fastboard to "<lime>Players left: %{_spleefplayers}%"
             
 function spleefendgame(n:number):
     execute console command "/schempaste spleefmap world 160 87 -224"
@@ -220,7 +220,7 @@ function spleefendgame(n:number):
     loop all players:
         if {spleef.playing.%loop-player%} is true:
             teleport loop-player to {pktout}
-            clear the loop-player's scoreboard
+            clear the loop-player's fastboard
             set the loop-player's game mode to adventure
         set {spleef.playing.%loop-player%} to false
         set {spleef.ready.%loop-player%} to false
@@ -235,5 +235,5 @@ on damage:
                 teleport victim to {pktout}
                 set {spleef.playing.%victim%} to false
                 set {spleef.ready.%victim%} to false
-                clear the victim's scoreboard
+                clear the victim's fastboard
                 set the victim's game mode to adventure

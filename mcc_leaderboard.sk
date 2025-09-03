@@ -3,7 +3,7 @@
 command /mccupdateteamleaderboard:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		delete {_already::*}
@@ -35,14 +35,14 @@ command /mccupdateteamleaderboard:
 		
 command /clearloggedscores:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop 6 times:
 				delete {mcc.loggedscores.game.%loop-number%::*}
 
 command /mccupdateindivleaderboard:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		delete {_already::*}
@@ -96,22 +96,21 @@ command /mccupdateindivleaderboard:
 command /mccshowindiv:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		
 		delete {_already::*}
 		delete {_indivcoins::*}
-		set {_numbad} to 10
+		set {_numbad} to 40
 		set {_bla::*} to {mccplaying::*}
 		loop {_bla::*}:
 			if {_done::*} does not contain "%loop-value%":
 				# broadcast "%loop-value%'s coins - %{mcc.indivcoins.%loop-value%}%"
 				add "%loop-value%" to {_done::*}
-				if {mcc.team.%loop-value%} is not equal to 0:
-					add {mcc.indivcoins.%loop-value%} to {_indivcoins::*}
-					add loop-value to {_already::*}
-					subtract 1 from {_numbad}
+				add {mcc.indivcoins.%loop-value%} to {_indivcoins::*}
+				add loop-value to {_already::*}
+				subtract 1 from {_numbad}
 		set {_indivcoins::*} to sorted {_indivcoins::*}
 		set {_indivcoins::*} to reversed {_indivcoins::*}
 		loop 60 times:
@@ -124,14 +123,25 @@ command /mccshowindiv:
 				
 					if {_good} is false:
 						if {_already::*} contains loop-value-2:
-							if {mcc.indivcoins.%loop-value-2%} is equal to {_indivcoins::%loop-number%}:
-								broadcast "%loop-value-2% %{mcc.indivcoins.%loop-value-2%}%"
+							if {mcc.indivcoins.%loop-value-2%} is equal to {_indivcoins::%loop-number-1%}:
+								broadcast "%loop-value-2% - %{mcc.indivcoins.%loop-value-2%}%"
 								log "%loop-value-2% %{mcc.indivcoins.%loop-value-2%}%"
 
 								set {_good} to true
 								remove loop-value-2 from {_already::*}
 
-		
+command /mccshowfullindivs:
+	permission: op
+	trigger:
+		set {_bla::*} to {mccplaying::*}
+		loop {_bla::*}:
+			add {mcc.indivcoins.%loop-value%} to {_indivcoins::*}
+		set {_indivcoins::*} to sorted {_indivcoins::*}
+		set {_indivcoins::*} to reversed {_indivcoins::*}
+		loop {_indivcoins::*}:
+			loop {_bla::*}:
+				if {mcc.indivcoins.%loop-value-2%} is equal to loop-value-1:
+					broadcast "%loop-iteration-1%. %loop-value-2% %{mcc.indivcoins.%loop-value-2%}%"
 			
 
 function mccindivlead(p:player, n:number):
@@ -218,7 +228,7 @@ function mccteamlead(t:number, n:number, pl:number):
 
 command /setpillar <text> <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			delete {mcc.teampillars.%arg 2%::*}
 			loop blocks in radius 10 of player:
 				if arg 1 is "blue":
@@ -255,6 +265,6 @@ command /setpillar <text> <number>:
 				
 command /setnpcplace <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {mcc.teamnpclocs::%arg 1%} to player's position
 

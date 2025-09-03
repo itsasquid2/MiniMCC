@@ -6,14 +6,14 @@ function gen_image(n:number, p1:text, p2:text, p3:text, p4:text):
 command /mccautoassignteams:
     trigger:
         if command sender is "itsasquid2":
-            gen_image(8,"ilikecountries",	"Bluized",	"Firebeastmode",	"Beefing")
-            gen_image(2,"Adjacentt",	"Cabbenge",	"Anshdaboss",	"Qvrk")
-            gen_image(3,"Claralemon",	"ShadowyNinja151",	"Beebuilding",	"Dinamonchi")
-            gen_image(4,"PlateofRavioli",	"Overflow32",	"Tacogaming123456",	"Valuedspy")
-            gen_image(5,"Elitecombate",	"Cyclodrone ",	"Dlxckinq",	"Itsasquid2")
-            gen_image(7,"RealPenguin1",	"Envux",	"SimaraSaile",	"Apoller")
-            gen_image(6,"Sacronix",	"PEEJ45",	"AlexCountX",	"Jamzinho")
-            gen_image(1,"XayBrazy",	"Pokemaster404",	"Milo_wh",	"Ka1d4r3")
-            gen_image(9,"Krypticillusion",	"Tr1lu",	"BestBedwarPlayer",	"LargeTortilla")
-            gen_image(10,"mr_bean69",	"Bhrefort",	"Queefoholic",	"Malvare_")
+            #gen_image(1, 	"X",	"X",	"X",	"X"	)
+            gen_image(2, 	"Tr1lu_",	"Wozbee",	"happtCHAD",	"Agent126"	)
+            gen_image(3, 	"Realpenguin1",	"Mudkipboi14",	"Yungsoupyz",	"Mr_Salty385"	)
+            gen_image(4, 	"mateo6d7",	"Flarebug",	"R_3_3_D",	"Swagis4men"	)
+            #gen_image(5, 	"X",	"X",	"X",	"X"	)
+            gen_image(6, 	"Claralemon",	"milo_wh",	"dinamonchi",	"Galaxygema"	)
+            gen_image(7, 	"Joorneyed",	"ValorVanquish",	"Bonify",	"Maxboi_playz"	)
+            gen_image(8, 	"Shadowyninja151",	"sluczifer",	"WorthlessNdTrash",	"AjayMitchell"	)
+            gen_image(9, 	"Kryptic1llusion",	"Envux",	"Overflow32",	"Kayahaa"	)
+            gen_image(10, 	"elitecombate",	"BossOmnivore966",	"YeatKenCarson",	"itsasquid2"	)
 

@@ -1,7 +1,7 @@
 command /mccholeinthewall:
     permission: op
     trigger:
-        if {mmcc.hoster.%command sender%} isn't true:
+        if {mmcc.hosts::*} doesn't contain command sender:
             if command sender is not "notcbop":
                 exit trigger
         mcccholeinthewall(true)
@@ -66,7 +66,7 @@ function mccholeinthewalltutorial(p:player):
 command /movehitwwallspawns <number>:
     permission: op
     trigger:
-        if {mmcc.hoster.%command sender%} is true:
+        if {mmcc.hosts::*} contains command sender:
             set {mcc.hitw.locations.north} to the location arg blocks north of {mcc.hitw.locations.north}
             set {mcc.hitw.locations.south} to the location arg blocks south of {mcc.hitw.locations.south}
             set {mcc.hitw.locations.east} to the location arg blocks east of {mcc.hitw.locations.east}
@@ -83,8 +83,10 @@ function mcccholeinthewall(t:boolean):
         loop all players:
             execute console command "/mvtp %loop-player's name% holeinthewall"
             mccholeinthewalltutorial(loop-player)
+        wait 0.5 seconds
+        loop all players:
             set the loop-player's boots to leather boots
-            dye the loop-player's boots mcccolor({mcc.team.%loop-player's name%})
+            dye the loop-player's boots mcccolor({mcc.team.%loop-player%})
         wait 0.5 seconds
         execute console command "/effect give @a jump_boost infinite 1"
         execute console command "/effect give @a invisibility infinite 1"
@@ -126,7 +128,7 @@ every second:
                 if y coord of loop-player is less than 74:
                     add 1 to {hitw.numplayers}
             loop all players:
-                mccupdatescoreboard(loop-player)
+                mccupdatefastboard(loop-player)
             if {mcc.hitw.stage} is more than 0:
                 if {hitw.numplayers} is less than 2:
                     hitwroundend()
@@ -134,7 +136,7 @@ every second:
 command /hitwflash <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		loop 5 times:
@@ -163,7 +165,7 @@ command /hitwflash <number>:
 command /reghitwblocks:
     permission: op
     trigger:
-        if {mmcc.hoster.%command sender%} is true:
+        if {mmcc.hosts::*} contains command sender:
             loop blocks in radius 15 of event-player:
                 if loop-block is prismarine bricks:
                     set {mcc.hitw.whatblock.%loop-block's location%} to 1
@@ -177,7 +179,7 @@ command /reghitwblocks:
 command /reghitwzone <number>:
     permission: op
     trigger:
-        if {mmcc.hoster.%command sender%} is true:
+        if {mmcc.hosts::*} contains command sender:
             loop blocks in radius 15 of event-player:
                 if loop-block is magma block:
                     add loop-block's location to {mcc.hitw.zone.%arg 1%::*}
@@ -411,66 +413,71 @@ on damage:
 function movewall(direction:text,wall:number):
     
     if {_direction} is "north":
+        
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
-            set block north of loop-value to type of loop-value
+            #broadcast loop-value
+            set block north of loop-value to loop-value
             add block north of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
             set block at loop-value to air
             remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
                 #broadcast loop-entity
-                if block below loop-entity is not slime block:
-                    teleport loop-entity to the location 1 block north of loop-entity's location
-                    push loop-entity north
-                else if block above loop-entity is slime block:
-                    teleport loop-entity to the location 1 block north of loop-entity's location
-                    push loop-entity north
+                if block below loop-entity-2 is not slime block:
+                    teleport loop-entity-2 to the location 1 block north of loop-entity-2's location
+                    push loop-entity-2 north
+                else if block above loop-entity-2 is slime block:
+                    teleport loop-entity-2 to the location 1 block north of loop-entity-2's location
+                    push loop-entity-2 north
             
     if {_direction} is "east":
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
-            set block east of loop-value to type of loop-value
+            #broadcast loop-value
+            set block east of loop-value to loop-value
             add block east of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
             set block at loop-value to air
             remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
                 #broadcast loop-entity
-                if block below loop-entity is not slime block:
-                    teleport loop-entity to the location 1 block east of loop-entity's location
-                    push loop-entity east 
-                else if block above loop-entity is slime block:
-                    teleport loop-entity to the location 1 block east of loop-entity's location
-                    push loop-entity east
+                if block below loop-entity-2 is not slime block:
+                    teleport loop-entity-2 to the location 1 block east of loop-entity-2's location
+                    push loop-entity-2 east 
+                else if block above loop-entity-2 is slime block:
+                    teleport loop-entity-2 to the location 1 block east of loop-entity-2's location
+                    push loop-entity-2 east
             
     if {_direction} is "west":
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
-            set block west of loop-value to type of loop-value
+            #broadcast loop-value
+            set block west of loop-value to loop-value
             add block west of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
             set block at loop-value to air
             remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
-                #broadcast loop-entity
-                if block below loop-entity is not slime block:
-                    teleport loop-entity to the location 1 block west of loop-entity's location
-                    push loop-entity west 
-                else if block above loop-entity is slime block:
-                    teleport loop-entity to the location 1 block west of loop-entity's location
-                    push loop-entity west
+                #broadcast loop-entity-2
+                if block below loop-entity-2 is not slime block:
+                    teleport loop-entity-2 to the location 1 block west of loop-entity-2's location
+                    push loop-entity-2 west 
+                else if block above loop-entity-2 is slime block:
+                    teleport loop-entity-2 to the location 1 block west of loop-entity-2's location
+                    push loop-entity-2 west
             
     if {_direction} is "south":
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
-            set block south of loop-value to type of loop-value
+            #broadcast loop-value
+            set block south of loop-value to loop-value
             add block south of loop-value to {mcc.hitw.currentwalls.%{_wall}%::*}
             set block at loop-value to air
             remove loop-value from {mcc.hitw.currentwalls.%{_wall}%::*}
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
-                #broadcast loop-entity
-                if block below loop-entity is not slime block:
-                    teleport loop-entity to the location 1 block south of loop-entity's location
-                    push loop-entity south 
-                else if block above loop-entity is slime block:
-                    teleport loop-entity to the location 1 block south of loop-entity's location
-                    push loop-entity south
+                #broadcast loop-entity-2
+                if block below loop-entity-2 is not slime block:
+                    teleport loop-entity-2 to the location 1 block south of loop-entity-2's location
+                    push loop-entity-2 south 
+                else if block above loop-entity-2 is slime block:
+                    teleport loop-entity-2 to the location 1 block south of loop-entity-2's location
+                    push loop-entity-2 south
                 

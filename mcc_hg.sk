@@ -18,9 +18,9 @@ function sgover() :: boolean:
 		set {_bla} to 0
 		loop all players:
 			if {sg.playing.%loop-player's name%} is true:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
-					if {_tl::*} does not contain {mcc.team.%loop-player's name%}:	
-						add {mcc.team.%loop-player's name%} to {_tl::*}
+				if {mcc.team.%loop-player%} is not equal to 0:
+					if {_tl::*} does not contain {mcc.team.%loop-player%}:	
+						add {mcc.team.%loop-player%} to {_tl::*}
 						add 1 to {_bla}
 	else:
 		set {_bla} to 0
@@ -37,7 +37,7 @@ function sgendgame():
 	delete {_win::*}
 	loop all players:
 		if {sg.playing.%loop-player's name%} is true:
-			add formatted "<%mcccolor({mcc.team.%loop-player's name%})%>%loop-player%" to {_win::*}
+			add formatted "<%mcccolor({mcc.team.%loop-player%})%>%loop-player%" to {_win::*}
 			add 1 to {_w}
 	if {_w} is equal to 1:
 		broadcast "<pink>%{_win::1}% <pink>has won the Hunger Games!"
@@ -49,13 +49,13 @@ function sgendgame():
 			ac(loop-player, 80, "You survived the entire game!", true)
 	if {mcc.sg.round} is equal to 1:
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				send title "<pink>Round over!" to loop-player for 3 seconds
 		wait 10 seconds
 		add 1 to {mcc.sg.round}
 	else:
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				send title "<pink>Game over!" to loop-player for 3 seconds
 				set glowing of loop-player to false
 		execute console command "/mccstandings"
@@ -99,7 +99,7 @@ function sgstartgame():
 
 command /addbarrierssg <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop blocks in radius arg 1 of player:
 				if loop-block is minecraft:barrier:
 					add loop-block to {hgbarriers::*}
@@ -120,7 +120,7 @@ function sgspawnchest(x:number, z:number):
 
 command addloot <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop {lootchests::*}:
 				chance of arg:
 					add player's tool to the inventory of block at loop-value
@@ -138,7 +138,7 @@ function sgwildchests():
 command /sgreloadkiwi:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		execute console command "/mvdelete survivalgames"
@@ -161,19 +161,19 @@ command /sgreloadkiwi:
 		set the gamerule showDeathMessages of {sgworld} to false
 		set the gamerule doDaylightCycle of {sgworld} to false
 		set the gamerule doWeatherCycle of {sgworld} to false
-		set damage buffer of world border of {sgworld} to 0
+		set world border damage buffer of world border of {sgworld} to 0
 		execute console command "/fillchestskiwi sg_wild"
-		loop blocks in radius 10 of the location 0.5, 43.5, 0.5 of {sgworld}:
-			if loop-block is a chest:
-				add loop-block to {lootchests::*}
-				remove loop-block's location from {lootchestskiwi::*}
-		execute console command "/fillchests sg_cornucopia"
+		# loop blocks in radius 10 of the location 0.5, 43.5, 0.5 of {sgworld}:
+		# 	if loop-block is a chest:
+		# 		add loop-block to {lootchests::*}
+		# 		remove loop-block's location from {lootchestskiwi::*}
+		# execute console command "/fillchests sg_cornucopia"
 		broadcast "Generated cornucopia"	
 
 command /sgreloadkiwi2:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		execute console command "/mvdelete survivalgames2"
@@ -195,7 +195,7 @@ command /sgreloadkiwi2:
 		set the gamerule showDeathMessages of {sgworld} to false
 		set the gamerule doDaylightCycle of {sgworld} to false
 		set the gamerule doWeatherCycle of {sgworld} to false
-		set damage buffer of world border of {sgworld} to 0
+		set world border damage buffer of world border of {sgworld} to 0
 		execute console command "/fillchestskiwi sg_wild"
 		loop blocks in radius 10 of the location 0.5, 43.5, 0.5 of {sgworld}:
 			if loop-block is a chest:
@@ -213,7 +213,7 @@ on anvil prepare:
 command /sgreload:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
@@ -240,7 +240,7 @@ command /sgreload:
 
 command /addloottochests:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop blocks in radius 100 around player:
 				if block at loop-value is a chest:
 					add player's tool to the inventory of the block at loop-value-1
@@ -248,7 +248,7 @@ command /addloottochests:
 command /sgreload2:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
@@ -554,15 +554,15 @@ every second:
 			sgb("<pink>Supply drops have arrived!")
 			sgspawnsupplydrops({sgworld})
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				send title "" with subtitle "<pink>Border shrinking" to loop-player for 5 seconds
 		set {_good} to false
-		set size of world border of world "survivalgames" to 400
-		set size of world border of world "survivalgames2" to 400
-		set border center of world border of world "survivalgames" to location({sg.worldborderx},0,{sg.worldborderz})
-		set border center of world border of world "survivalgames2" to location({sg.worldborderx},0,{sg.worldborderz})
-		shrink world border of world "survivalgames" to 25 in 200 seconds
-		shrink world border of world "survivalgames2" to 25 in 200 seconds
+		set worldborder radius of world border of world "survivalgames" to 430
+		set worldborder radius of world border of world "survivalgames2" to 430
+		set worldborder center of world border of world "survivalgames" to location({sg.worldborderx},0,{sg.worldborderz})
+		set worldborder center of world border of world "survivalgames2" to location({sg.worldborderx},0,{sg.worldborderz})
+		shrink world border of world "survivalgames" to 25 over 200 seconds
+		shrink world border of world "survivalgames2" to 25 over 200 seconds
 			
 	else if {sg.time} is equal to 195: 
 		if {hgmapset} isn't true:
@@ -652,13 +652,13 @@ function sgspawnsupplydrops(world:world):
 	loop {sgsupplydroplocs::*}:
 		set facing of the block 1 block south of loop-value to south
 		loop blocks in radius 2 of loop-value:
-			if loop-block is a gold block:
+			if loop-block-2 is a gold block:
 				
-				le spawn text display at the location 0.6 block above loop-block:
+				le spawn text display at the location 0.6 block above loop-block-2:
 					set billboard of spawned text display to center
 				set display text of last spawned entity to "<lime>Coin Crate(Break)"
-			if loop-block is a chest:
-				add loop-block to {lootchests::*}
+			if loop-block-2 is a chest:
+				add loop-block-2 to {lootchests::*}
 	execute console command "/fillchests sg_wild"
 
 on inventory click:
@@ -852,13 +852,13 @@ on rightclick:
 		if {hg.scancooldown} is less than 1:
 			loop players in radius 30 of event-player:
 				execute console command "/onesidedglow %loop-player's name% %player% true"
-				send formatted "You are being revealed to <%mcccolor({mcc.team.%player's name%})%>%player%<reset>!" to loop-player
+				send formatted "You are being revealed to <%mcccolor({mcc.team.%player%})%>%player%<reset>!" to loop-player
 				play sound "minecraft:entity.elder_guardian.curse" in master category to loop-player 
 			set {hg.scancooldown} to 30
 			wait 10 seconds
 			loop players in radius 30 of event-player:
 				execute console command "/onesidedglow %loop-player's name% %player% false"
-				send formatted "You are no longer being revealed to <%mcccolor({mcc.team.%player's name%})%>%player%<reset>!" to loop-player
+				send formatted "You are no longer being revealed to <%mcccolor({mcc.team.%player%})%>%player%<reset>!" to loop-player
 			teamglowplayer(player,"%{mcc.teamglowenabled}%")
 			wait a tick
 			set glowing of player to false
@@ -933,7 +933,7 @@ on item despawn:
 command /mcchungergames:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		set {mcc.sg.stage} to 0
@@ -951,9 +951,9 @@ command /mcchungergames:
 		#set time in {sgworld} to 15:00
 		set {_good} to false
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				if {hgmapset} isn't true:
-					hungergamestp1({mcc.team.%loop-player's name%}, loop-player)
+					hungergamestp1({mcc.team.%loop-player%}, loop-player)
 				else:
 					#hgrandomtp(world "survivalgames")
 					hgcircletp(world "survivalgames")
@@ -971,10 +971,10 @@ command /mcchungergames:
 				set glowing of loop-player to false
 				set {sg.playing.%loop-player's name%} to true
 				mccsgtutorial(loop-player)
-		set border center of world border of world "survivalgames2" to location(0,0,0)
-		set border center of world border of world "survivalgames1" to location(0,0,0)
-		expand world border of world "survivalgames2" to 275 in 1 second
-		expand world border of world "survivalgames" to 275 in 1 second
+		set worldborder center of world border of world "survivalgames2" to location(0,0,0)
+		set worldborder center of world border of world "survivalgames1" to location(0,0,0)
+		expand world border of world "survivalgames2" to 275 over 1 second
+		expand world border of world "survivalgames" to 275 over 1 second
 		teamglow("true")
 		while {mcc.sg.round} is equal to 1:
 			wait 1 second
@@ -991,9 +991,9 @@ command /mcchungergames:
 		set {_good} to false
 
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				if {hgmapset} isn't true:
-					hungergamestp2({mcc.team.%loop-player's name%}, loop-player)
+					hungergamestp2({mcc.team.%loop-player%}, loop-player)
 					
 				else:
 					#hgrandomtp(world "survivalgames2")
@@ -1011,10 +1011,10 @@ command /mcchungergames:
 				clear loop-player's potion effects
 				set glowing of loop-player to false
 				set {sg.playing.%loop-player's name%} to true
-		set border center of world border of world "survivalgames2" to location(0,0,0)
-		set border center of world border of world "survivalgames1" to location(0,0,0)
-		expand world border of world "survivalgames2" to 275 in 1 second
-		expand world border of world "survivalgames" to 275 in 1 second
+		set worldborder center of world border of world "survivalgames2" to location(0,0,0)
+		set worldborder center of world border of world "survivalgames" to location(0,0,0)
+		expand world border of world "survivalgames2" to 275 over 1 second
+		expand world border of world "survivalgames" to 275 over 1 second
 		teamglow("true")
 
 function hgrandomtp(world:world):
@@ -1026,32 +1026,32 @@ function hgrandomtp(world:world):
 		set {_loc}'s world to {_world}
 		#broadcast {_loc}
 		loop all players:
-			if {mcc.team.%loop-player%} is equal to {_count}:
-				teleport loop-player to {_loc}
+			if {mcc.team.%loop-player-2%} is equal to {_count}:
+				teleport loop-player-2 to {_loc}
 		loop blocks in radius 3 around {_loc}:
-			if loop-block is stone or concrete:
+			if loop-block-2 is stone or concrete:
 				if {_count} is equal to 0:
-					set loop-block to white concrete
+					set loop-block-2 to white concrete
 				else if {_count} is equal to 1:
-					set loop-block to red concrete
+					set loop-block-2 to red concrete
 				else if {_count} is equal to 2:
-					set loop-block to orange concrete
+					set loop-block-2 to orange concrete
 				else if {_count} is equal to 3:
-					set loop-block to yellow concrete
+					set loop-block-2 to yellow concrete
 				else if {_count} is equal to 4:
-					set loop-block to lime concrete
+					set loop-block-2 to lime concrete
 				else if {_count} is equal to 5:
-					set loop-block to green concrete
+					set loop-block-2 to green concrete
 				else if {_count} is equal to 6:
-					set loop-block to cyan concrete
+					set loop-block-2 to cyan concrete
 				else if {_count} is equal to 7:
-					set loop-block to light blue concrete
+					set loop-block-2 to light blue concrete
 				else if {_count} is equal to 8:
-					set loop-block to blue concrete
+					set loop-block-2 to blue concrete
 				else if {_count} is equal to 9:
-					set loop-block to purple concrete
+					set loop-block-2 to purple concrete
 				else if {_count} is equal to 10:
-					set loop-block to magenta concrete
+					set loop-block-2 to magenta concrete
 		add 1 to {_count}
 
 function hgcircletp(world:world):
@@ -1059,7 +1059,7 @@ function hgcircletp(world:world):
 		set {_loc} to {mcc.hg.circlestartinglocs::%loop-number%}
 		set world of {_loc} to {_world}
 		loop all players:
-			if {mcc.team.%loop-player's name%} is equal to loop-number:
+			if {mcc.team.%loop-player%} is equal to loop-number:
 				teleport loop-player to {_loc}
 				set loop-player's chestplate to elytra
 
@@ -1137,7 +1137,7 @@ function hungergamestp2(n:number,p:player):
 
 command /setsgstartingpos <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {sglocations2.%arg%} to player's location
 			broadcast player's location
 

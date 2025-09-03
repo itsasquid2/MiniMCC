@@ -104,13 +104,6 @@ command /mysterious <player>:
 on command "/tp itsasquid2":
 	message "<pink>An unexpected error occurred: java.lang.socket.io disconnected: ping spoofing error"
 	cancel event
-
-
-every second:
-	loop all players in "lobbyworld":
-		if loop-player's y-coordinate is less than 0:
-			teleport loop-player to the loop-player's bed 
-			send "<gray>You fell! Teleporting to last checkpoint..." to loop-player
 	
 on hunger meter change:
 	player's world is "lobbyworld"

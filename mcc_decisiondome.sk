@@ -2,7 +2,7 @@
 
 command /setstuff:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			set {mcc.decisiondome.votingtime} to 30
 			set {mcc.decisiondome.breaktime} to 120
 			set {mcc.decisiondome.green} to 8
@@ -38,10 +38,14 @@ function ddnextgreen():
 	add 1 to {mcc.decisiondome.green}
 	if {mcc.decisiondome.green} is greater than or equal to 9:
 		set {mcc.decisiondome.green} to mod({mcc.decisiondome.green}, 8) 
+	set {_count} to 0
 	while {mcc.decisiondome.red.%{mcc.decisiondome.green}%} is true:
 		add 1 to {mcc.decisiondome.green}
 		if {mcc.decisiondome.green} is greater than or equal to 9:
 			set {mcc.decisiondome.green} to mod({mcc.decisiondome.green}, 8) 
+		add 1 to {_count}
+		if {_count} is greater than 20:
+			exit 2 sections
 	loop {mcc.decisiondome.slices.%{_past}%::*}:
 		set block at loop-value to white wool
 	loop {mcc.decisiondome.slices.%{mcc.decisiondome.green}%::*}:
@@ -65,8 +69,6 @@ function decideslice() :: number:
 	set {_ba} to a random element of {_tied::*}
 	return {_ba}
 
-
-
 function countchickens(n:number) :: number:
 	set {_count} to 0
 	if {mcc.decisiondome.rigged} is equal to {_n}:
@@ -84,23 +86,30 @@ function countchickens(n:number) :: number:
 
 command /ddsetslice <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
-			loop blocks in radius 12 around player:
-				if loop-block is black concrete:
-					add location of loop-block to {mcc.decisiondome.slices.%arg 1%::*}
-					add 1 to {_count}
-			message {_count}
+		if {mmcc.hosts::*} contains command sender:
+			delete {mcc.decisiondome.slices.%arg%::*}
+			add location of player's target block to {mcc.decisiondome.slices.%arg%::*}
+			
+			loop 10 times:
+				loop {mcc.decisiondome.slices.%arg%::*}:
+					loop blocks in radius 1 of loop-value-2:
+						if type of loop-value-3 is type of player's target block:
+							if {mcc.decisiondome.slices.%arg%::*} doesn't contain loop-value-3's location:
+								set loop-value-3 to black concrete
+								add location of loop-value-3 to {mcc.decisiondome.slices.%arg%::*}
+			set player's target block to black concrete
+			message "%size of {mcc.decisiondome.slices.%arg%::*}%"
 
 command /ddresetslice:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop 8 times:
 				delete {mcc.decisiondome.slices.%loop-number%::*}
 
 command /mccvote <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		
@@ -124,14 +133,14 @@ command /mccvote <number>:
 		set {mcc.decisiondome.rigged} to 0
 		loop all players:
 			if {mcc.team.%loop-player%} is not equal to 0:
-				clear the loop-player's scoreboard
+				clear the loop-player's fastboard
 				clear loop-player's inventory
 				
 
 command /ddup:
         trigger:
                 if command sender is not the console:
-                        if {mmcc.hoster.%command sender%} isn't true:
+                        if {mmcc.hosts::*} doesn't contain command sender:
                                 message "<pink>You do not have permission to run this command!"
                                 exit trigger
                 if {decisiondomeup} is true:
@@ -147,7 +156,7 @@ command /ddup:
 command /dddown:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		if {decisiondomeup} is false:
@@ -175,7 +184,7 @@ command /dddown:
 command /ddredden <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		if {mcc.decisiondome.red.%arg 1%} is false:
@@ -211,7 +220,7 @@ on shoot:
 on projectile hit:
 	if the event-projectile has the scoreboard tags "mccmega":
 		broadcast formatted "[<gold><bold>Decision Dome<white>]<%mcccolor({mcc.team.%shooter%})%> %shooter%<white> has spawned a Mega Chicken!"
-		spawn a chicken at event-location with nbt from "{active_effects:[{id:glowing,duration:99999999999,show_particles:0b}]}"
+		spawn a chicken at event-location with nbt from "{active_effects:[{id:glowing,duration:-1,show_particles:0b}]}"
 		set name of last spawned mob to "Mega Chicken"
 #		loop entities in radius 30 of event-location:
 #			if "%loop-entity%" is equal to "Mega Chicken":
@@ -345,7 +354,7 @@ every second:
 				
 command /setautomatic:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			if {mcc.automatic} is true:
 				set {mcc.automatic} to false
 				message "automatic turned off"
@@ -364,7 +373,7 @@ command /setautomatic:
 command /dodgebolttest:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		delete {_already::*}
@@ -411,7 +420,7 @@ on damage:
 
 command /gvc:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger
 		loop 8 times:
@@ -419,7 +428,7 @@ command /gvc:
 
 command /secret <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<pink>You do not have permission to run the secret command!"
 			exit trigger
 		set {mcc.decisiondome.rigged} to arg 1

@@ -90,10 +90,10 @@ function bbstartgame():
 			set loop-player's health to 10
 			set loop-player's hunger to 10
 			set loop-player's game mode to survival
-			clear the loop-player's scoreboard
-			set title of loop-player's scoreboard to "<light blue>Battle Box"
-			set line 14 of loop-player's scoreboard to ""
-			set line 13 of loop-player's scoreboard to "<lime>Get ready!"	
+			clear the loop-player's fastboard
+			set title of loop-player's fastboard to "<light blue>Battle Box"
+			set line 14 of loop-player's fastboard to ""
+			set line 13 of loop-player's fastboard to "<lime>Get ready!"	
 			if {battlebox.team.%loop-player%} is equal to "dream":
 				teleport loop-player to location at 11, 51, -304 of world "world" 
 			else:
@@ -142,7 +142,7 @@ function bbgameover() :: number:
 
 command /setbbstuff:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {bbwoolloc} to the location 31, 101, -305 in world "world"
 
 function bbendgame(n: number):
@@ -167,7 +167,7 @@ function bbendgame(n: number):
 	loop all players:
 		if {battlebox.playing.%loop-player%} is true:
 			teleport loop-player to {bbwaitingloc}
-			clear the loop-player's scoreboard
+			clear the loop-player's fastboard
 			set the loop-player's game mode to adventure
 		set {battlebox.playing.%loop-player%} to false
 		set {battlebox.ready.%loop-player%} to false
@@ -287,7 +287,7 @@ on damage:
 		teleport victim to {bbdeadspawn}
 		set the victim's game mode to adventure
 		send "<light blue>[Battle Box] <pink>You died!" to the victim		
-		clear the victim's scoreboard
+		clear the victim's fastboard
 		set victim's health to 10
 		cancel event
 
@@ -348,11 +348,11 @@ every second in "world":
 		loop all players:
 			if {battlebox.playing.%loop-player%} is true:
 				if {battlebox.timeleft} is greater than 9:
-					set line 13 of loop-player's scoreboard to "<pink>Time left: <white>00:%{battlebox.timeleft}%"	
+					set line 13 of loop-player's fastboard to "<pink>Time left: <white>00:%{battlebox.timeleft}%"	
 				else:
-					set line 13 of loop-player's scoreboard to "<pink>Time left: <white>00:0%{battlebox.timeleft}%"	
-				set line 12 of loop-player's scoreboard to ""
-				set line 11 of loop-player's scoreboard to "<lime>Green Dreams: %{_dream}%"
-				set line 10 of loop-player's scoreboard to "<gray>Black BadBoyHalos: %{_bad}%"
+					set line 13 of loop-player's fastboard to "<pink>Time left: <white>00:0%{battlebox.timeleft}%"	
+				set line 12 of loop-player's fastboard to ""
+				set line 11 of loop-player's fastboard to "<lime>Green Dreams: %{_dream}%"
+				set line 10 of loop-player's fastboard to "<gray>Black BadBoyHalos: %{_bad}%"
 
 

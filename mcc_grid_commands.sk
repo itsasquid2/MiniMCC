@@ -3,7 +3,7 @@ command /regentities <number>:
 	permission: op
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		delete {mcc.grid.%arg 1%.entities::*}
@@ -24,7 +24,7 @@ command /spawnentities <number> <number>:
 	usage: /spawnentities <team> <room number>
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		set {_i} to 1
@@ -45,7 +45,7 @@ on tab complete of "/skriptsummon":
 
 command /gridgencourse:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "MiniMCC":
 					message "<pink>You do not have permission to run this command!"
@@ -100,7 +100,7 @@ on despawn:
 command /gridreg <number> <text> <number> <text> <number> <number>:
 	usage: /gridreg <id> <name> <type> <blurb> <pointsreq> <roomnumber>
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger
 		set {mcc.grid.challenge.%arg 6%} to arg 1
@@ -116,7 +116,7 @@ command /gridreg <number> <text> <number> <text> <number> <number>:
 command /gridsetroom <number> <number>:
 	usage: /gridsetroom <id> <roomnumber>
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger
 		set {mcc.grid.challenge.%arg 2%} to arg 1
@@ -124,14 +124,14 @@ command /gridsetroom <number> <number>:
 
 command /gridregkit <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			delete {mcc.grid.%arg 1%.kit::*}
 			loop items in player's inventory:
 				add loop-item to {mcc.grid.%arg 1%.kit::*}
 
 command /setfinish <text>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			set {mcc.grid.finish} to arg 1
 
 command /gridtest <number>:
@@ -140,7 +140,7 @@ command /gridtest <number>:
 
 command /gridallow <number> [<number>]:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger
 		if arg 2 is set:
@@ -159,7 +159,7 @@ command /gridallow <number> [<number>]:
 
 command /gridpoint <number> <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			if command sender is not the console:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
@@ -208,7 +208,7 @@ on walk on concrete:
 
 command /gridrunnerssetconcrete:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop 10 times:
 				broadcast 33*((loop-number) - 1)
 				if loop-number is 1:
@@ -270,23 +270,23 @@ on hunger meter change:
 
 on break of dirt:
 	event-world is "gridrunners"
-	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Clean the Statue!":
-		gridpoint({mcc.team.%player's name%}, 1)
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Clean the Statue!":
+		gridpoint({mcc.team.%player%}, 1)
 
 on break of spawner:
 	event-world is "gridrunners"
-	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Destroy the Source!":
-		gridpoint({mcc.team.%player's name%}, 1)
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Destroy the Source!":
+		gridpoint({mcc.team.%player%}, 1)
 
 on break of magenta bed:
 	event-world is "gridrunners"
-	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Break the Bed!":
-		gridpoint({mcc.team.%player's name%}, 1)
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Break the Bed!":
+		gridpoint({mcc.team.%player%}, 1)
 
 on place of dirt:
 	event-world is "gridrunners"
-	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Clean the Statue!":
-		gridpoint({mcc.team.%player's name%}, -1)
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Clean the Statue!":
+		gridpoint({mcc.team.%player%}, -1)
 
 on projectile hit:
 	event-world is "gridrunners"
@@ -314,9 +314,9 @@ on damage:
 
 on leftclick on warped button:
 	event-world is "gridrunners"
-	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Punch the Buttons!":
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Punch the Buttons!":
 		set block at event-location to air
-		gridpoint({mcc.team.%player's name%}, 1)
+		gridpoint({mcc.team.%player%}, 1)
 
 command /gridmakeentitiesnotdespawn:
 	permission: op
@@ -345,7 +345,7 @@ on inventory pickup:
 
 on break:
 	world is "gridrunners"
-	if {mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%} is 80:
+	if {mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%} is 80:
 		loop entities in radius 1.2 around event-block:
 			if loop-entity is item frame:
 				cancel event
@@ -356,7 +356,7 @@ on break:
 		
 on place:
 	world is "gridrunners"
-	if {mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%} is 80:
+	if {mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%} is 80:
 		loop entities in radius 1.2 around event-block:
 			if loop-entity is item frame:
 				cancel event
@@ -364,7 +364,7 @@ on place:
 
 command /endgrid:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			set {mcc.grid.timeleft} to 1
 
 on damage of item frame:
@@ -383,18 +383,18 @@ on rightclick on hopper:
 on walking on smooth stone slab:
 	player is in world "gridrunners"
 	player's game mode is adventure
-	{mcc.team.%player's name%} is not equal to 0
+	{mcc.team.%player%} is not equal to 0
 	player's x-coordinate is greater than 40+45*{mcc.grid.numrooms}
 	set player's game mode to spectator
-	add 1 to {mcc.grid.numfinished.%{mcc.team.%player's name%}%}
-	if {mcc.grid.numfinished.%{mcc.team.%player's name%}%} is equal to {mcc.grid.numplayers.%{mcc.team.%player's name%}%}:
+	add 1 to {mcc.grid.numfinished.%{mcc.team.%player%}%}
+	if {mcc.grid.numfinished.%{mcc.team.%player%}%} is equal to {mcc.grid.numplayers.%{mcc.team.%player%}%}:
 		set {_bla} to 0
 		loop 10 times:
 			if {mcc.grid.numfinished.%loop-number%} is equal to {mcc.grid.numplayers.%loop-number%}:	
 				if {mcc.grid.numplayers.%loop-number%} is not equal to 0:
 					add 1 to {_bla}
-		broadcast "%{mcc.teams::%{mcc.team.%player's name%}%}% <white>have finished the entire course in <light blue>%nth({_bla})% <white>place!"
-		set {mcc.grid.time.team.%{mcc.team.%player's name%}%.room.9} to {mcc.grid.timestamp}
+		broadcast "%{mcc.teams::%{mcc.team.%player%}%}% <white>have finished the entire course in <light blue>%nth({_bla})% <white>place!"
+		set {mcc.grid.time.team.%{mcc.team.%player%}%.room.9} to {mcc.grid.timestamp}
 
 
 
@@ -404,8 +404,8 @@ on rightclick on cake:
 	set player's hunger to 9
 	wait a tick
 	set event-block to air
-	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Eat the Cakes!":
-		gridpoint({mcc.team.%player's name%}, 1)
+	if {mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Eat the Cakes!":
+		gridpoint({mcc.team.%player%}, 1)
 	wait 1 second
 	set player's hunger to 10
 
@@ -416,27 +416,27 @@ on item merge of cocoa beans:
 	
 on rightclick on lever:
 	event-world is "gridrunners"
-	{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Light the Lamps!"
+	{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Light the Lamps!"
 	loop blocks in radius 1 of event-location:
 		if loop-block is redstone lamp:
 			set loop-block to shroomlight
-			gridpoint({mcc.team.%player's name%}, 1)
+			gridpoint({mcc.team.%player%}, 1)
 
 
 
 on place of iron block or blue concrete or smooth quartz stairs:
 	event-world is "gridrunners"
-	{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Copy the Sculpture!"
+	{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Copy the Sculpture!"
 	wait a tick
-	if mccgridcopydone({mcc.team.%player's name%}, {mcc.grid.room.%{mcc.team.%player's name%}%}) is true:
-		gridpoint({mcc.team.%player's name%}, 1)
+	if mccgridcopydone({mcc.team.%player%}, {mcc.grid.room.%{mcc.team.%player%}%}) is true:
+		gridpoint({mcc.team.%player%}, 1)
 
 on break of iron block or blue concrete or smooth quartz stairs:
 	event-world is "gridrunners"
-	{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player's name%}%}%}%.blurb} is equal to "Copy the Sculpture!"
+	{mcc.grid.%{mcc.grid.challenge.%{mcc.grid.room.%{mcc.team.%player%}%}%}%.blurb} is equal to "Copy the Sculpture!"
 	wait a tick
-	if mccgridcopydone({mcc.team.%player's name%}, {mcc.grid.room.%{mcc.team.%player's name%}%}) is true:
-		gridpoint({mcc.team.%player's name%}, 1)
+	if mccgridcopydone({mcc.team.%player%}, {mcc.grid.room.%{mcc.team.%player%}%}) is true:
+		gridpoint({mcc.team.%player%}, 1)
 
 on break:
 	event-world is "gridrunners"

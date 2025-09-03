@@ -34,7 +34,7 @@ command /setsails <number> <number>:
 
 command /setsailblocks <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop blocks in radius 50 of player:
 				if loop-block is wool:
 					add loop-block to {mcc.pg.flagblocks.%arg 1%::*}
@@ -42,7 +42,7 @@ command /setsailblocks <number>:
 
 command /setsailblockssmall <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop blocks in radius 7 of player:
 				if loop-block is wool:
 					add loop-block to {mcc.pg.flagblocks.%arg 1%::*}
@@ -50,14 +50,14 @@ command /setsailblockssmall <number>:
 	
 command /deletesailblocks <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			delete {mcc.pg.flagblocks.%arg 1%::*}
 		else:
 			message "e"
 
 command /setpgchestsattacker:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			if {settingpgchests} is false:
 				set {settingpgchests} to true
 				message "now setting pg chests"
@@ -67,7 +67,7 @@ command /setpgchestsattacker:
 
 command /setpgchestscoin:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			if {settingpgchests2} is false:
 				set {settingpgchests2} to true
 				message "now setting pg chests2"
@@ -77,12 +77,12 @@ command /setpgchestscoin:
 
 command /deletepgchestattacker:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			delete {mcc.pg.attackerchests::*}
 
 command /deletepgchestcoin:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			delete {mcc.pg.coinchests::*}
 
 on break:
@@ -159,7 +159,8 @@ function mccpgtutorial(p:player):
 	send "- You can't blow up chests, just open them!" to {_p}
 	send "- Attackers can't fight other attackers." to {_p}
 	send "- Blocks will dissapear after 5 seconds." to {_p}
-	send "- Ender Pearls respawn in your spawn chests every 12 seconds." to {_p}
+	send "- Ender Pearls respawn in your spawn chests every 20 seconds." to {_p}
+	send "- Ladders automatically extend downwards!" to {_p}
 	send "" to {_p}
 	send "<lime>--------------------------------------------------" to {_p}
 	
@@ -281,17 +282,18 @@ function pgpregame():
 	#refill all chests (loot and attacker island)
 	loop {mcc.pg.attackerchests::*}:
 		add 2 cobwebs to inventory of block at loop-value 
-		add 2 potions of speed to inventory of block at loop-value
-		add 2 splash potions of harming to inventory of block at loop-value 
-		add 1 ender pearl to inventory of block at loop-value
+		#add 2 potions of speed to inventory of block at loop-value
+		#add 2 splash potions of harming to inventory of block at loop-value 
+		#add 1 ender pearl to inventory of block at loop-value
 		add 15 oak boats to inventory of block at loop-value 
 	loop {mcc.pg.coinchests::*}:
 		loop 90 times:
-			set {_bla} to a random integer between 0 and 26
+			set {_bla} to a random integer between 5 and 21
 			if slot {_bla} of inventory of block at loop-value-1 is air:
 				set slot {_bla} of inventory of block at loop-value-1 to a sunflower of curse of vanishing named "<gold>Gold Doubloon" 
 			else:
 				add 1 to the item amount of slot {_bla} of inventory of block at loop-value-1
+
 
 
 
@@ -310,7 +312,7 @@ on damage:
 	set {_bla} to number of sunflowers in victim's inventory
 	loop {_bla} times:
 		set {_ba} to a random integer between 1 and 10
-		set {_baa} to a random integer between 0 and 26
+		set {_baa} to a random integer between 5 and 21
 		if slot {_baa} of inventory of block at {mcc.pg.coinchests::%{_ba}%} is air:
 			set slot {_baa} of inventory of block at {mcc.pg.coinchests::%{_ba}%} to a sunflower of curse of vanishing named "<gold>Gold Doubloon"
 		else:
@@ -321,18 +323,6 @@ on damage:
 	if {mcc.pg.stage} is equal to 2:
 		set victim's gamemode to survival	
 
-on block damaging:
-	"%player's world%" is equal to "pirategame"
-	player's gamemode is survival
-	if event-block is wool:
-		remove mining fatigue from the player
-	else:
-		if {mcc.team.%player%} is equal to {mcc.pg.defendingteam}:
-			apply mining fatigue 2 to the player for 5 seconds replacing existing effect
-		else:
-			apply mining fatigue to the player for 5 seconds replacing existing effect
-	
-
 on break of chest:
 	"%player's world%" is equal to "pirategame"
 	player's gamemode is survival
@@ -342,14 +332,11 @@ on break of chest:
 on place of wool:
 	"%player's world%" is equal to "pirategame" 
 	player's gamemode is survival
-	set {_block} to location of event-block
 	wait 1 tick
 	if type of player's off hand tool is wool:
 		add 1 to item amount of player's off hand tool
 	else:
 		give 1 of event-item to player
-	wait 5 seconds
-	set block at {_block} to air
 	
 on place of ladder:
 	"%player's world%" is equal to "pirategame" 
@@ -359,7 +346,24 @@ on place of ladder:
 		add 1 to item amount of player's off hand tool
 	else:
 		give 1 of event-item to player
+	
+	loop 10 times:
+		if block loop-number meters below event-block is air:
+			set block loop-number meters below event-block to event-block
+		else:
+			exit trigger
+		wait 1 tick
 		
+on break of ladder:
+	"%player's world%" is equal to "pirategame" 
+	player's gamemode is survival
+	wait 1 tick
+	loop 10 times:
+		if block loop-number meters below event-block is ladder:
+			set block loop-number meters below event-block to air
+		else:
+			exit trigger
+		wait 1 tick
 
 on inventory click:
 	"%player's world%" is equal to "pirategame"
@@ -392,7 +396,7 @@ on walking on water:
 
 
 on place of tnt:
-	"%event-world%" is equal to "pirategame" or "skybattle" or "survivalgames" or "survivalgames2"
+	"%event-world%" is equal to "pirategame" or "skybattle" or "survivalgames" or "survivalgames2" or "battlebox"
 	wait a tick
 	set event-block to air
 	spawn a primed tnt at event-location
@@ -421,8 +425,9 @@ on inventory click:
 	inventory action is collect to cursor
 	{mcc.pg.timeleft} is greater than 0
 	{mcc.team.%player%} is not equal to 0
-	message "<pink>You cannot collect all coins at once! Shift-click them into your inventory instead." to event-player
-	cancel event
+	if item type is sunflower:
+		message "<pink>You cannot collect all coins at once! Shift-click them into your inventory instead." to event-player
+		cancel event
 
 on damage:
 	attacker is a player
@@ -472,7 +477,7 @@ on walking on sand or sandstone:
 command /mccpirategame:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		execute console command "/schempaste piratemap pirategame 168 79 740"
@@ -504,9 +509,6 @@ every second:
 		exit trigger
 	if {mcc.pg.timeleft} is greater than 0:
 		subtract 1 from {mcc.pg.timeleft}
-		if mod({mcc.pg.timeleft}, 20) is 0:
-			loop {mcc.pg.attackerchests::*}:
-				add 1 ender pearl to inventory of block at loop-value
 		if {mcc.pg.timeleft} is equal to 10:
 			if {mcc.pg.stage} is equal to 0:
 				set {mcc.pg.stage} to 1
@@ -532,11 +534,11 @@ every second:
 							give 48 arrows to loop-player
 							give shears of efficiency 3 to loop-player
 							give an oak boat to loop-player
-							give 1 TNT to loop-player
+							#give 1 TNT to loop-player
 							give 2 splash potions of strong harming to loop-player
 						else:
 							give a wooden sword to loop-player
-							give a wooden axe to loop-player
+							give a stone axe to loop-player
 							give an iron pickaxe to loop-player
 							give 20 bread to loop-player
 							givecoloredwool(loop-player)

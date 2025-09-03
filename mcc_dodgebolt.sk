@@ -97,7 +97,7 @@ function mccdbtutorial(p:player):
 
 command /mccwon:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			mccwon(11)
 
 function mccwon(n: number):
@@ -138,15 +138,15 @@ function mccwon(n: number):
 	noteall(22)
 	wait 5 seconds
 	loop all players:
-		if {mcc.team.%loop-player's name%} is equal to {_n}:
+		if {mcc.team.%loop-player%} is equal to {_n}:
 			teleport loop-player to {mcc.won}
-		else if {mcc.team.%loop-player's name%} is not equal to 0:
+		else if {mcc.team.%loop-player%} is not equal to 0:
 			teleport loop-player to {mcc.lost}
-		clear the loop-player's scoreboard
-		set title of loop-player's scoreboard to "<yellow><bold>Mini MCC %{mcc.eventnum}%"
-		set line 15 of loop-player's scoreboard to "<lime><bold>Event over!"
-		set line 14 of loop-player's scoreboard to ""
-		set line 13 of loop-player's scoreboard to "Thanks for playing!"
+		clear the loop-player's fastboard
+		set title of loop-player's fastboard to "<yellow><bold>Mini MCC %{mcc.eventnum}%"
+		set line 15 of loop-player's fastboard to "<lime><bold>Event over!"
+		set line 14 of loop-player's fastboard to ""
+		set line 13 of loop-player's fastboard to "Thanks for playing!"
 
 	wait 1 second
 	execute console command "/playmusic walkoffame"
@@ -158,12 +158,12 @@ function mccwon(n: number):
 	
 command /setwin:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {mcc.won} to player's position
 
 command /setlose:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {mcc.lost} to player's position
 
 function mccfireworkshow(n:number):
@@ -240,15 +240,15 @@ function dbdead(p:player):
 
 command /dbsetdeadspawn:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			set {dbdeadspawn} to player's position
 
 function dbover() :: number:
 	set {_bla1} to 0
 	set {_bla2} to 0
 	loop all players:
-		if {db.playing.%loop-player's name%} is true:	
-			if {db.team.%loop-player's name%} is equal to "sapnap":
+		if {db.playing.%loop-player%} is true:	
+			if {db.team.%loop-player%} is equal to "sapnap":
 				add 1 to {_bla1}
 			else:
 				add 1 to {_bla2}
@@ -264,22 +264,22 @@ function dbendgame(n:number):
 	set {db.arenasize} to 0
 	execute console command "/dbresetarena"
 	loop all players:
-		if {db.playing.%loop-player's name%} is true:
-			set {db.playing.%loop-player's name%} to false
+		if {db.playing.%loop-player%} is true:
+			set {db.playing.%loop-player%} to false
 			teleport loop-player to {dbdeadspawn}
-			set {db.formerteam.%loop-player's name%} to {db.team.%loop-player's name%}
-			set {db.team.%loop-player's name%} to "none"
+			set {db.formerteam.%loop-player%} to {db.team.%loop-player%}
+			set {db.team.%loop-player%} to "none"
 			set glowing of loop-player to false
 			remove darkness from loop-player
 	if {_n} is equal to 1:
 		broadcast "<yellow>[Dodgebolt] %{mcc.teams::%{db.color1}%}%<yellow> win Dodgebolt!"
 		loop all players:
-			if {db.formerteam.%loop-player's name%} is equal to "sapnap":
+			if {db.formerteam.%loop-player%} is equal to "sapnap":
 				dbwin(loop-player)
 	else:
 		broadcast "<yellow>[Dodgebolt] %{mcc.teams::%{db.color2}%}%<yellow> win Dodgebolt!"
 		loop all players:
-			if {db.formerteam.%loop-player's name%} is equal to "techno":
+			if {db.formerteam.%loop-player%} is equal to "techno":
 				dbwin(loop-player)
 	wait 1 second
 	loop all dropped arrows in "world":
@@ -295,10 +295,10 @@ function dbendround(n:number):
 	set {db.arenasize} to 0
 	execute console command "/dbresetarena"
 	loop all players:
-		if {db.playing.%loop-player's name%} is true:
-			set {db.playing.%loop-player's name%} to false
-			set {db.formerteam.%loop-player's name%} to {db.team.%loop-player's name%}
-			set {db.team.%loop-player's name%} to "none"
+		if {db.playing.%loop-player%} is true:
+			set {db.playing.%loop-player%} to false
+			set {db.formerteam.%loop-player%} to {db.team.%loop-player%}
+			set {db.team.%loop-player%} to "none"
 			set glowing of loop-player to false
 			remove darkness from loop-player
 	wait 1 tick 
@@ -379,11 +379,11 @@ function dballready() :: boolean:
         set {_good1} to false
         set {_good2} to false
         loop all players:
-                if {db.playing.%loop-player's name%} is true:
-                        if {db.ready.%loop-player's name%} is false:
+                if {db.playing.%loop-player%} is true:
+                        if {db.ready.%loop-player%} is false:
                                 return false
                         else:
-                                if {db.team.%loop-player's name%} is equal to "sapnap":
+                                if {db.team.%loop-player%} is equal to "sapnap":
                                         set {_good1} to true
                                 else:
                                         set {_good2} to true
@@ -399,15 +399,15 @@ function dbstartgame():
 	delete {db.orange::*} 
 	delete {db.teal::*} 
 	loop all players:
-		if {db.playing.%loop-player's name%} is true:
+		if {db.playing.%loop-player%} is true:
 			clear the loop-player's inventory
 			give loop-player bow 
 			#apply infinite potion of darkness of tier 200 to loop-player
 			#set glowing of loop-player to true
 			set the loop-player's health to 10
 			set the loop-player's hunger to 10
-			set {db.ready.%loop-player's name%} to false
-			if {db.team.%loop-player's name%} is equal to "sapnap":
+			set {db.ready.%loop-player%} to false
+			if {db.team.%loop-player%} is equal to "sapnap":
 				add loop-player to {db.orange::*}
 			else:
 				add loop-player to {db.teal::*}
@@ -424,7 +424,7 @@ function dbstartgame():
 		if {_bla} is less than 4:
 			add 1 to {_bla}
 	loop all players:
-		if {db.playing.%loop-player's name%} is true:
+		if {db.playing.%loop-player%} is true:
 			freeze(loop-player,3)
 			execute console command "/note 6 %loop-player's name%"
 			set loop-player's game mode to adventure 
@@ -611,7 +611,7 @@ every 0.5 seconds in "world":
 
 command /temp:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender:
 			set {db.orangespawn.1} to the location at 69.5, 68, -210.5 of world "world"
 			set {db.orangespawn.2} to the location at 66.5, 68, -204.5 of world "world"
 			set {db.orangespawn.3} to the location at 66.5, 68, -198.5 of world "world"
@@ -729,27 +729,27 @@ command /mccdbsetcolors <number> <number>:
 command /dbresetarena:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		loop 7 times:
 			loop {mcc.db.zone.%loop-number%::*}:
 				if {mcc.db.whatblock.%loop-value-2%} is equal to 1:
-					set the block above loop-value-2 to white carpet
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to white carpet
+					set the block below loop-value-2 to packed ice
 				else if {mcc.db.whatblock.%loop-value-2%} is equal to 2:
-					set the block above loop-value-2 to black carpet
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to black carpet
+					set the block below loop-value-2 to packed ice
 				else if {mcc.db.whatblock.%loop-value-2%} is equal to 3:
-					set the block above loop-value-2 to {db.block1} 
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to {db.block1} 
+					set the block below loop-value-2 to packed ice
 				else if {mcc.db.whatblock.%loop-value-2%} is equal to 4:
-					set the block above loop-value-2 to {db.block2} 
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to {db.block2} 
+					set the block below loop-value-2 to packed ice
 
 command /addblocktozone <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			loop blocks in radius 30 around player:
 				if loop-block is white carpet:
 					add loop-block to {mcc.db.zone.%arg 1%::*}
@@ -757,16 +757,16 @@ command /addblocktozone <number>:
 				if loop-block is black carpet:
 					add loop-block to {mcc.db.zone.%arg 1%::*}
 					set {mcc.db.whatblock.%loop-block%} to 2
-				if loop-block is orange carpet:
+				if loop-block is red carpet:
 					add loop-block to {mcc.db.zone.%arg 1%::*}
 					set {mcc.db.whatblock.%loop-block%} to 3
-				if loop-block is cyan carpet:
+				if loop-block is orange carpet:
 					add loop-block to {mcc.db.zone.%arg 1%::*}
 					set {mcc.db.whatblock.%loop-block%} to 4
 
 command /swapcolors:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop all blocks in radius 30 around player:
 				if loop-block is red carpet:
 					set {mcc.db.whatblock.%loop-block%} to 3
@@ -776,12 +776,12 @@ command /swapcolors:
 
 command /resetdbzone <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			delete {mcc.db.zone.%arg 1%::*}
 
 command /resetdbzones:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			loop blocks in radius 30 of player:
 				delete {mcc.db.whatblock.%loop-block%}
 			loop 7 times:
@@ -793,45 +793,45 @@ command /resetdbzones:
 command /dbflash <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		loop 5 times:
 			loop {mcc.db.zone.%arg 1%::*}:
-				set the block at loop-value-2 to magma block
-				set the block above loop-value-2 to air
+				set the block below loop-value-2 to magma block
+				set the block at loop-value-2 to air
 			wait 0.3 seconds
 			loop {mcc.db.zone.%arg 1%::*}:
 				if {mcc.db.whatblock.%loop-value-2%} is equal to 1:
-					set the block above loop-value-2 to white carpet
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to white carpet
+					set the block below loop-value-2 to packed ice
 				else if {mcc.db.whatblock.%loop-value-2%} is equal to 2:
-					set the block above loop-value-2 to black carpet
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to black carpet
+					set the block below loop-value-2 to packed ice
 				else if {mcc.db.whatblock.%loop-value-2%} is equal to 4:
-					set the block above loop-value-2 to {db.block2} 
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to {db.block2} 
+					set the block below loop-value-2 to packed ice
 				else if {mcc.db.whatblock.%loop-value-2%} is equal to 3:
-					set the block above loop-value-2 to {db.block1} 
-					set the block at loop-value-2 to packed ice
+					set the block at loop-value-2 to {db.block1} 
+					set the block below loop-value-2 to packed ice
 			wait 0.3 seconds	
 		loop {mcc.db.zone.%arg 1%::*}:
-			set the block above loop-value to air
 			set the block at loop-value to air
+			set the block below loop-value to air
 
 
 
 command /mccdodgebolt <number> <number> <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
 		execute console command "/mccdbsetcolors %arg 1% %arg 2%"
 		if arg 3 is equal to 60:
 			loop all players:
-				clear the loop-player's scoreboard
+				clear the loop-player's fastboard
 				send title "Final Duel" with subtitle "%{mcc.teams::%arg 1%}% <white>vs. %{mcc.teams::%arg 2%}%" to loop-player for 3 seconds
 				mccdbtutorial(loop-player)	
 			set {db.teamwinsa} to 0
@@ -839,21 +839,21 @@ command /mccdodgebolt <number> <number> <number>:
 		set {mcc.currentevent} to "dodgebolt"
 		set {db.mccofficial} to true
 		loop all players:
-			if {mcc.team.%loop-player's name%} is equal to arg 1:
+			if {mcc.team.%loop-player%} is equal to arg 1:
 				set {db.team.%loop-player's name%} to "sapnap"
 				set {db.playing.%loop-player's name%} to true
 				teleport loop-player to {db.orangearrow}
 				clear the loop-player's inventory
 				equip the loop-player with leather boots
 				dye the loop-player's boots mcccolor({db.color1}) 
-			else if {mcc.team.%loop-player's name%} is equal to arg 2:
+			else if {mcc.team.%loop-player%} is equal to arg 2:
 				set {db.team.%loop-player's name%} to "techno"
 				set {db.playing.%loop-player's name%} to true
 				teleport loop-player to {db.tealarrow}
 				clear the loop-player's inventory
 				equip the loop-player with leather boots
 				dye the loop-player's boots mcccolor({db.color2}) 
-			else if {mcc.team.%loop-player's name%} is not equal to 0:
+			else if {mcc.team.%loop-player%} is not equal to 0:
 				teleport loop-player to {dbdeadspawn}
 				clear the loop-player's inventory
 				

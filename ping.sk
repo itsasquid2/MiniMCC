@@ -1,0 +1,4 @@
+
+command /ping <player=%player%>:
+	trigger:
+		send "%arg-1%'s ping is %arg-1's ping%"

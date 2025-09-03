@@ -20,27 +20,64 @@ command /hostpanel:
 			set slot 15 of player's current inventory to golden shovel named "<green>Start Rocket Spleef Rush"
 			set slot 16 of player's current inventory to rail named "<green>Start Railroad Rush"
 			set slot 17 of player's current inventory to bow named "<green>Start Dodgebolt"
-		if command sender is "itsasquid2" or "pokemaster404" or "notcbop":
-			open chest inventory named "<orange>MMCC hosting Panel" to player 
-			set slot 0 of player's current inventory to white concrete named "Pause/Unpause"
-			set slot 1 of player's current inventory to lime concrete named "Pre-event setup"
-			set slot 2 of player's current inventory to green concrete named "Start Event"
-			set slot 3 of player's current inventory to trident named "<green>Start Ace Race"
-			set slot 4 of player's current inventory to trident named "<red>End Ace Race"
-			set slot 5 of player's current inventory to paper named "<green>Start Bingo"
-			set slot 6 of player's current inventory to stone sword named "<green>Start Skybattle"
-			set slot 7 of player's current inventory to wooden sword named "<green>Start Survival Games"
-			set slot 8 of player's current inventory to wooden sword named "<green>Reset Survival Games Map 1"
-			set slot 9 of player's current inventory to wooden sword named "<green>Reset Survival Games Map 2"
-			set slot 10 of player's current inventory to gold block named "<green>Start Meltdown"
-			set slot 11 of player's current inventory to emerald block named "<green>Start tgttosawaf"
-			set slot 12 of player's current inventory to coal block named "<green>Start gridrunners"
-			set slot 13 of player's current inventory to coal block named "<red>End gridrunners"
-			set slot 14 of player's current inventory to diamond block named "<green>Start Parkour Warrior"
-			set slot 15 of player's current inventory to golden shovel named "<green>Start Rocket Spleef Rush"
-			set slot 16 of player's current inventory to rail named "<green>Start Railroad Rush"
-			set slot 17 of player's current inventory to bow named "<green>Start Dodgebolt"
 			set slot 18 of player's current inventory to gold block named "<green>Pirate Game"
+		# if command sender is "itsasquid2" or "pokemaster404" or "Overflow32":
+		# 	open chest inventory named "<orange>MMCC hosting Panel" to player 
+		# 	set slot 0 of player's current inventory to white concrete named "Pause/Unpause"
+		# 	set slot 1 of player's current inventory to lime concrete named "Pre-event setup"
+		# 	set slot 2 of player's current inventory to green concrete named "Start Event"
+		# 	set slot 3 of player's current inventory to trident named "<green>Start Ace Race"
+		# 	set slot 4 of player's current inventory to trident named "<red>End Ace Race"
+		# 	set slot 5 of player's current inventory to paper named "<green>Start Bingo"
+		# 	set slot 6 of player's current inventory to stone sword named "<green>Start Skybattle"
+		# 	set slot 7 of player's current inventory to wooden sword named "<green>Start Survival Games"
+		# 	set slot 8 of player's current inventory to wooden sword named "<green>Reset Survival Games Map 1"
+		# 	set slot 9 of player's current inventory to wooden sword named "<green>Reset Survival Games Map 2"
+		# 	set slot 10 of player's current inventory to gold block named "<green>Start Meltdown"
+		# 	set slot 11 of player's current inventory to emerald block named "<green>Start tgttosawaf"
+		# 	set slot 12 of player's current inventory to coal block named "<green>Start gridrunners"
+		# 	set slot 13 of player's current inventory to coal block named "<red>End gridrunners"
+		# 	set slot 14 of player's current inventory to diamond block named "<green>Start Parkour Warrior"
+		# 	set slot 15 of player's current inventory to golden shovel named "<green>Start Rocket Spleef Rush"
+		# 	set slot 16 of player's current inventory to rail named "<green>Start Railroad Rush"
+		# 	set slot 17 of player's current inventory to bow named "<green>Start Dodgebolt"
+		# 	set slot 18 of player's current inventory to gold block named "<green>Pirate Game"
+
+command /mccendcurrentgame:
+	permission: op
+	trigger:
+		if {mcc.currentevent} is "acerace":
+			set {mcc.acerace.timeleft} to 1
+		else if {mcc.currentevent} is "battlebox":
+			set {mcc.battlebox.endtriggered} to true
+		else if {mcc.currentevent} is "gridrunners":
+			set {mcc.grid.timeleft} to 1
+		else if {mcc.currentevent} is "survivalgames":
+			set {mcc.sg.round} to 2
+			sgendgame()
+		else if {mcc.currentevent} is "holeinthewall":
+			set {mcc.hitw.roundnum} to 4
+			set {mcc.hitw.stage} to 5
+			set {mcc.hitw.timeleft} to 1
+		else if {mcc.currentevent} is "meltdown":
+			set {mcc.meltdown.roundnum} to 3
+			endmeltdown()
+		else if {mcc.currentevent} is "pkwnew":
+			set {mcc.pkwnew.stage} to 2
+			set {mcc.pkwnew.timeleft} to 1
+		else if {mcc.currentevent} is "rocketspleefrush":
+			set {mcc.rsr.stage} to 1
+			set {mcc.rsr.roundnum} to 3
+			set {mcc.rsr.timeleft} to 1
+		else if {mcc.currentevent} is "skybattle":
+			set {mcc.skybattle.overtimetriggered} to true
+			set {mcc.skybattle.roundnum} to 3
+			set {mcc.skybattle.stage} to 1
+			set {mcc.skybattle.timeleft} to 1
+		else if {mcc.currentevent} is "railroadrush":
+			set {mcc.rrr.stage} to 1
+			set {mcc.rrr.timeleft} to 1
+
 
 command /tpalltominimcctown:
 	trigger:
@@ -73,7 +110,7 @@ on inventory click:
 				set {mmcc.hoster.%player's name%} to false
 			if event-item is paper named "<green>Start Bingo":
 				set {mmcc.hoster.%player's name%} to true
-				make event-player execute command "/mccbingobutfast"
+				make event-player execute command "/mccbingonew"
 				set {mmcc.hoster.%player's name%} to false
 			if event-item is stone sword named "<green>Start Skybattle":
 				set {mmcc.hoster.%player's name%} to true
@@ -148,7 +185,7 @@ on inventory click:
 				
 			if event-item is paper named "<green>Start Bingo":
 				
-				make event-player execute command "/mccbingobutfast"
+				make event-player execute command "/mccbingonew"
 				
 			if event-item is stone sword named "<green>Start Skybattle":
 				

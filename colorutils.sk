@@ -41,7 +41,7 @@ function rainbow(input: string, wrapAmount: number = -1, lightness: number = 0.5
             if "abcdefklmnor0123456789" contains {_character}:
                 set {_format} to (join {_format} and "&%{_character}%") if {_character} is not "r", else ("")
             continue
-        set {_output} to join {_output}, "<##%decimalToHexadecimal((0.5 * (sin({_angle}) + 1)) * 255 + {_lightnessModifier})%%decimalToHexadecimal((0.5 * (sin({_angle} + 120) + 1)) * 255 + {_lightnessModifier})%%decimalToHexadecimal((0.5 * (sin({_angle} + 240) + 1)) * 255 + {_lightnessModifier})%>", {_format} and {_character}
+        set {_output} to join {_output}, "<#%decimalToHexadecimal((0.5 * (sin({_angle}) + 1)) * 255 + {_lightnessModifier})%%decimalToHexadecimal((0.5 * (sin({_angle} + 120) + 1)) * 255 + {_lightnessModifier})%%decimalToHexadecimal((0.5 * (sin({_angle} + 240) + 1)) * 255 + {_lightnessModifier})%>", {_format} and {_character}
         remove {_delta} from {_angle}
     return colored {_output}
  
@@ -63,7 +63,7 @@ function gradient(input: string, startColor: numbers, endColor: numbers, wrapAmo
             continue
         set {_startColorProportion} to (0.5 * (sin({_angle}) + 1))
         set {_endColorProportion} to (0.5 * (sin({_angle} + 180) + 1))
-        set {_output} to join {_output}, "<##%decimalToHexadecimal(({_startColor::1} * {_startColorProportion}) + ({_endColor::1} * {_endColorProportion}))%%decimalToHexadecimal(({_startColor::2} * {_startColorProportion}) + ({_endColor::2} * {_endColorProportion}))%%decimalToHexadecimal(({_startColor::3} * {_startColorProportion}) + ({_endColor::3} * {_endColorProportion}))%>", {_format} and {_character}
+        set {_output} to join {_output}, "<#%decimalToHexadecimal(({_startColor::1} * {_startColorProportion}) + ({_endColor::1} * {_endColorProportion}))%%decimalToHexadecimal(({_startColor::2} * {_startColorProportion}) + ({_endColor::2} * {_endColorProportion}))%%decimalToHexadecimal(({_startColor::3} * {_startColorProportion}) + ({_endColor::3} * {_endColorProportion}))%>", {_format} and {_character}
         add {_delta} to {_angle}
     return colored {_output}
 

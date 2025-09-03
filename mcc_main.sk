@@ -59,7 +59,7 @@ on rightclick on armor stand:
 	
 command /setgame <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {mcc.gamenum} to arg
 		if command sender is "bluized":
 			set {mcc.gamenum} to arg
@@ -262,7 +262,7 @@ function mccdecisiondometutorial(p:player):
 function bac(p:player, n:number, m:text):
 	log "Awarded %{_n}% coins to %{_p}% for %{_m}%" to "mcc" 
 	if {mcc.team.%{_p}%} is not equal to 0:
-		send "<lime>[+%{_n}*{mcc.coinmultiplier}%<lime>]<##e0b510> %{_m}%" to {_p}
+		send "<lime>[+%{_n}*{mcc.coinmultiplier}%<lime>]<#e0b510> %{_m}%" to {_p}
 		play sound "entity.experience_orb.pickup" with volume 0.5 to {_p} 
 		add {_n}*{mcc.coinmultiplier} to {mcc.teamcoins.%{mcc.team.%{_p}%}%}
 		#add {_n}*{mcc.coinmultiplier} to {mcc.teamgamecoins.%{mcc.team.%{_p}%}%}
@@ -276,7 +276,7 @@ function bac(p:player, n:number, m:text):
 function ac(p:player, n:number, m:text, special:boolean):
 	log "Awarded %{_n}% coins to %{_p}% for %{_m}%" to "mcc" 
 	if {mcc.team.%{_p}%} is not equal to 0:
-		send "<lime>[+%{_n}*{mcc.coinmultiplier}%<lime>]<##e0b510> %{_m}%" to {_p}
+		send "<lime>[+%{_n}*{mcc.coinmultiplier}%<lime>]<#e0b510> %{_m}%" to {_p}
 		coinsound({_p},{_special})
 		add {_n}*{mcc.coinmultiplier} to {mcc.teamcoins.%{mcc.team.%{_p}%}%}
 		#add {_n}*{mcc.coinmultiplier} to {mcc.teamgamecoins.%{mcc.team.%{_p}%}%}
@@ -295,7 +295,7 @@ command /resetlifetimecoinsall:
 command /mccgivecoins <player> <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You cannot do this!" 
 					exit trigger
@@ -306,7 +306,7 @@ on join:
 	colorname(player)
 	wait 0.5 seconds
 	if {mcc.inprogress} is false:
-		#set {mcc.team.%player's name%} to 0
+		#set {mcc.team.%player%} to 0
 		if player's world is not "smp" or "smp_nether" or "smp_end":
 			set player's gamemode to adventure
 		else:
@@ -315,7 +315,7 @@ on join:
 command /mccassignteam <player> <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					if command sender is not a command block:
 						if {mmcc.hosts::*} doesn't contain player:
@@ -324,15 +324,18 @@ command /mccassignteam <player> <number>:
 		if command sender is a command block:
 			loop all players in "world":
 				if block below loop-player is blue glazed terracotta:
-					set {mcc.team.%loop-player's name%} to arg 2
+					set {mcc.team.%loop-player%} to arg 2
 					message "Assigned %loop-player's name% to team %{mcc.teams::%arg 2%}%."
 					send "[<gold><bold>MCC<white>] You were assigned to team %{mcc.teams::%arg 2%}%!" to loop-player
 					colorname(loop-player)
 					
 		else:
+			execute console command "/lp user %arg 1% permission set tab.%{mcc.team.%arg 1%}% false"
 			set {mcc.team.%arg 1%} to arg 2
 			message "Assigned %arg 1% to team %{mcc.teams::%arg 2%}%."
 			send "[<gold><bold>MCC<white>] You were assigned to team %{mcc.teams::%arg 2%}%!" to arg 1
+			
+			execute console command "/lp user %arg 1% permission set tab.%arg 2%"
 			colorname(arg 1)
 			if {mcc.teamglowenabled} is true:
 				wait 1 tick
@@ -342,10 +345,23 @@ command /mccassignteam <player> <number>:
 				wait 1 tick
 				teamglowplayer(arg 1, "false")
 
+command /fixalltabpositions:
+	permission: op
+	trigger:
+		loop all players:
+			loop 10 times:
+				execute console command "/lp user %loop-value-1% permission set tab.%loop-value-2% false"
+			execute console command "/lp user %loop-player% permission set tab.%{mcc.team.%loop-player%}% true"
+
+command /fixmytabposition:
+	permission: op
+	trigger:
+		loop 10 times:
+			execute console command "/lp user %player's name% permission set tab.%loop-number% false"
+
 on join:
 	wait 1 second
 	if {mcc.teamglowenabled} is true:
-		
 		teamglowplayer(player, "false")
 		teamglowplayer(player, "true")
 	else:
@@ -353,7 +369,7 @@ on join:
 
 command /mccclearteams:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop all offline players:
 				execute console command "/mccpre %loop-value% 0"
 				execute console command "/mccassignteam %loop-value% 0"
@@ -368,7 +384,7 @@ command /mccclearteams:
 
 command /toggleteamjoining <boolean>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			if arg is true:
 				set {teamjoining} to true
 				message "set team joining to true!"
@@ -394,9 +410,10 @@ on tab complete of "/jointeam":
 command /jointeam <text>:
 	trigger:
 		if {teamjoining} is true:
+			execute console command "/lp user %player% permission set tab.%{mcc.team.%player%}% false"
 			if arg is "spectators":
 				if {testeventteamamount.0} is less than 5:
-					set {mcc.team.%player's name%} to 0
+					set {mcc.team.%player%} to 0
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team Spectators!" to player
 					colorname(player)
@@ -404,7 +421,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Red":
 				if {testeventteamamount.1} is less than 5:
-					set {mcc.team.%player's name%} to 1
+					set {mcc.team.%player%} to 1
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <red>Red!" to player
 					colorname(player)
@@ -412,7 +429,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Yellow":
 				if {testeventteamamount.2} is less than 5:
-					set {mcc.team.%player's name%} to 3
+					set {mcc.team.%player%} to 3
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <yellow>Yellow!" to player
 					colorname(player)
@@ -420,7 +437,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Orange":
 				if {testeventteamamount.3} is less than 5:
-					set {mcc.team.%player's name%} to 2
+					set {mcc.team.%player%} to 2
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <orange>Orange!" to player
 					colorname(player)
@@ -428,7 +445,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Lime":
 				if {testeventteamamount.4} is less than 5:
-					set {mcc.team.%player's name%} to 4
+					set {mcc.team.%player%} to 4
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <light green>Lime!" to player
 					colorname(player)
@@ -436,7 +453,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Green":
 				if {testeventteamamount.5} is less than 5:
-					set {mcc.team.%player's name%} to 5
+					set {mcc.team.%player%} to 5
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <green>Green!" to player
 					colorname(player)
@@ -444,7 +461,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Teal":
 				if {testeventteamamount.6} is less than 5:
-					set {mcc.team.%player's name%} to 6
+					set {mcc.team.%player%} to 6
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <cyan>Teal!" to player
 					colorname(player)
@@ -452,7 +469,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Aqua":
 				if {testeventteamamount.7} is less than 5:
-					set {mcc.team.%player's name%} to 7
+					set {mcc.team.%player%} to 7
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <aqua>Aqua!" to player
 					colorname(player)
@@ -460,7 +477,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Blue":
 				if {testeventteamamount.8} is less than 5:
-					set {mcc.team.%player's name%} to 8
+					set {mcc.team.%player%} to 8
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <blue>Blue!" to player
 					colorname(player)
@@ -468,7 +485,7 @@ command /jointeam <text>:
 					message "<red>That team is already full! Try another one!"
 			else if arg is "Purple":
 				if {testeventteamamount.9} is less than 5:
-					set {mcc.team.%player's name%} to 9
+					set {mcc.team.%player%} to 9
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <purple>Purple!" to player
 					colorname(player)
@@ -477,7 +494,7 @@ command /jointeam <text>:
 			else if arg is "Pink":
 				if {testeventteamamount.10} is less than 5:
 
-					set {mcc.team.%player's name%} to 10
+					set {mcc.team.%player%} to 10
 					updateteamjoinnumbers()
 					send "[<gold><bold>MCC<white>] You were assigned to team <pink>Pink!" to player
 					colorname(player)
@@ -486,6 +503,7 @@ command /jointeam <text>:
 			else:
 				message "<red>Sorry, but you can't join non-existant teams!"
 				exit trigger
+			execute console command "/lp user %player% permission set tab.%{mcc.team.%player%}%"
 		else:
 			message "<red>You can't join teams at this moment!"
 
@@ -500,12 +518,12 @@ function updateteamjoinnumbers():
 	loop 10 times:
 		set {testeventteamamount.%loop-number%} to 0
 	loop all players:
-		add 1 to {testeventteamamount.%{mcc.team.%loop-player's name%}%}
+		add 1 to {testeventteamamount.%{mcc.team.%loop-player%}%}
 
 command /mccrandomteams <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "MiniMCC":
 					if command sender is not "notcbop":
 						if command sender is not a command block:
@@ -523,13 +541,13 @@ command /mccrandomteams <number>:
 		loop all players:
 			execute console command "/mccassignteam %loop-player's name% %{_bla::%{_poop}%}%"
 			add 1 to {_poop}
-				
+
 
 
 command /mccpre <text> <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					if {mmcc.hosts::*} doesn't contain the command sender:
 						message "<pink>You cannot do this! Ask the server admins to assign you a team."
@@ -554,7 +572,7 @@ on tab complete of "/mccpre":
 command /mccdecisiondome:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		if {pkt.ongoing} is true:
@@ -577,30 +595,30 @@ command /mccdecisiondome:
 		set {bs.reloading} to false
 		
 		loop all players:
-			set {pkt.ready.%loop-player's name%} to false
-			set {pkt.role.%loop-player's name%} to "none"
-			set {pkt.playing.%loop-player's name%} to false
-			set {pkt.visioncooldown.%loop-player's name%} to false
-			set {battlebox.team.%loop-player's name%} to "none"
-			set {battlebox.playing.%loop-player's name%} to false
-			set {battlebox.kit.%loop-player's name%} to 0
-			set {battlebox.ready.%loop-player's name%} to false
-			set {db.playing.%loop-player's name%} to false
-			set {db.ready.%loop-player's name%} to false
-			set {db.team.%loop-player's name%} to "none"
-			set {db.formerteam.%loop-player's name%} to "none"
-			set {dbbad.%loop-player's name%} to false
-			set {frozen.%loop-player's name%} to false
-			set {bs.playing.%loop-player's name%} to false
-			set {bs.timeleft.%loop-player's name%} to 180
+			set {pkt.ready.%loop-player%} to false
+			set {pkt.role.%loop-player%} to "none"
+			set {pkt.playing.%loop-player%} to false
+			set {pkt.visioncooldown.%loop-player%} to false
+			set {battlebox.team.%loop-player%} to "none"
+			set {battlebox.playing.%loop-player%} to false
+			set {battlebox.kit.%loop-player%} to 0
+			set {battlebox.ready.%loop-player%} to false
+			set {db.playing.%loop-player%} to false
+			set {db.ready.%loop-player%} to false
+			set {db.team.%loop-player%} to "none"
+			set {db.formerteam.%loop-player%} to "none"
+			set {dbbad.%loop-player%} to false
+			set {frozen.%loop-player%} to false
+			set {bs.playing.%loop-player%} to false
+			set {bs.timeleft.%loop-player%} to 180
 			
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
-				teleport loop-player to {mcc.decisiondome::%{mcc.team.%loop-player's name%}%} 
-				set {immune.%loop-player's name%} to false
+			if {mcc.team.%loop-player%} is not equal to 0:
+				teleport loop-player to {mcc.decisiondome::%{mcc.team.%loop-player%}%} 
+				set {immune.%loop-player%} to false
 		wait a tick
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				set loop-player's game mode to adventure
 				if "%loop-player's world%" is equal to "world":
 					clear the loop-player's inventory
@@ -610,7 +628,7 @@ command /mccdecisiondome:
 command /mccstandingsall:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		log "Game: %{mcc.currentevent}%" to "mcc"
@@ -644,18 +662,18 @@ command /mccstandingsall:
 			broadcast "<bold>Top 5 players this game:"
 			log "Individual scores this game:" to "mcc"
 			wait 3 seconds
-			loop all players:
-				set {mcc.already.%loop-player's name%} to false
-				add {mcc.gamecoins.%loop-player's name%} to {_indivcoins::*}
+			loop {mccplaying::*}:
+				set {mcc.already.%loop-player%} to false
+				add {mcc.gamecoins.%loop-player%} to {_indivcoins::*}
 			set {_indivcoins::*} to sorted {_indivcoins::*}
 			set {_indivcoins::*} to reversed {_indivcoins::*}
 			loop numbers from 1 to 40:
 				if {_indivcoins::%loop-number%} is not equal to 0:
 					set {_good} to false
-					loop all players:
+					loop {mccplaying::*}:
 						if {_good} is false:
-							if {mcc.gamecoins.%loop-player's name%} is equal to {_indivcoins::%loop-number%}:
-								if {mcc.already.%loop-player's name%} is false:
+							if {mcc.gamecoins.%loop-player%} is equal to {_indivcoins::%loop-number%}:
+								if {mcc.already.%loop-player%} is false:
 									set {_pl} to loop-player
 									set {_good} to true
 					set {_bla} to the length of "%loop-number%. %{_pl}% %ceil({mcc.gamecoins.%{_pl}%})%"
@@ -721,7 +739,7 @@ command /mccstandingsall:
 command /mccstandings:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		log "Game: %{mcc.currentevent}%" to "mcc"
@@ -756,8 +774,8 @@ command /mccstandings:
 			log "Individual scores this game:" to "mcc"
 			wait 3 seconds
 			loop all players:
-				set {mcc.already.%loop-player's name%} to false
-				add {mcc.gamecoins.%loop-player's name%} to {_indivcoins::*}
+				set {mcc.already.%loop-player%} to false
+				add {mcc.gamecoins.%loop-player%} to {_indivcoins::*}
 			set {_indivcoins::*} to sorted {_indivcoins::*}
 			set {_indivcoins::*} to reversed {_indivcoins::*}
 			loop numbers from 1 to 40:
@@ -765,8 +783,8 @@ command /mccstandings:
 					set {_good} to false
 					loop all players:
 						if {_good} is false:
-							if {mcc.gamecoins.%loop-player's name%} is equal to {_indivcoins::%loop-number%}:
-								if {mcc.already.%loop-player's name%} is false:
+							if {mcc.gamecoins.%loop-player%} is equal to {_indivcoins::%loop-number%}:
+								if {mcc.already.%loop-player%} is false:
 									set {_pl} to loop-player
 									set {_good} to true
 					set {_bla} to the length of "%loop-number%. %{_pl}% %ceil({mcc.gamecoins.%{_pl}%})%"
@@ -831,11 +849,12 @@ command /mccstandings:
 command /mccnewgame:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have the permission to run this command!"
 				exit trigger
 		loop all players:
-			set {mcc.gamecoins.%loop-player's name%} to 0
+			set {mcc.gamecoins.%loop-player%} to 0
+			clear loop-player's fastboard
 		loop 10 times:
 			set {mcc.teamgamecoins.%loop-number%} to 0
 		add 1 to {mcc.gamenum}
@@ -843,26 +862,26 @@ command /mccnewgame:
 
 command /viewgamenum:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			message {mcc.gamenum}
 
 command /addplayertoevent <player>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			add arg to {mccplaying::*}
 
 
 command /mccnewevent:
 	trigger:
 		delete {mccplaying::*}
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			if command sender is not "notcbop":
 				message "<pink>You do not have the permission to run this command!"
 				exit trigger
 		set {mcc.inprogress} to true
 		loop all players:
-			set {mcc.gamecoins.%loop-player's name%} to 0
-			set {mcc.indivcoins.%loop-player's name%} to 0
+			set {mcc.gamecoins.%loop-player%} to 0
+			set {mcc.indivcoins.%loop-player%} to 0
 			add loop-player to {mccplaying::*}
 		loop 10 times:
 			set {mcc.teamgamecoins.%loop-number%} to 0
@@ -871,27 +890,27 @@ command /mccnewevent:
 		set {mcc.gamenum} to 0
 		set {mcc.currentevent} to "intro"
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
-				clear the loop-player's scoreboard		
+			if {mcc.team.%loop-player%} is not equal to 0:
+				clear the loop-player's fastboard		
 				mcctutorial(loop-player)
 		execute console command "/playmusic oneminutetomcc"
 		loop 61 times:
 			loop all players:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
-					set title of loop-player's scoreboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
-					set line 15 of loop-player's scoreboard to "<red><bold>Decision Dome in:"
-					set line 14 of loop-player's scoreboard to time(61-loop-number) 
-					set line 13 of loop-player's scoreboard to ""  
-					set line 12 of loop-player's scoreboard to "<lime><bold>Players: <reset>%player count%" 
-					set line 11 of loop-player's scoreboard to "" 
-					set line 10 of loop-player's scoreboard to "<bold>Your team:" 
-					set line 9 of loop-player's scoreboard to "%{mcc.teams::%{mcc.team.%loop-player's name%}%}%" 
-					set line 8 of loop-player's scoreboard to "" 
-					set line 7 of loop-player's scoreboard to "<lime><bold>Event coins: <reset>0" 
-					set line 6 of loop-player's scoreboard to "<lime><bold>Lifetime coins: <reset>%{mcc.lifetimecoins.%loop-player's name%}%" 
+				if {mcc.team.%loop-player%} is not equal to 0:
+					set title of loop-player's fastboard to "<light blue><bold>Mini MCC %{mcc.eventnum}%"
+					set line 1 of loop-player's fastboard to "<red><bold>Decision Dome in:"
+					set line 2 of loop-player's fastboard to time(61-loop-number) 
+					set line 3 of loop-player's fastboard to ""  
+					set line 4 of loop-player's fastboard to "<lime><bold>Players: <reset>%player count%" 
+					set line 5 of loop-player's fastboard to "" 
+					set line 6 of loop-player's fastboard to "<bold>Your team:" 
+					set line 7 of loop-player's fastboard to "%{mcc.teams::%{mcc.team.%loop-player%}%}%" 
+					set line 8 of loop-player's fastboard to "" 
+					set line 9 of loop-player's fastboard to "<lime><bold>Event coins: <reset>0" 
+					set line 10 of loop-player's fastboard to "<lime><bold>Lifetime coins: <reset>%{mcc.lifetimecoins.%loop-player%}%" 
 			wait 1 second
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				send title "<yellow>To the Decision Dome!" to loop-player for 5 seconds
 		wait 5 seconds
 		loop 8 times:
@@ -902,7 +921,7 @@ command /mccnewevent:
 		execute console command "/mccdecisiondome"
 		#execute console command "/playmusic decisiondome"
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				mccdecisiondometutorial(loop-player)
 		wait 18 seconds
 		loop 8 times:
@@ -910,7 +929,7 @@ command /mccnewevent:
 				set block at loop-value-2 to lime wool
 			wait 2 seconds
 			loop all players:
-				if {mcc.team.%loop-player's name%} is not equal to 0:	
+				if {mcc.team.%loop-player%} is not equal to 0:	
 					send title "%{mcc.decisiondome.game.%loop-number%}%" to loop-player for 2 seconds
 			if {mcc.decisiondome.game.%loop-number%} is equal to "TGTTOSAWAF":
 				broadcast "[<gold><bold>Decision Dome<reset>] To Get To The Other Side And Whack A Fan!" 
@@ -932,7 +951,7 @@ command /mcctoggledecisiondome <boolean>:
 command /mcccoinmultiplier <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have the permission to run this command!"
 					exit trigger
@@ -944,14 +963,14 @@ command /mcccoinmultiplier <number>:
 command /mccchangemultiplier <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have the permission to run this command!"
 					exit trigger
 		if arg 1 is equal to 0:
 			broadcast "[<gold><bold>MCC<reset>] The results of the previous game have been thrown out!"
 			loop all players:
-				subtract {mcc.gamecoins.%loop-player's name%} from {mcc.indivcoins.%loop-player's name%}
+				subtract {mcc.gamecoins.%loop-player%} from {mcc.indivcoins.%loop-player%}
 		else:
 			broadcast "[<gold><bold>MCC<reset>] The coin multiplier of the most recent game has been changed to %arg 1%!"
 		
@@ -962,7 +981,7 @@ command /mccchangemultiplier <number>:
 
 command /mccpause:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			if command sender is not "MiniMCC":
 				if command sender is not "notcbop":
 					if command sender is not the console:
@@ -978,7 +997,7 @@ command /mccpause:
 
 command /psa <text>:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			if command sender is not "MiniMCC":
 				if command sender is not "notcbop":
 					if {mmcc.hosts::*} doesn't contain the command sender:
@@ -989,8 +1008,8 @@ command /psa <text>:
 			broadcast "<cyan>--------------------------------------------------"
 			broadcast "<yellow><bold>       This is a public service announcement         "
 			broadcast ""
-			broadcast formatted "<##9027f5>Did you die? Are you bored right now? Have no fear, for ''Wait What Minecraft'' is here!"
-			broadcast formatted "<##9027f5>https://www.youtube.com/watch?v=VYhfZUsI6Ls"
+			broadcast formatted "<9027f5>Did you die? Are you bored right now? Have no fear, for ''Wait What Minecraft'' is here!"
+			broadcast formatted "<9027f5>https://www.youtube.com/watch?v=VYhfZUsI6Ls"
 			broadcast ""
 			broadcast "<cyan>--------------------------------------------------"
 			exit trigger
@@ -999,7 +1018,7 @@ command /psa <text>:
 			broadcast "<cyan>--------------------------------------------------"
 			broadcast "<yellow><bold>       This is a public service announcement         "
 			broadcast ""
-			broadcast formatted "<##9027f5>%arg 1%"
+			broadcast formatted "<#9027f5>%arg 1%"
 			broadcast ""
 			broadcast "<cyan>--------------------------------------------------"
 			exit trigger
@@ -1007,7 +1026,7 @@ command /psa <text>:
 			broadcast "<cyan>--------------------------------------------------"
 			broadcast "<yellow><bold>       This is a public service announcement         "
 			broadcast ""
-			broadcast formatted "<##9027f5>%{psa.%arg 1%}%"
+			broadcast formatted "<#9027f5>%{psa.%arg 1%}%"
 			broadcast ""
 			broadcast "<cyan>--------------------------------------------------"
 
@@ -1016,7 +1035,7 @@ command /psa <text>:
 command /mccbreak [<number>]:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have the permission to run this command!"
 				exit trigger
 		if arg 1 is not set:
@@ -1024,11 +1043,12 @@ command /mccbreak [<number>]:
 				set {_bt} to 300
 			else if {mcc.gamenum} is equal to 6:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						execute console command "/mv tp %loop-player's name% mini_mcc_town"
 						set {immune.%loop-player's name%} to 0
 						set loop-player's game mode to adventure
-						clear the loop-player's scoreboard
+						clear the loop-player's fastboard
+						clear the loop-player's potion effects
 				exit trigger
 			else:
 				set {_bt} to 120 
@@ -1037,8 +1057,8 @@ command /mccbreak [<number>]:
 		set {mcc.currentevent} to "break"
 		set {mcc.break.timeleft} to {_bt} 
 		loop all players:
-			clear the loop-player's scoreboard
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			clear the loop-player's fastboard
+			if {mcc.team.%loop-player%} is not equal to 0:
 				execute console command "/mv tp %loop-player's name% mini_mcc_town"
 				set {immune.%loop-player's name%} to false
 				set loop-player's game mode to adventure
@@ -1051,7 +1071,7 @@ command /mccbreak [<number>]:
 command /endbreak:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if {mmcc.hosts::*} doesn't contain the command sender:
 					if command sender is not "notcbop":
 						message "<pink>You do not have the permission to run this command!"
@@ -1061,7 +1081,7 @@ command /endbreak:
 command /endbreakandreset:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if {mmcc.hosts::*} doesn't contain the command sender:
 					if command sender is not "notcbop":
 						message "<pink>You do not have the permission to run this command!"
@@ -1072,7 +1092,7 @@ command /endbreakandreset:
 	
 command /randomlygivemegachicken:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			loop all players:
 				if loop-player's world is "mini_mcc_town":
 					add loop-player to {_random::*}
@@ -1144,12 +1164,12 @@ on damage:
 		
 on join:
 	wait 1 seconds
-	if {mcc.team.%player's name%} is 0:
+	if {mcc.team.%player%} is 0:
 		if {mcc.inprogress} is true:
 			set player's gamemode to spectator
 			
 	if {mcc.currentevent} is "startingsoon":
-		if {mcc.team.%player's name%} is not equal to 0:
+		if {mcc.team.%player%} is not equal to 0:
 			execute console command "/mv tp %player's name% mini_mcc_town"
 
 
@@ -1165,7 +1185,7 @@ command /teamchat:
 			message "<lime>Now sending messages to everyone!"
 		else:
 			set {teamchat.%player's name%} to true 
-			message "<lime>Now sending messages only to team %{mcc.teams::%{mcc.team.%player's name%}%}%!"
+			message "<lime>Now sending messages only to team %{mcc.teams::%{mcc.team.%player%}%}%!"
 
 command /setchatprefix <player> <text>:
 	permission: op
@@ -1187,87 +1207,87 @@ on chat:
 		set {lastchat.%player's name%} to now
 	if {teamchat.%player's name%} is true:
 		loop all players:
-			if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:
-				send formatted "<%mcccolor({mcc.team.%player's name%})%>[%{mcc.teams::%{mcc.team.%player's name%}%}%] %player's name%: <light gray>%message%" to loop-player 
+			if {mcc.team.%loop-player%} is equal to {mcc.team.%player%}:
+				send formatted "<%mcccolor({mcc.team.%player%})%>[%{mcc.teams::%{mcc.team.%player%}%}%] %player's name%: <light gray>%message%" to loop-player 
 	else:
-		if {mcc.team.%player's name%} is equal to 1:
+		if {mcc.team.%player%} is equal to 1:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <red>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <red>%player's name%<reset>: %message%"
 			else:
 				broadcast "<red>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 2:
+		else if {mcc.team.%player%} is equal to 2:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <gold>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <gold>%player's name%<reset>: %message%"
 			else:
 				broadcast "<gold>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 3:
+		else if {mcc.team.%player%} is equal to 3:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <yellow>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <yellow>%player's name%<reset>: %message%"
 			else:
 				broadcast "<yellow>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 4:
+		else if {mcc.team.%player%} is equal to 4:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <lime>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <lime>%player's name%<reset>: %message%"
 			else:
 				broadcast "<lime>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 5:
+		else if {mcc.team.%player%} is equal to 5:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <green>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <green>%player's name%<reset>: %message%"
 			else:
 				broadcast "<green>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 6:
+		else if {mcc.team.%player%} is equal to 6:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <cyan>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <cyan>%player's name%<reset>: %message%"
 			else:
 				broadcast "<cyan>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 7:
+		else if {mcc.team.%player%} is equal to 7:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <light blue>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <light blue>%player's name%<reset>: %message%"
 			else:
 				broadcast "<light blue>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 8:
+		else if {mcc.team.%player%} is equal to 8:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] &9%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% &9%player's name%<reset>: %message%"
 			else:
-				broadcast "&9%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 9:
+				broadcast "<blue>%player's name%<reset>: %message%"
+		else if {mcc.team.%player%} is equal to 9:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <purple>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <purple>%player's name%<reset>: %message%"
 			else:
 				broadcast "<purple>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 10:
+		else if {mcc.team.%player%} is equal to 10:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <magenta>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <magenta>%player's name%<reset>: %message%"
 			else:
 				broadcast "<magenta>%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is equal to 0:
+		else if {mcc.team.%player%} is equal to 0:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <reset>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
 				broadcast formatted "%{mmcc.chatprefix.%player's name%}% <reset>%player's name%<reset>: %message%"
 			else:
 				broadcast "%player's name%<reset>: %message%"
-		else if {mcc.team.%player's name%} is not set:
+		else if {mcc.team.%player%} is not set:
 			if {mmcc.sponsors::*} contains player:
 				broadcast "<light cyan>[Sponsor] <reset>%player's name%<reset>: %message%"
 			if ({mmcc.chatprefix.%player's name%} is set):
@@ -1280,7 +1300,7 @@ on chat:
 command /mccstartingsoon:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have the permission to run this command!"
 					exit trigger
@@ -1296,26 +1316,26 @@ command /mccstartingsoon:
 		set {db.arenasize} to 0
 		set {mcc.db.timeleft} to -1
 		loop all players:
-			set {pkt.playing.%loop-player's name%} to false
-			set {pkt.ready.%loop-player's name%} to false
-			set {pkt.role.%loop-player's name%} to "none"	
-			set {pkt.visioncooldown.%loop-player's name%} to false
-			set {battlebox.team.%loop-player's name%} to "none"
-			set {battlebox.playing.%loop-player's name%} to false
-			set {battlebox.kit.%loop-player's name%} to 0
-			set {battlebox.ready.%loop-player's name%} to false
-			set {db.playing.%loop-player's name%} to false
-			set {db.team.%loop-player's name%} to "none"
-			set {db.formerteam.%loop-player's name%} to "none"
+			set {pkt.playing.%loop-player%} to false
+			set {pkt.ready.%loop-player%} to false
+			set {pkt.role.%loop-player%} to "none"	
+			set {pkt.visioncooldown.%loop-player%} to false
+			set {battlebox.team.%loop-player%} to "none"
+			set {battlebox.playing.%loop-player%} to false
+			set {battlebox.kit.%loop-player%} to 0
+			set {battlebox.ready.%loop-player%} to false
+			set {db.playing.%loop-player%} to false
+			set {db.team.%loop-player%} to "none"
+			set {db.formerteam.%loop-player%} to "none"
 			set {spleef.ready.%loop-player%} to false
 			set {spleef.playing.%loop-player%} to false
-			set {dbbad.%loop-player's name%} to false
-			set {frozen.%loop-player's name%} to false
+			set {dbbad.%loop-player%} to false
+			set {frozen.%loop-player%} to false
 
 command /mccsetteam <number> <text>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have the permission to run this command!"
 				exit trigger
 		set {mcc.teams::%arg 1%} to formatted "<%mcccolor(arg 1)%>%arg 2%"
@@ -1325,7 +1345,7 @@ command /mccsetteam <number> <text>:
 command /cleararmorstandsanditemframes <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have the permission to run this command!"
 				exit trigger
 		loop entities in radius arg 1 of player:

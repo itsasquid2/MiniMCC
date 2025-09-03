@@ -1,7 +1,7 @@
 
 command /rrrgencourse:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			if command sender is not "MiniMCC":
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
@@ -83,7 +83,7 @@ command /rrrgencourse:
 			# wait 20 ticks
 		execute console command "/schempaste railroadrush_gold railroadrush -279 84 -40"
 		execute console command "/schempaste railroadrush_gold railroadrush -554 115 -6"
-		execute console command "/schempaste railroadrush_gold railroadrush -150 86 303"
+		execute console command "/schempaste railroadrush_gold railroadrush -318 101 455"
 
 command /rrrreginit <number>:
 	permission: op
@@ -94,7 +94,7 @@ command /rrrreginit <number>:
 		message "Please go to the location of the extra villager and run /rrrregvillager"
 		message "To add secrets to this map, please go to the location of the container with the secret and run /rrrregsecret"
 		message "To clear secrets, run /rrrclearsecrets <map_num>"
-		message "If you did not run this command at the copy location, pleas do so now."
+		message "If you did not run this command at the copy location, please do so now."
 		message "If you ran this command on accident, please run /rrrregcancel"
 
 command /rrrregvillager:
@@ -124,3 +124,41 @@ command /rrrregcancel:
 		delete {rrr.registering.%player%}
 		message "canceled rrr map registering"
 
+command /spawnrrrvillager <text>:
+    permission: op
+    trigger:
+        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%arg%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+        #spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:1},sell:{id:rail,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:3},sell:{id:%arg%_concrete,Count:1}},{maxUses:999,rewardExp:0b,buy:{id:raw_gold,Count:5},sell:{id:powered_rail,Count:1}},{maxUses:999,buy:{id:raw_gold,Count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,PersistenceRequired:1b}"
+        set spawned entity's name to "<gold>Golden Gabriel"
+
+command /spawnrrrvillager_in_all_lanes:
+    permission: op
+    trigger:
+        spawn villager at player with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+        set spawned entity's name to "<gold>Golden Gabriel"
+        loop 9 times:
+            if "%mcccolor(loop-number + 1)%" is "light cyan":
+                set {_color} to "cyan"
+
+                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+            else if "%mcccolor(loop-number + 1)%" is "light green":
+                set {_color} to "lime"
+
+                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%{_color}%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+            else:
+                spawn villager at the location 1 block south of the location 29*loop-number blocks south of player's location with nbt from "{VillagerData:{type:plains,profession:farmer,level:2},Offers:{Recipes:[{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:1},sell:{id:rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:%mcccolor(loop-number + 1)%_concrete,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:5},sell:{id:powered_rail,count:1}},{maxUses:9999,rewardExp:0b,buy:{id:raw_gold,count:3},sell:{id:red_candle,Count:1,components:{custom_name:'["""",{""text"":""Dynamite"",""italic"":false,""color"":""#cc0000""}]',lore:['["""",{""text"":""it go boom"",""italic"":false}]']}}}]},Invulnerable:1b,NoAI:1b,PersistenceRequired:1b}"
+            set spawned entity's name to "<gold>Golden Gabriel"
+
+command /maxlvlrrrvillagers:
+    permission: op
+    trigger:
+        loop entities in world "railroadrush":
+            if loop-entity is a villager:
+                set villager level of loop-entity to 5
+
+command /killrrrvillagers:
+    permission: op
+    trigger:
+        loop entities in world "railroadrush":
+            if loop-entity is a villager:
+                kill loop-entity

@@ -15,14 +15,14 @@ variables:
 	
 command /setmaptgttos <number> <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {mcc.tgttosawaf.map.%arg 1%} to arg 2
 		if command sender is the console:
 			set {mcc.tgttosawaf.map.%arg 1%} to arg 2
 
 command /setround:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {mcc.tgttosawaf.roundnum} to 1
 		if command sender is the console:
 			set {mcc.tgttosawaf.roundnum} to 1
@@ -241,7 +241,7 @@ every second:
 command /mccotherside <player> <text>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		if {mcc.tgttosawaf.inprogress} is false:
@@ -264,7 +264,7 @@ command /mccotherside <player> <text>:
 		if {mcc.tgttosawaf.teamsdone} is less than size of {mcc.tgttosawaf.teambonus::*}:
 			set {_teamdone} to true
 			loop all players:
-				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%arg 1's name%}:
+				if {mcc.team.%loop-player%} is equal to {mcc.team.%arg 1's name%}:
 					if {mcc.tgttosawaf.finished.%loop-player's name%} is false:
 						set {_teamdone} to false
 			if {_teamdone} is true:
@@ -272,21 +272,21 @@ command /mccotherside <player> <text>:
 				broadcast "%{mcc.teams::%{mcc.team.%arg 1's name%}%}% <lime><bold>was the %nth({mcc.tgttosawaf.teamsdone})%<lime><bold> full team to finish!"
 				set {_np} to 0
 				loop all players:
-					if {mcc.team.%loop-player's name%} is equal to {mcc.team.%arg 1's name%}:
+					if {mcc.team.%loop-player%} is equal to {mcc.team.%arg 1's name%}:
 						add 1 to {_np}
 				loop all players:
-					if {mcc.team.%loop-player's name%} is equal to {mcc.team.%arg 1's name%}:
+					if {mcc.team.%loop-player%} is equal to {mcc.team.%arg 1's name%}:
 						ac(loop-player, ceil({mcc.tgttosawaf.teambonus::%{mcc.tgttosawaf.teamsdone}%}/{_np}), "Your team was %nth({mcc.tgttosawaf.teamsdone})% to finish!", true)	
 				
 		launch ball large colored mcccolor({mcc.team.%arg 1's name%}) at arg 1's location with duration 0
 		set {_done} to true
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				if {mcc.tgttosawaf.finished.%loop-player's name%} is false:
 					set {_done} to false
 		if {_done} is true:
 			loop all players:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {mcc.team.%loop-player%} is not equal to 0:
 					set {mcc.tgttosawaf.timeleft} to 0
 		
 
@@ -306,7 +306,7 @@ function summonchicken(t:number, loc:location):
 command /mccsummonfans <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		if arg 1 is equal to 1:
@@ -569,7 +569,7 @@ command /mcctgttosawafteleporttomap <number>:
 command /mcctgttosawaf [<number>] [<boolean>]:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
@@ -585,7 +585,7 @@ command /mcctgttosawaf [<number>] [<boolean>]:
 		if arg 2 is true:
 			set {mcc.tgttosawaf.timeleft} to 50 
 			loop all players:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {mcc.team.%loop-player%} is not equal to 0:
 					mcctgttosawaftutorial(loop-player)
 		else:
 			set {mcc.tgttosawaf.timeleft} to 10
@@ -601,7 +601,7 @@ command /mcctgttosawaf [<number>] [<boolean>]:
 			execute console command "/kc releaserail coords -524 146 1784 tgttosawaf"
 		set {mcc.tgttosawaf.currentmap} to arg 1
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				teleport loop-player to {mcc.tgttosawaf.startinglocs::%arg 1%}
 				set {mcc.tgttosawaf.finished.%loop-player's name%} to false
 				if "%loop-player's world%" is equal to "tgttosawaf":
@@ -651,7 +651,7 @@ every second:
 command /clearwool <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if {mmcc.hosts::*} doesn't contain command sender:
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
@@ -662,7 +662,7 @@ command /clearwool <number>:
 command /clearchickens <number>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		loop entities in radius arg 1 of player:
@@ -677,7 +677,7 @@ every second:
 		if {mcc.tgttosawaf.timeleft} is equal to 2:
 			if {mcc.tgttosawaf.middle} is true:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						execute console command "/boopboopboopbeep %loop-player%"
 	else if {mcc.tgttosawaf.timeleft} is equal to 0:
 		if {mcc.tgttosawaf.middle} is true:
@@ -692,7 +692,7 @@ every second:
 				execute console command "/mccbreak"
 			else if {mcc.tgttosawaf.roundnum} is equal to 6:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						send title "<pink>Game over!" to loop-player for 3 seconds
 				execute console command "/playmusic none"
 				set {mcc.tgttosawaf.inprogress} to false
@@ -700,7 +700,7 @@ every second:
 				execute console command "/mccstandings"
 			else:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						send title "<pink>Round over!" to loop-player for 3 seconds
 				add 1 to {mcc.tgttosawaf.roundnum}
 				execute console command "/mcctgttosawaf %{mcc.tgttosawaf.map.%{mcc.tgttosawaf.roundnum}%}% false"
@@ -763,7 +763,7 @@ on craft:
 
 command /addbarriers <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<pink>You do not have permission to run this command!"
 			exit trigger
 		loop blocks in radius 30 of player:
@@ -772,5 +772,5 @@ command /addbarriers <number>:
 
 command /blab <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true or the console:
+		if {mmcc.hosts::*} contains command sender or the console:
 			set {mcc.tgttosawaf.startinglocs::%arg 1%} to player's location

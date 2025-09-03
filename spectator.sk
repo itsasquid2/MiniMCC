@@ -12,7 +12,7 @@ command /spectatorsetgamemode:
     permission: op
     trigger:
         loop all players:
-            if {mcc.team.%loop-player's name%} is 0:
+            if {mcc.team.%loop-player%} is 0:
                 set loop-player's gamemode to spectator
                 show loop-player to all players
                 reveal all players to loop-player

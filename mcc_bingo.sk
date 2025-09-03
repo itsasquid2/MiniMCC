@@ -22,7 +22,7 @@ function mccbingonewtutorial(p:player):
 	send "" to {_p}
 	send "<bold>Bingo is a Minecraft scavenger hunt!" to {_p}
 	send "" to {_p}
-	send "Your goal is to collect the items shown on your <gold>Bingo Card<white> before time runs out!" to {_p}
+	send "Your goal is to collect the items shown on your <gold>Bingo Card<white> before other teams do!" to {_p}
 	send "" to {_p}
 	send "" to {_p}
 	send "<lime>--------------------------------------------------" to {_p}
@@ -33,7 +33,7 @@ function mccbingonewtutorial(p:player):
 	send "" to {_p}
 	send "<bold>You earn coins for each item found, but other teams are also finding the same items. It's a race to see who can find it first!" to {_p}
 	send "" to {_p}
-	send "To score an item, simply pick up the item. <red>Picking it up from a chest does not work, you NEED to pick it up from the ground" to {_p}
+	send "To score an item, simply pick up the item. <red>Picking it up from a chest or a crafting table does not work, you NEED to pick it up from the ground" to {_p}
 	send "" to {_p}
 	send "" to {_p}
 	send "<lime>--------------------------------------------------" to {_p}
@@ -75,7 +75,7 @@ function mccbingonewtutorial(p:player):
 
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>Hope you enjoy this MMCC original!" to {_p}
+	send "<bold>Hope you enjoy this MMCC original! (Note: KeepInventory is on!)" to {_p}
 	send "" to {_p}
 	send "Good luck!" to {_p}
 	send "" to {_p}
@@ -87,8 +87,9 @@ command /mccbingonew:
 	trigger:
 		if command sender is not the console:
 			if command sender is not "itsasquid2":
-				message "<pink>You cannot do this!"
-				exit trigger
+				if {mmcc.hosts::*} doesn't contain command sender:
+					message "<pink>You cannot do this!"
+					exit trigger
 		if {mcc.bingo.inprogress} is true:
 			message "Bingo already in progress!"
 			exit trigger
@@ -107,15 +108,24 @@ command /mccbingonew:
 					feed loop-player
 					heal loop-player
 					clear the loop-player's inventory
+					clear the loop-player's potion effects
+					execute console command "/effect give %loop-player% night_vision infinite"
 					set {bingo.itemsfound.%loop-player%} to 0
 					set loop-player's chestplate to unbreakable elytra named "<gold>Bingo Elytra"
 					set slot 8 of loop-player's inventory to paper of curse of vanishing named "<gold>Bingo Card"
+					give ender pearl of curse of vanishing named "<gold>Teleport to spawn" to loop-player
 					mccbingonewtutorial(loop-player)
 		loop 10 times:
 			set {mcc.bingo.tpcooldown.%loop-number%} to 0
 		set {mcc.bingonew.stage} to 0
 		set {mcc.bingonew.timeleft} to 90
+		generatebingoobjectives()
 		delete {mcc.bingo.items::*}
+
+on drop:
+	"%world%" starts with "bingo"
+	event-item is ender pearl of curse of vanishing named "<gold>Teleport to spawn"
+	cancel event
 
 command /givecard <player>:
 	permission: op
@@ -134,11 +144,11 @@ function bingoscoreobjective(player:player, item:item, diff:text):
 	else:
 		broadcast formatted "<%mcccolor({mcc.team.%{_player}'s name%})%>%{_player}'s name% <light cyan>completed a %{_diff}% Task: pick up %{_item}%"
 	if {_diff} is "hard":
-		ac({_player}, 90, "Completed a %{_diff}% task!", false)
+		ac({_player}, 250, "Completed a %{_diff}% task!", false)
 	else if {_diff} is "medium":
-		ac({_player}, 30, "Completed a %{_diff}% task!", false)
+		ac({_player}, 150, "Completed a %{_diff}% task!", false)
 	else if {_diff} is "easy":
-		ac({_player}, 5, "Completed a %{_diff}% task!", false)
+		ac({_player}, 25, "Completed a %{_diff}% task!", false)
 	if {_diff} is "medium":
 		set {_diff} to "med"
 	wait 1 tick
@@ -154,6 +164,15 @@ on rightclick:
 	"%player's world%" starts with "bingo"
 	if player's tool is paper of curse of vanishing named "<gold>Bingo Card":
 		openbingocard(player)
+	if player's tool is ender pearl of curse of vanishing named "<gold>Teleport to spawn":
+		cancel event
+		execute console command "/mvtp %player% bingo"
+		wait 1 tick
+		give player player's chestplate
+		set player's chestplate to unbreakable elytra named "<gold>Bingo Elytra"
+		set player's gamemode to adventure
+		if player doesn't have ender pearl of curse of vanishing named "<gold>Teleport to spawn":
+			give player ender pearl of curse of vanishing named "<gold>Teleport to spawn"
 
 function openbingocard(p:player):
 	if {mcc.bingo.board} is not set:
@@ -161,6 +180,7 @@ function openbingocard(p:player):
 		set {mcc.bingo.board} to {_p}'s current inventory
 	else:
 		open {mcc.bingo.board} to {_p}
+	clear {_p}'s current inventory
 	set slot 2 of {mcc.bingo.board} to green concrete named "<lime>Easy Tasks"
 	set slot 11 of {mcc.bingo.board} to yellow concrete named "<yellow>Medium Tasks"
 	set slot 20 of {mcc.bingo.board} to red concrete named "<red>Hard Tasks"
@@ -171,7 +191,9 @@ function openbingocard(p:player):
 	loop {mcc.bingo.hardobjs::*}:
 		set slot (20+loop-counter) of {mcc.bingo.board} to loop-value
 
-
+on smelting start:
+	"%event-world%" starts with "bingo"
+	set total cook time to 1 tick
 
 function generatebingoobjectives():
 	set {mcc.bingo.easyobjectives.temp::*} to {mcc.bingo.easyobjectives::*}
@@ -180,15 +202,15 @@ function generatebingoobjectives():
 	delete {mcc.bingo.easyobjs::*}
 	delete {mcc.bingo.medobjs::*}
 	delete {mcc.bingo.hardobjs::*}
-	loop 3 times:
+	loop 5 times:
 		set {_rand} to random element out of {mcc.bingo.easyobjectives.temp::*}
 		add {_rand} to {mcc.bingo.easyobjs::*}
 		remove {_rand} from {mcc.bingo.easyobjectives.temp::*}
-	loop 3 times:
+	loop 5 times:
 		set {_rand} to random element out of {mcc.bingo.medobjectives.temp::*}
 		add {_rand} to {mcc.bingo.medobjs::*}
 		remove {_rand} from {mcc.bingo.medobjectives.temp::*}
-	loop 3 times:
+	loop 5 times:
 		set {_rand} to random element out of {mcc.bingo.hardobjectives.temp::*}
 		add {_rand} to {mcc.bingo.hardobjs::*}
 		remove {_rand} from {mcc.bingo.hardobjectives.temp::*}
@@ -220,36 +242,50 @@ function generatebingoobjective(diff:text):
 				remove loop-value from {mcc.bingo.%{_diff}%objs::*}
 	set {_rand} to random element out of {mcc.bingo.%{_diff}%objectives.temp::*}
 	add {_rand} to {mcc.bingo.%{_diff}%objs::*}
-	if name of {_rand} isn't set:
-		if {_diff} is "easy":
-			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <lime>easy<reset> objective: pick up %{_rand}%"
-		else if {_diff} is "med":
-			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <yellow>medium<reset> objective: pick up %{_rand}%"
-		else if {_diff} is "hard":
-			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <red>hard<reset> objective: pick up %{_rand}%"
-	else:
-		if {_diff} is "easy":
-			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <lime>easy<reset> %name of {_rand}%"
-		else if {_diff} is "med":
-			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <yellow>medium<reset> %name of {_rand}%"
-		else if {_diff} is "hard":
-			broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <red>hard<reset> %name of {_rand}%"
-	remove {_rand} from {mcc.bingo.%{_diff}%objectives.temp::*}
-	loop {mcc.bingo.%{_diff}%objs::*}:
-		set slot (11+loop-counter) of {mcc.bingo.board} to loop-value
+	if {_rand} is set:
+		if name of {_rand} isn't set:
+			if {_diff} is "easy":
+				broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <lime>easy<reset> objective: pick up %{_rand}%"
+			else if {_diff} is "med":
+				broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <yellow>medium<reset> objective: pick up %{_rand}%"
+			else if {_diff} is "hard":
+				broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <red>hard<reset> objective: pick up %{_rand}%"
+		else:
+			if {_diff} is "easy":
+				broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <lime>easy<reset> %name of {_rand}%"
+			else if {_diff} is "med":
+				broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <yellow>medium<reset> %name of {_rand}%"
+			else if {_diff} is "hard":
+				broadcast "<light cyan>[<gold>Bingo<light cyan>]<reset>New <red>hard<reset> %name of {_rand}%"
+		remove {_rand} from {mcc.bingo.%{_diff}%objectives.temp::*}
+	if {_diff} is "med":
+		loop {mcc.bingo.%{_diff}%objs::*}:
+			set slot (11+loop-counter) of {mcc.bingo.board} to loop-value
+	if {_diff} is "easy":
+		loop {mcc.bingo.%{_diff}%objs::*}:
+			set slot (2+loop-counter) of {mcc.bingo.board} to loop-value
+	if {_diff} is "hard":
+		loop {mcc.bingo.%{_diff}%objs::*}:
+			set slot (20+loop-counter) of {mcc.bingo.board} to loop-value
 
 on pick up:
 	"%player's world%" starts with "bingo"
 	{mcc.bingo.inprogress} is true
 	loop {mcc.bingo.easyobjs::*}:
 		if type of loop-value is type of event-item:
-			bingoscoreobjective(event-player, event-item, "easy")
+			bingoscoreobjective(event-player,1 of event-item, "easy")
+			wait 1 tick
+			remove 1 of event-item from player
 	loop {mcc.bingo.medobjs::*}:
 		if type of loop-value is type of event-item:
-			bingoscoreobjective(event-player, event-item, "med")
+			bingoscoreobjective(event-player, 1 of event-item, "med")
+			wait 1 tick
+			remove 1 of event-item from player
 	loop {mcc.bingo.hardobjs::*}:
 		if type of loop-value is type of event-item:
-			bingoscoreobjective(event-player, event-item, "hard")
+			bingoscoreobjective(event-player, 1 of event-item, "hard")
+			wait 1 tick
+			remove 1 of event-item from player
 
 every second:
 	if {mcc.bingonew.timeleft} is greater than 0:
@@ -259,8 +295,8 @@ every second:
 			if {mcc.bingo.tpcooldown.%loop-number%} is greater than 0:
 				subtract 1 from {mcc.bingo.tpcooldown.%loop-number%}
 		subtract 1 from {mcc.bingonew.timeleft}
-		#if {mcc.bingonew.timeleft} is equal to 900 or 650 or 400 or 150:
-		#	execute console command "/playmusic buildmart"
+		# if {mcc.bingonew.timeleft} is equal to 900 or 650 or 400 or 150:
+		# 	execute console command "/playmusic buildmart"
 		if {mcc.bingonew.timeleft} is equal to 3:
 			if {mcc.bingonew.stage} is equal to 0:
 				loop all players:
@@ -284,6 +320,15 @@ every second:
 			else if {mcc.bingonew.stage} is equal to 2:
 				execute console command "/mccbreak"
 				set {mcc.bingonew.timeleft} to -1
+		else if {mcc.bingonew.timeleft} is equal to 600:
+			if {mcc.bingonew.stage} is equal to 1:
+				loop all players:
+					add potion effect of speed 1 for 999 days to potion effects of loop-player
+		else if {mcc.bingonew.timeleft} is equal to 300:
+			if {mcc.bingonew.stage} is equal to 1:
+				loop all players:
+					add potion effect of haste 1 for 999 days to potion effects of loop-player
+					add potion effect of speed 2 for 999 days to potion effects of loop-player
 
 command /resetbingonew:
 	permission: op
@@ -304,17 +349,17 @@ command /teamtp <player>:
 		if {mcc.currentevent} is not equal to "bingobutfast" or "bingoisland":
 			message "<pink>You can only use this command during Bingo!"
 			exit trigger
-		if {mcc.team.%player's name%} is equal to 0:
+		if {mcc.team.%player%} is equal to 0:
 			message "<pink>This command is only for MCC players!"
 			exit trigger
-		if {mcc.bingo.tpcooldown.%{mcc.team.%player's name%}%} is greater than 0:
-			message "<pink>You must wait %time({mcc.bingo.tpcooldown.%{mcc.team.%player's name%}%})% <pink>to use this again!"	
+		if {mcc.bingo.tpcooldown.%{mcc.team.%player%}%} is greater than 0:
+			message "<pink>You must wait %time({mcc.bingo.tpcooldown.%{mcc.team.%player%}%})% <pink>to use this again!"	
 			exit trigger
-		if {mcc.team.%arg 1%} is not equal to {mcc.team.%player's name%}:
+		if {mcc.team.%arg 1%} is not equal to {mcc.team.%player%}:
 			message "<pink>%arg 1% <pink>is not on your team!"
 			exit trigger
 		teleport player to arg 1
-		set {mcc.bingo.tpcooldown.%{mcc.team.%player's name%}%} to 180
+		set {mcc.bingo.tpcooldown.%{mcc.team.%player%}%} to 180
 
 on portal enter:
 	"%player's world%" starts with "bingo"
@@ -327,43 +372,54 @@ on portal enter:
 	if block below event-location is blue ice:
 		set {_ind} to 7
 		set {_str} to "Snowy Taiga"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_overworld"
 	else if block below event-location is huge red mushroom block:
 		set {_ind} to 8
 		set {_str} to "Dark Forest"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_overworld"
 	else if block below event-location is andesite:
 		set {_ind} to 10
 		set {_str} to "Mountains"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_overworld"
 	else if block below event-location is oak log:
 		set {_ind} to 11
 		set {_str} to "Forest"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_overworld"
 	else if block below event-location is terracotta:
 		set {_ind} to 12
 		set {_str} to "Badlands"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_overworld"
 	else if block below event-location is mossy cobblestone:
 		set {_ind} to 13
 		set {_str} to "Jungle"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_overworld"
 	else if block below event-location is obsidian:
 		set {_ind} to 14
 		set {_str} to "Center End Island"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_end"
 	else if block below event-location is endstone:
 		set {_ind} to random integer between 15 and 17
 		set {_str} to "Outer End Islands"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_end"
 	else if block below event-location is purpur block:
 		set {_ind} to 18
 		set {_str} to "End City"
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_end"
 	else if block below event-location is bedrock:
 		set {_ind} to 9
 		set {_str} to "Spawn"
 	if {_ind} is set:
 		#message {mcc.bingonew.locs::%{_ind}%}
+		
 		teleport player to {mcc.bingonew.locs::%{_ind}%}
 		message "<lime>Teleported you to the %{_str}%<lime>! Coordinates: x: %round(x-coordinate of player)%, y: %round(y-coordinate of player)%, z: %round(z-coordinate of player)%"
 		if {_ind} is 9:
 			give player player's chestplate
 			set player's chestplate to unbreakable elytra named "<gold>Bingo Elytra"
 			set player's gamemode to adventure
-		else if player's chestplate is unbreakable elytra named "<gold>Bingo Elytra":
-			set player's chestplate to air
+		else:
+			if player has unbreakable elytra named "<gold>Bingo Elytra":
+				remove unbreakable elytra named "<gold>Bingo Elytra" from player
 			set player's gamemode to survival
 	wait 3 seconds
 	set {mcc.bingonew.portalcooldown.%player%} to false
@@ -388,6 +444,16 @@ on respawn:
 		give player player's chestplate
 		set player's chestplate to unbreakable elytra named "<gold>Bingo Elytra"
 		set player's gamemode to adventure
+		execute console command "/effect give %player% night_vision infinite"
+		#add potion effect of night vision 1 for 999 days to potion effects of player
+		if {mcc.bingonew.timeleft} is less than 600:
+			if {mcc.bingonew.stage} is equal to 1:
+				add potion effect of speed 1 for 999 days to potion effects of player
+		if {mcc.bingonew.timeleft} is less than 300:
+			if {mcc.bingonew.stage} is equal to 1:
+				add potion effect of haste 1 for 999 days to potion effects of player
+				add potion effect of speed 2 for 999 days to potion effects of player
+				
 
 on portal enter:
 	"%player's world%" starts with "bingo"
@@ -399,6 +465,7 @@ on portal enter:
 		if loop-block is nether brick:
 			set {_ind} to 1
 			set {_str} to "Fortress" 
+			
 		if loop-block is netherrack:
 			set {_ind} to 2
 			set {_str} to "Nether Wastes" 
@@ -415,6 +482,7 @@ on portal enter:
 			set {_ind} to 6
 			set {_str} to "Soul Sand Valley" 
 	if {_ind} is set:
+		set world of {mcc.bingonew.locs::%{_ind}%} to world "bingo_nether"
 		teleport player to {mcc.bingonew.locs::%{_ind}%}		
 		message "<lime>Teleported you to the %{_str}%<lime>! Coordinates: x: %round(x-coordinate of player)%, y: %round(y-coordinate of player)%, z: %round(z-coordinate of player)%"
 		if player's chestplate is unbreakable elytra named "<gold>Bingo Elytra":
@@ -466,7 +534,7 @@ command /disablemobspawning:
 on death:
 	"%event-world%" starts with "bingo"
 	victim is a player
-	broadcast damage type of damage source
+	#broadcast damage type of damage source
 	if {bingo.currentdeathcauses::*} contains damage type of damage source:
 		set {_source} to damage source 
 		if {mcc.bingo.easyobjs::*} contains {bingo.taskitem.deaths.%damage type of damage source%}:

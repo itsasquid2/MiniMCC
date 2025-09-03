@@ -89,22 +89,22 @@ command /freeze <player>:
 				apply slowness 255 to arg 1 for 100000 seconds
 				apply mining fatigue 255 to arg 1 for 100000 seconds
 				set total experience of arg 1 to 0
-				spawn block display at the location 0.8 block above the location 0.5 blocks west of the location 0.5 blocks north of arg's location with nbt from "{Rotation:[0f,0f],block_state:{Name:packed_ice}}"
-				spawn block display at the location 0.5 blocks north of the location 0.5 blocks west of arg's location with nbt from "{Rotation:[0f,0f],block_state:{Name:packed_ice}}"
+				spawn block display at the location 0.8 block above the location 0.5 blocks west of the location 0.5 blocks north of arg's location with nbt from "{block_state:{Name:ice}}"
+				spawn block display at the location 0.5 blocks north of the location 0.5 blocks west of arg's location with nbt from "{block_state:{Name:ice}}"
 				set {_count} to 0
 				loop all players in world {meltdownworld}:
-					if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
+					if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player%}:
 						if loop-player's gamemode is adventure:
 							if {frozen.%loop-player's name%} is false:
 								add 1 to {_count}
 				if {_count} is 0:
 					set {_count1} to 0
 					loop all players in world {meltdownworld}:
-						if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
+						if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player%}:
 							send title "<red><bold>Team Frozen!" to loop-player
 					wait 10 seconds
 					loop all players in world {meltdownworld}:
-						if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player's name%}:
+						if {mcc.team.%arg's name%} is equal to {mcc.team.%loop-player%}:
 							if loop-player's gamemode is adventure:
 								if {frozen.%loop-player's name%} is false:
 									add 1 to {_count1}
@@ -113,7 +113,7 @@ command /freeze <player>:
 
 function teamkill(n:number):
 	loop all players in world {meltdownworld}:
-		if {mcc.team.%loop-player's name%} is equal to {_n}:
+		if {mcc.team.%loop-player%} is equal to {_n}:
 			loop entities in radius 1 of the location 0.8 blocks above loop-player's location:
 				if loop-entity-2 is a block display:
 					kill loop-entity-2
@@ -128,19 +128,19 @@ function teamkill(n:number):
 
 command /teamkill <number>:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			exit trigger
 		teamkill(arg)
 
 command /meltdowntestteamkill <text>:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<red>no"
 			exit trigger
 		message "started"
 		set {_count} to 0
 		loop all players in world {meltdownworld}:
-			if {mcc.team.%loop-player's name%} is equal to {mcc.team.%arg%}:
+			if {mcc.team.%loop-player%} is equal to {mcc.team.%arg%}:
 				if loop-player's gamemode is adventure:
 					if {frozen.%arg%} is false:
 						add 1 to {_count}
@@ -153,7 +153,7 @@ command /meltdowntestteamkill <text>:
 			message "10 second wait done"
 			set {_count1} to 0
 			loop all players in world {meltdownworld}:
-				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%arg%}:
+				if {mcc.team.%loop-player%} is equal to {mcc.team.%arg%}:
 					if loop-player's gamemode is adventure:
 						if {frozen.%arg%} is false:
 							add 1 to {_count1}
@@ -162,18 +162,18 @@ command /meltdowntestteamkill <text>:
 
 command /adddoormeltdown <number>:
 	trigger:
-		{mmcc.hoster.%command sender%} is true
+		{mmcc.hosts::*} contains command sender
 		add player's location to {meltdowndoors.%arg%::*}
 		message "added %player's location% to meltdown door locations of room %arg%"
 
 command /deletedoorsmeltdown <number>:
 	trigger:
-		{mmcc.hoster.%command sender%} is true
+		{mmcc.hosts::*} contains command sender
 		delete {meltdowndoors.%arg%::*}
 
 command /deletedoormeltdown <number> <number>:
 	trigger:
-		{mmcc.hoster.%command sender%} is true
+		{mmcc.hosts::*} contains command sender
 		delete {meltdowndoors.%arg 1%::%arg 2%}
 		message "deleted door %arg 2% in room %arg 1%"
 
@@ -337,6 +337,13 @@ on experience spawn:
 function endmeltdown():
 	execute console command "/cancelmeltdown 0"
 	delete {mcc.meltdown.blocks0::*}
+	loop all players in world "meltdown":
+		loop entities in radius 1 of the location 0.8 blocks above loop-player's location:
+			if loop-entity-2 is a block display:
+				kill loop-entity-2
+		loop entities in radius 1 of loop-player's location:
+			if loop-entity-2 is a block display:
+				kill loop-entity-2
 	if {mcc.meltdown.roundnum} is less than 3:
 		add 1 to {mcc.meltdown.roundnum}
 		execute console command "/schempaste meltdownmap meltdown -999 31 -999"
@@ -345,9 +352,9 @@ function endmeltdown():
 		
 	else:
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				send title "<pink>Game over!" to loop-player for 3 seconds
-		
+				
 		set {mcc.meltdown.timeleft} to 30
 		execute console command "/mccstandings"
 		teamglow("false")
@@ -370,11 +377,11 @@ on swap hand items:
 command /mccmeltdown:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			broadcast "Meltdown Map is resetting, server will freeze for a second"
 			execute console command "/schempaste meltdownmap meltdown -999 31 -999"
 			wait 1 second
@@ -394,7 +401,7 @@ command /mccmeltdown:
 		
 		
 		loop all players:
-			teleport loop-player to {mcc.meltdown.spawnloc.%{mcc.team.%loop-player's name%}%}
+			teleport loop-player to {mcc.meltdown.spawnloc.%{mcc.team.%loop-player%}%}
 			delete {meltdown.hitby.%loop-player's name%}
 			execute console command "/unfreeze %loop-player's name%"
 			set loop-player's gamemode to adventure
@@ -406,9 +413,11 @@ command /mccmeltdown:
 					set loop-player's offhand tool to loop-item
 		execute console command "/meltdownclosespawndoors"
 		execute console command "/setmeltdownmapstage 0"
+		teamglow("true")
+		wait 5 seconds
 		loop 4 times:
 			execute console command "/closedoor %loop-number%"
-		teamglow("true")
+		
 		
 on shoot:
 	world is "meltdown"
@@ -439,8 +448,8 @@ command /meltdownviewarrowsshot:
 			set {mcc.meltdown.arrowsshot::*} to sorted {mcc.meltdown.arrowsshot::*}
 			loop {mcc.meltdown.arrowsshot::*}:
 				loop all players:
-					if {mcc.meltdown.arrowsshot::%loop-player%} is equal to loop-value-1:
-						message "%loop-player% - %loop-value-1%"
+					if {mcc.meltdown.arrowsshot::%loop-player-2%} is equal to loop-value-1:
+						message "%loop-player-2% - %loop-value-1%"
 
 
 every second:
@@ -461,6 +470,8 @@ every second:
 			set {mcc.meltdown.stage} to 1
 			set {mcc.meltdown.timeleft} to 330
 			execute console command "/meltdownopenspawndoors"
+			loop 4 times:
+				execute console command "/closedoor %loop-number%"
 		else if {mcc.meltdown.stage} is 1:
 			set {mcc.meltdown.stage} to 2
 			endmeltdown()
@@ -502,7 +513,7 @@ every second:
 			execute console command "/opendoormeltdown 2"
 			execute console command "/opendoormeltdown 3"
 			execute console command "/opendoormeltdown 4"
-			wait 1 second
+			wait 4 second
 			execute console command "/closedoor 0"
 	else if {mcc.meltdown.timeleft} is 193:
 		if {mcc.meltdown.stage} is 1:
@@ -545,7 +556,7 @@ every second:
 		if gamemode of loop-player is adventure:
 			add 1 to {meltdown.playersleft}
 	loop all players in world {meltdownworld}:
-		mccupdatescoreboard(loop-player)
+		mccupdatefastboard(loop-player)
 		
 	
 
@@ -616,7 +627,7 @@ every second:
 			loop shulkers in radius 3.5 of loop-player:
 				set {_bla} to (the length of name of loop-entity-2) - 9
 				
-				if {mcc.team.%the first {_bla} characters of name of loop-entity-2%} is equal to {mcc.team.%loop-player's name%}:
+				if {mcc.team.%the first {_bla} characters of name of loop-entity-2%} is equal to {mcc.team.%loop-player%}:
 					
 					give 1 experience to loop-player
 			#give 1 experience to loop-player
@@ -643,7 +654,9 @@ on damage:
 		cancel event
 	if {frozen.%victim's name%} is true:
 		cancel event
-	else if damage cause is suffocation or fall:
+	else if damage cause is suffocation:
+		cancel event
+	else if damage cause is fall:
 		cancel event
 	if victim is a shulker:
 		if damage cause is not projectile:
@@ -682,7 +695,7 @@ on damage of a player:
 
 command /telepicaxetest:
 	trigger:
-		{mmcc.hoster.%command sender%} is true
+		{mmcc.hosts::*} contains command sender
 		give player wooden pickaxe named "&3Telepickaxe Shell"
 
 on shoot:
@@ -696,9 +709,9 @@ on rightclick:
 			cancel event
 		else:
 			loop all players:
-				if {mcc.team.%loop-player's name%} is equal to {mcc.team.%player's name%}:
+				if {mcc.team.%loop-player%} is equal to {mcc.team.%player%}:
 					
-					message formatted "<%mcccolor({mcc.team.%player's name%})%>%player's name% <white>has taken your team's telepickaxe!" to loop-player
+					message formatted "<%mcccolor({mcc.team.%player%})%>%player's name% <white>has taken your team's telepickaxe!" to loop-player
 					loop (loop-player)'s inventory:
 						if loop-value-2 is diamond pickaxe:
 							set loop-value-2 to wooden pickaxe named "&3Telepickaxe Shell"
@@ -715,7 +728,7 @@ on break:
 		if event-player's tool is a diamond pickaxe:
 			if {frozen.%event-player%} isn't true:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is equal to {mcc.team.%event-player's name%}:
+					if {mcc.team.%loop-player%} is equal to {mcc.team.%event-player's name%}:
 						ac(loop-player,2.5,"<gold>Collected a Coin Pile", false)
 				clear drops
 		else:

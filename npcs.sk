@@ -7,7 +7,8 @@ function summonnpc(t:text, l:location, p:player):
 	loop entities in radius 0.5 of the location 2.1 blocks above {_l}:
 		if loop-entity is text display:
 			kill loop-entity
-	spawn armor stand at {_l}:
+	spawn armor stand at the center of {_l}:
+		set yaw of spawned entity to yaw of {_l}
 		set helmet of spawned entity to skull of {_p}
 		set {_cp} to leather chestplate
 		set {_lg} to leather leggings
@@ -107,7 +108,8 @@ function summonnpcteams(t:text, l:location, n:number):
 	loop entities in radius 0.5 of the location 2.1 blocks above {_l}:
 		if loop-entity is text display:
 			kill loop-entity
-	spawn armor stand at {_l}:
+	spawn armor stand at the center of {_l}:
+		set yaw of spawned entity to yaw of {_l}
 		set helmet of spawned entity to golden helmet
 		set {_cp} to leather chestplate
 		set {_lg} to leather leggings

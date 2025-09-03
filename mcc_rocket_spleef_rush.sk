@@ -23,14 +23,16 @@ command /rsrloaddata:
 		set {mcc.rsr.map.3} to "3"
         
 		set {mcc.rsr.num_stages.%{mcc.rsr.map.1}%} to 3
+		set {mcc.rsr.num_stages.%{mcc.rsr.map.2}%} to 3
+		set {mcc.rsr.num_stages.%{mcc.rsr.map.3}%} to 3
 
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.3}%} to 30
 
-		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%} to 3
-		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.2}%} to 3
-		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.3}%} to 3
+		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.1}%} to 5
+		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.2}%} to 5
+		set {mcc.rsr.mapsperstage.%{mcc.rsr.map.3}%} to 5
 
 		set {mcc.rsr.radius.%{mcc.rsr.map.1}%} to 40
 		set {mcc.rsr.radius.%{mcc.rsr.map.2}%} to 40
@@ -68,10 +70,10 @@ function flasharrow(x: number, y: number, z: number):
 	loop all players:
 		if {rsrinprogress} is true:
 			if {rsrplaying.%loop-player's name%} is true:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {mcc.team.%loop-player%} is not equal to 0:
 					send "<pink>New terrain is spawning! The current terrain will disintegrate soon!" to loop-player
 		else:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				send "<pink>New terrain is spawning! The current terrain will disintegrate soon!" to loop-player
 	execute console command "/schempaste rsr_arrow rocketspleefrush %{_x}% %{_y}% %{_z}%"
 	set {_bla} to location({_x}, {_y}+3, {_z}, world "rocketspleefrush")
@@ -79,10 +81,10 @@ function flasharrow(x: number, y: number, z: number):
 		loop all players:
 			if {rsrinprogress} is true:
 				if {rsrplaying.%loop-player's name%} is true:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						play sound "BLOCK_NOTE_BLOCK_PLING" with volume 100 at pitch sqrt(2) for loop-player from {_bla} 
 			else:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {mcc.team.%loop-player%} is not equal to 0:
 					play sound "BLOCK_NOTE_BLOCK_PLING" with volume 100 at pitch sqrt(2) for loop-player from {_bla} 
 		wait 0.7 seconds
 	loop blocks in radius 7 of {_bla}:
@@ -95,10 +97,6 @@ function genterrain(x: number, y: number, z: number):
 		set {_stage} to min({_stage}, {mcc.rsr.num_stages.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%})
     
 	set {_bla} to {mcc.rsr.mapsperstage.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}
-	if {_bla} is not equal to 3:
-		if {_stage} is equal to 4:
-			if {_bla} is less than 4:
-				set {_bla} to 3
 	if {mcc.rsr.suddendeath} is true:
 		set {_stage} to 4
 		set {_bla} to 1
@@ -212,7 +210,7 @@ function mccrsrdisintegrate(x: number, y: number, z: number):
 command /mccrsrpod <boolean>:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "MiniMCC":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
@@ -244,7 +242,7 @@ function mccrsrdead(p: player):
 		youkilled({mcc.rsr.hitby.%{_p}%},{_p})
 	loop all players in "rocketspleefrush":
 		
-		if {mcc.team.%loop-player's name%} is not equal to 0:
+		if {mcc.team.%loop-player%} is not equal to 0:
 			if loop-player's game mode is adventure:
 				bac(loop-player, 2, "Survived 1 place")
 	teleport {_p} to the location 40 meters above {_p}'s location
@@ -255,13 +253,13 @@ function mccrsrover() :: boolean:
 	if {mcc.inprogress} is true:
 		set {_team} to 0
 		loop all players in "rocketspleefrush":
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				if loop-player's game mode is adventure:
 					if {_team} is equal to 0:
-						set {_team} to {mcc.team.%loop-player's name%}
-					else if {_team} is not equal to {mcc.team.%loop-player's name%}:
+						set {_team} to {mcc.team.%loop-player%}
+					else if {_team} is not equal to {mcc.team.%loop-player%}:
 						# broadcast {_team}
-						# broadcast {mcc.team.%loop-player's name%}
+						# broadcast {mcc.team.%loop-player%}
 						return false
 		return true
 
@@ -379,7 +377,7 @@ command /rsr <player>:
 	permission: op
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		set arg 1's chestplate to unbreakable elytra
@@ -395,7 +393,7 @@ on hunger bar change:
 command /mccrocketspleefrush:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "MiniMCC":
 					if command sender is not "notcbop":
 						if command sender is not a command block:
@@ -431,7 +429,7 @@ command /mccrocketspleefrush:
 					
 		# 			loop all players:
 		# 				if {rsrplaying.%loop-player's name%} is true: 
-		# 					if {mcc.team.%loop-player's name%} is not equal to 0:
+		# 					if {mcc.team.%loop-player%} is not equal to 0:
 		# 						execute console command "/mv tp %loop-player% rocketspleefrush"
 		# 						#execute console command "/tp @a 0 2 0"
 		# 						set {immune.%loop-player's name%} to false
@@ -440,7 +438,7 @@ command /mccrocketspleefrush:
 		# 			wait a tick
 		# 			loop all players:
 		# 				if {rsrplaying.%loop-player's name%} is true:
-		# 					if {mcc.team.%loop-player's name%} is not equal to 0:
+		# 					if {mcc.team.%loop-player%} is not equal to 0:
 		# 						clear the loop-player's inventory
 		# 						execute console command "/rsr %loop-player%"
 		# 						set loop-player's game mode to adventure
@@ -457,15 +455,13 @@ command /mccrocketspleefrush:
 		set {mcc.rsr.roundnum} to 1
 		set {mcc.rsr.timeleft} to 90
 		set {mcc.rsr.oldstage} to 0
-		#execute console command "/resetrsrworld"
-		genterrain(0, -30, 0)
 		delete {mcc.rocketspleefrush.arrowsshot::*}
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.1}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.2}%} to 30
 		set {mcc.rsr.spawnperiod.%{mcc.rsr.map.3}%} to 30
 		execute console command "/mccrsrpod true"
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				execute console command "/mv tp %loop-player% rocketspleefrush"
 				#execute console command "/tp @a 0 2 0"
 				set {immune.%loop-player's name%} to false
@@ -473,7 +469,7 @@ command /mccrocketspleefrush:
 				set {mcc.rsr.cooldown.%loop-player's name%} to false 
 		wait a tick
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				clear the loop-player's inventory
 				execute console command "/rsr %loop-player%"
 				set loop-player's game mode to adventure
@@ -481,6 +477,8 @@ command /mccrocketspleefrush:
 				set loop-player's hunger to 10
 			else:
 				set loop-player's gamemode to spectator
+		wait 60 seconds
+		genterrain(0, -30, 0)
 		
 	
 
@@ -498,8 +496,8 @@ command /rocketspleefrushviewrocketsshot:
 			set {mcc.rocketspleefrush.arrowsshot::*} to sorted {mcc.rocketspleefrush.arrowsshot::*}
 			loop {mcc.rocketspleefrush.arrowsshot::*}:
 				loop all players:
-					if {mcc.rocketspleefrush.arrowsshot::%loop-player%} is equal to loop-value-1:
-						message "%loop-player% - %loop-value-1%"
+					if {mcc.rocketspleefrush.arrowsshot::%loop-player-2%} is equal to loop-value-1:
+						message "%loop-player-2% - %loop-value-1%"
 
 every second:
 	if {mcc.paused} is true:
@@ -515,10 +513,10 @@ every second:
 				loop all players:
 					if {rsrinprogress} is true:
 						if {rsrplaying.%loop-player's name%} is true:
-							if {mcc.team.%loop-player's name%} is not equal to 0:
+							if {mcc.team.%loop-player%} is not equal to 0:
 								execute console command "/boopboopboopbeep %loop-player%"
 					else:
-						if {mcc.team.%loop-player's name%} is not equal to 0:
+						if {mcc.team.%loop-player%} is not equal to 0:
 							execute console command "/boopboopboopbeep %loop-player%"						 
 		else if {mcc.rsr.timeleft} is equal to 20:
 			if {mcc.rsr.stage} is equal to 0:
@@ -538,13 +536,13 @@ every second:
 					loop all players:
 						if {rsrinprogress} is true:
 							if {rsrplaying.%loop-player's name%} is true:
-								if {mcc.team.%loop-player's name%} is not equal to 0:
+								if {mcc.team.%loop-player%} is not equal to 0:
 									execute console command "/mv tp %loop-player% rocketspleefrush"
 									clear the loop-player's inventory
 									execute console command "/rsr %loop-player%"
 									set loop-player's game mode to adventure
 						else:
-							if {mcc.team.%loop-player's name%} is not equal to 0:
+							if {mcc.team.%loop-player%} is not equal to 0:
 								execute console command "/mv tp %loop-player% rocketspleefrush"
 								clear the loop-player's inventory
 								execute console command "/rsr %loop-player%"
@@ -555,21 +553,21 @@ every second:
 				loop all players:
 					if {rsrinprogress} is true:
 						if {rsrplaying.%loop-player's name%} is true:
-							if {mcc.team.%loop-player's name%} is not equal to 0:
+							if {mcc.team.%loop-player%} is not equal to 0:
 								send title "" with subtitle "<orange>Updraft taken away in 10 seconds" to loop-player for 3 seconds
 					else:
-						if {mcc.team.%loop-player's name%} is not equal to 0:
+						if {mcc.team.%loop-player%} is not equal to 0:
 							send title "" with subtitle "<orange>Updraft taken away in 10 seconds" to loop-player for 3 seconds
 		else if {mcc.rsr.timeleft} is equal to 120:
 			if {mcc.rsr.stage} is equal to 1:
 				loop all players:
 					if {rsrinprogress} is true:
 						if {rsrplaying.%loop-player's name%} is true:
-							if {mcc.team.%loop-player's name%} is not equal to 0:
+							if {mcc.team.%loop-player%} is not equal to 0:
 								remove all feathers from the loop-player
 								remove all firework rocket from the loop-player
 					else:
-						if {mcc.team.%loop-player's name%} is not equal to 0:
+						if {mcc.team.%loop-player%} is not equal to 0:
 							remove all feathers from the loop-player
 							remove all firework rocket from the loop-player
 		else if {mcc.rsr.timeleft} is equal to 36:
@@ -590,6 +588,7 @@ every second:
 				set {mcc.rsr.center.y} to -30
 				flasharrow({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
 				wait 5 seconds
+				mccrsrdisintegrate({mcc.rsr.oldx}, {mcc.rsr.oldy}, {mcc.rsr.oldz})
 				genterrain({mcc.rsr.center.x}, {mcc.rsr.center.y}, {mcc.rsr.center.z})
 		if mod(243-{mcc.rsr.timeleft}, {mcc.rsr.spawnperiod.%{mcc.rsr.map.%{mcc.rsr.roundnum}%}%}) is equal to 0:
 			if {mcc.rsr.stage} is equal to 1:
@@ -626,12 +625,12 @@ every second:
 			loop all players:
 				if {rsrinprogress} is true:
 					if {rsrplaying.%loop-player's name%} is true:
-						if {mcc.team.%loop-player's name%} is not equal to 0:
+						if {mcc.team.%loop-player%} is not equal to 0:
 							add 1 to {mcc.rsr.playersleft}
 							delete {mcc.rsr.hitby.%loop-player's name%}
 							set {mcc.rsr.place.%loop-player's name%} to -1
 				else:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						add 1 to {mcc.rsr.playersleft}
 						delete {mcc.rsr.hitby.%loop-player's name%}
 						set {mcc.rsr.place.%loop-player's name%} to -1
@@ -644,7 +643,7 @@ every second:
 			loop all players:
 				if {rsrinprogress} is true:
 					if {rsrplaying.%loop-player's name%} is true:
-						if {mcc.team.%loop-player's name%} is not equal to 0:
+						if {mcc.team.%loop-player%} is not equal to 0:
 							if {mcc.rsr.roundnum} is equal to 3:
 								send title "<pink>Game over!" to loop-player for 3 seconds
 							else:
@@ -656,7 +655,7 @@ every second:
 								if {mcc.rsr.place.%loop-player's name%} is less than or equal to 10:
 									ac(loop-player, {mcc.rsr.bonuscoins.%{mcc.rsr.place.%loop-player's name%}%} parsed as number, "You got %nth({mcc.rsr.place.%loop-player's name%})% place!", false)
 				else:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						if {mcc.rsr.roundnum} is equal to 3:
 							send title "<pink>Game over!" to loop-player for 3 seconds
 						else:

@@ -1,3 +1,5 @@
+using damage source
+
 variables:
 	{mcc.skybattle.borderradius} = 10
 	{mcc.skybattle.borderheight} = 70
@@ -14,7 +16,7 @@ function mccskbtutorial(p:player):
 	wait 5 seconds
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<yellow>Welcome to Sky Battle!" to {_p}
+	send "<yellow>Welcome to Sky Battle! (Summer Edition)" to {_p}
 	send "" to {_p}
 	send "<italics>Here's how you play..." to {_p}
 	send "" to {_p}
@@ -67,6 +69,15 @@ function mccskbtutorial(p:player):
 
 	wait 10 seconds
 
+	send "<lime>--------------------------------------------------" to {_p}
+	send "" to {_p}
+	send "<yellow><bold>Water Gun Tips:" to {_p}
+	send "" to {_p}
+	send "- You can refill your water gun when standing in water OR with a water bottle!" to {_p}
+	send "" to {_p}
+	send "- Water Guns don't do knockback." to {_p}
+	send "<lime>--------------------------------------------------" to {_p}
+
 
 
 
@@ -104,9 +115,9 @@ function skbover() :: boolean:
 	set {_bla} to 0
 	loop all players:
 		if loop-player's game mode is survival:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
-				if {_tl::*} does not contain {mcc.team.%loop-player's name%}:
-					add {mcc.team.%loop-player's name%} to {_tl::*}
+			if {mcc.team.%loop-player%} is not equal to 0:
+				if {_tl::*} does not contain {mcc.team.%loop-player%}:
+					add {mcc.team.%loop-player%} to {_tl::*}
 					add 1 to {_bla}
 	if {_bla} is greater than or equal to 2:
 		return false
@@ -123,8 +134,8 @@ function skbislands():
 	set {mcc.skybattle.borderradius} to 75 
 	set {mcc.skybattle.borderheight} to 90 
 	loop all players:
-		if {mcc.team.%loop-player's name%} is not equal to 0:
-			teleport loop-player to {mcc.skybattle.startinglocs.%{skbperm::%{mcc.team.%loop-player's name%}%}%}
+		if {mcc.team.%loop-player%} is not equal to 0:
+			teleport loop-player to {mcc.skybattle.startinglocs.%{skbperm::%{mcc.team.%loop-player%}%}%}
 			add 1 to {mcc.skybattle.playersleft} 
 			set {mcc.skybattle.kills.%loop-player's name%} to 0
 			set {immune.%loop-player's name%} to false
@@ -135,12 +146,13 @@ function skbislands():
 			delete {skb.hitby.%loop-player's name%}
 			clear the loop-player's inventory
 			clear loop-player's potion effects
-			give a stone sword to the loop-player
+			give {mcc.skybattle.watergun} to the loop-player
 			set the loop-player's chestplate to iron chestplate
 			giveconc(loop-player)
 			give an iron pickaxe of efficiency 3 to the loop-player
 			give 8 steak to the loop-player
-			give a bow to the loop-player
+			give wooden sword to loop-player
+			# give a bow to the loop-player
 			set loop-player's level to 0
 			set loop-player's level progress to 0
 
@@ -155,8 +167,148 @@ on rightclick with popped chorus fruit:
 		add {_p} to potion effects of player
 		remove 1 popped chorus fruit from player
 
+on rightclick with wooden hoe:
+	player's world is "skybattle"
+	name of player's tool is "<gold>Water Gun"
+	{mcc.skybattle.waterfight} is true
+	if player has player's tool on cooldown:
+		exit trigger
+	else:
+		
+		if {mcc.skybattle.waterfight.water.%player%} isn't set:
+			set {mcc.skybattle.waterfight.water.%player%} to 20
+		if {mcc.skybattle.waterfight.water.%player%} is greater than 0:
+			
+			set item cooldown of player's tool for player to 4 ticks
+			subtract 1 from {mcc.skybattle.waterfight.water.%player%}
+			
+			if {mcc.skybattle.waterfight.water.%player%} is 0:
+				send action bar "Ammo:%"<light gray>|" repeated 20-{mcc.skybattle.waterfight.water.%player%} times%" to player
+			else:
+				send action bar "Ammo:%"<lime>|" repeated {mcc.skybattle.waterfight.water.%player%} times%%"<light gray>|" repeated 20-{mcc.skybattle.waterfight.water.%player%} times%" to player
+			make player shoot arrow at speed 1.5
+		else:
+			send action bar "<red>No Ammo!" to player
 
+on shoot:
+	{mcc.skybattle.waterfight} is true
+	world is "skybattle"
+	shooter's tool is wooden hoe
+	set {_p} to event-projectile
+	add "water" to scoreboard tags of event-projectile
+	while {_p} is alive:
+		wait 0.1 seconds
+		draw 5 of splash at {_p}'s location
 
+on damage:
+	{mcc.skybattle.waterfight} is true
+	world is "skybattle"
+	damage cause is projectile
+	event-projectile has scoreboard tag "water"
+	set {_p} to attacker
+	set {_v} to victim
+	set {_proj} to event-projectile
+	set {skb.hitby.%victim%} to attacker
+	play sound "entity.arrow.hit_player" to attacker
+	cancel event
+	set {_source} to a custom damage source:
+		set the damage type to bad respawn point
+		set the causing entity to {_p}
+		set the direct entity to {_proj}
+		set the damage location to {_v}'s location
+	damage victim by 1 using {_source}
+	set victim's invulnerability time to 1 tick
+
+on projectile hit:
+	{mcc.skybattle.waterfight} is true
+	world is "skybattle"
+	event-projectile is an arrow
+	kill event-projectile
+
+on leftclick with wooden hoe:
+	player's world is "skybattle"
+	name of player's tool is "<gold>Water Gun"
+	{mcc.skybattle.waterfight} is true
+	if {mcc.skybattle.waterfight.water.%player%} isn't 20:
+		if player doesn't have water bottle:
+			while block at player is water:
+				if {mcc.skybattle.waterfight.water.%player%} isn't set:
+					set {mcc.skybattle.waterfight.water.%player%} to 20
+				if {mcc.skybattle.waterfight.water.%player%} is less than 20:
+					if {mcc.skybattle.waterfight.water.%player%} is 0:
+						send action bar "Refilling...%"<light gray>|" repeated 20-{mcc.skybattle.waterfight.water.%player%} times%" to player
+					else:
+						send action bar "Refilling...%"<lime>|" repeated {mcc.skybattle.waterfight.water.%player%} times%%"<light gray>|" repeated 20-{mcc.skybattle.waterfight.water.%player%} times%" to player
+					add 1 to {mcc.skybattle.waterfight.water.%player%}
+				else:
+					send action bar "Refilling...%"<lime>|" repeated {mcc.skybattle.waterfight.water.%player%} times%" to player
+				wait 2 ticks
+		else:
+			remove 1 water bottle from player
+			give player 1 bottle
+			loop 20 times:
+				if {mcc.skybattle.waterfight.water.%player%} isn't set:
+					set {mcc.skybattle.waterfight.water.%player%} to 20
+				if {mcc.skybattle.waterfight.water.%player%} is less than 20:
+					if {mcc.skybattle.waterfight.water.%player%} is 0:
+						send action bar "Refilling...%"<light gray>|" repeated 20-{mcc.skybattle.waterfight.water.%player%} times%" to player
+					else:
+						send action bar "Refilling...%"<lime>|" repeated {mcc.skybattle.waterfight.water.%player%} times%%"<light gray>|" repeated 20-{mcc.skybattle.waterfight.water.%player%} times%" to player
+					add 1 to {mcc.skybattle.waterfight.water.%player%}
+				else:
+					send action bar "Refilling...%"<lime>|" repeated {mcc.skybattle.waterfight.water.%player%} times%" to player
+				wait 2 ticks
+	
+
+on shoot:
+	shooter is player
+	shooter's world is "skybattle"
+	event-projectile is egg
+	add shooter's name to scoreboard tags of event-projectile
+
+on projectile hit:
+	event-projectile's world is "skybattle"
+	event-projectile is egg
+	set {_loc} to event-location
+	# loop 36 times:
+	# 	loop 18 times:
+	# 		draw 1 of dust using dustOption(red,1) at event-location ~ vector(2*cos(loop-number-1*10)*sin(loop-number-2*10), 2*sin(loop-number-1*10)*sin(loop-number-2*10),2*cos(loop-number-2*10))
+	# wait 0.5 seconds
+	loop 36 times:
+		loop 18 times:
+			draw 1 of splash at {_loc} ~ vector(2*cos(loop-number-1*10)*sin(loop-number-2*10), 2*sin(loop-number-1*10)*sin(loop-number-2*10),2*cos(loop-number-2*10))
+	loop scoreboard tags of event-projectile:
+		set {_player} to loop-value parsed as player
+	spawn creeper at event-location:
+		set spawned entity's name to "%{_player}%'s creeper"
+		set the explosive yield of spawned entity to 2
+		instantly explode spawned entity
+
+on spawn:
+	world is "skybattle"
+	event-entity is chicken
+	cancel event
+
+function raycast(p: player, length: number, dmg: number):
+    set {_x} to 0
+    set {_l} to 0
+    loop {_length} times:   #loops as many times as long as the length from the function input
+        add 1 to {_x}
+        add 0.5 to {_l}
+        set {_rg%{_x}%} to location {_l} meters infront of {_p}
+        set {_rg%{_x}%} to location 1.25 meters above {_rg%{_x}%} #aligns with where player is looking better
+    # all of the locations are saved as soon as the function is called, effects such as particles can be applied afterwards.
+    set {_x} to 0
+    loop {_length} times:
+        add 1 to {_x}
+        show 4 blue dust at {_rg%{_x}%} #change color or particle type
+        loop entities in radius 0.75 around {_rg%{_x}%}:
+            loop-entity is not {_p}
+            damage loop-entity by {_dmg}
+            stop #if you want your projectile to pierce entities, delete this line
+        loop blocks in radius 0.5 around {_rg%{_x}%}:
+            if loop-block is not tall grass, short grass, snow layer, air or water:
+                stop #projectile does not go through blocks, but passes through expected blocks.
 
 command /skybattletoggleblockstracker <boolean>:
 	trigger:
@@ -164,24 +316,24 @@ command /skybattletoggleblockstracker <boolean>:
 			set {mcc.skybattle.trackarrowsshot} to arg
 			message "Toggled block tracking in skybattle to %arg%"
 
-command /skybattleviewblocksplaced:
-	trigger:
-		if {mmcc.hosts::*} contains command sender:
-			set {mcc.skybattle.arrowsshot::*} to sorted {mcc.skybattle.arrowsshot::*}
-			loop {mcc.skybattle.arrowsshot::*}:
-				loop all players:
-					if {mcc.skybattle.arrowsshot::%loop-player%} is equal to loop-value-1:
-						message "%loop-player% - %loop-value-1%"
+# command /skybattleviewblocksplaced:
+# 	trigger:
+# 		if {mmcc.hosts::*} contains command sender:
+# 			set {mcc.skybattle.arrowsshot::*} to sorted {mcc.skybattle.arrowsshot::*}
+# 			loop {mcc.skybattle.arrowsshot::*}:
+# 				loop all players:
+# 					if {mcc.skybattle.arrowsshot::%loop-player%} is equal to loop-value-1:
+# 						message "%loop-player% - %loop-value-1%"
 
 
 command /mccskbresetmap:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		
-		execute console command "/schempaste skybattle_mesa skybattle 0 24 0"
+		execute console command "/schempaste skybattle_sand skybattle 0 24 0"
 		#execute console command "/schempaste skybattle2 skybattle 0 103 0"
 		
 		
@@ -202,7 +354,7 @@ on damage:
 command /mccskybattle:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				if command sender is not "notcbop":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
@@ -211,20 +363,21 @@ command /mccskybattle:
 		set {mcc.skybattle.stage} to 0
 		set {mcc.skybattle.roundnum} to 1
 		set {mcc.currentevent} to "skybattle"
+		set {mcc.skybattle.overtimetriggered} to false
 		set {mcc.skybattle.playersleft} to 0
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				add 1 to {mcc.skybattle.playersleft} 
 				set {mcc.skybattle.kills.%loop-player's name%} to 0
 				execute console command "/mv tp %loop-player's name% skybattle"
 		execute console command "/mccnewgame"
 		wait a second 
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				set {immune.%loop-player's name%} to false
 				set loop-player's game mode to spectator
 		loop all players:
-			if {mcc.team.%loop-player's name%} is not equal to 0:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				mccskbtutorial(loop-player)
 		teamglow("true")
 
@@ -246,10 +399,10 @@ on place:
 	player's game mode is survival
 	if {mcc.skybattle.stage} is not equal to 1:
 		cancel event
-	if event-block's y coordinate is greater than 48:
+	if event-block's y coordinate is greater than 60:
 		cancel event
-		send action bar "Build height for skybattle is 48" to event-player
-	if event-block's y coordinate is less than 10:
+		send action bar "Build height for skybattle is 60" to event-player
+	if event-block's y coordinate is less than 13:
 		cancel event
 		send action bar "Sorry, but you can't build there!" to event-player
 
@@ -324,12 +477,16 @@ on damage of player:
 				set {skb.ctimer.%victim%} to 10
 	if damage cause is firework:
 		cancel event
+	
+
+
 on death of player:
 	"%victim's world%" is equal to "skybattle"
 	if {mcc.skybattle.stage} is not equal to 1:
 		cancel event
 		exit trigger
 	cancel event
+	#wbroadcast "%damage source%"
 	set victim's health to 10
 	set victim's hunger to 10
 	set victim's saturation to 5
@@ -388,15 +545,20 @@ on death of player:
 			set {_msg} to "%{_pl}%<white> burnt to a crisp while trying to escape %{_at}%" 
 		else:
 			set {_msg} to "%{_pl}% <white>burnt to a crisp"
-	#else if damage cause is wither:
-	#	set {_msg} to "%{_pl}% <white>withered away"
-	#else if damage cause is falling block:
-	#	set {_msg} to "%{_pl}% <white>was hit by a falling block"
+	else if damage cause is wither:
+		set {_msg} to "%{_pl}% <white>withered away"
+	else if damage cause is falling block:
+		set {_msg} to "%{_pl}% <white>was hit by a falling block"
 	else if damage cause is suffocation:
 		set {_msg} to "%{_pl}% <white>suffocated"
+	if "%damage source%" contains "bad_respawn_point":
+		if {skb.hitby.%victim%} is set:
+			set {_msg} to "%{_pl}%<white> got soaked by %{_at}% <white>with a water gun" 
+		else:
+			set {_msg} to "%{_pl}% <white>got soaked"
 	broadcast formatted {_msg}
 	loop all players:
-		if {mcc.team.%loop-player's name%} is not equal to 0:
+		if {mcc.team.%loop-player%} is not equal to 0:
 			if loop-player's game mode is survival:
 				bac(loop-player, 2, "Survived 1 place")
 	if skbover() is true:
@@ -405,7 +567,6 @@ on death of player:
 
 
 every second:
-	
 	if {mcc.paused} is true:
 		exit trigger
 	if {mcc.currentevent} is not equal to "skybattle":
@@ -418,17 +579,17 @@ every second:
 			skbgenparticlecircle({mcc.skybattle.borderradius},({mcc.skybattle.borderradius}*2*3.1415)/3+10)
 		loop all players:
 			if loop-player's game mode is survival or adventure:
-				if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {mcc.team.%loop-player%} is not equal to 0:
 					if "%loop-player's world%" is equal to "skybattle":
 						if loop-player's y-coordinate is less than 0:
 							if {mcc.skybattle.stage} is equal to 1:
 								damage loop-player by 100 hearts 
 							else:
-								teleport loop-player to {mcc.skybattle.startinglocs.%{skbperm::%{mcc.team.%loop-player's name%}%}%}
+								teleport loop-player to {mcc.skybattle.startinglocs.%{skbperm::%{mcc.team.%loop-player%}%}%}
 						if skbshouldplayertakeborderdamage(loop-player) is true:
 							damage loop-player by 1 heart
 						
-				if {mcc.team.%loop-player's name%} is not equal to 0:
+				if {mcc.team.%loop-player%} is not equal to 0:
 					if {skb.ctimer.%loop-player's name%} is greater than 0:
 						subtract 1 from {skb.ctimer.%loop-player's name%}
 					else:
@@ -443,7 +604,7 @@ every second:
 		else if {mcc.skybattle.timeleft} is equal to 3:
 			if {mcc.skybattle.stage} is equal to 0:
 				loop all players:
-					if {mcc.team.%loop-player's name%} is not equal to 0:
+					if {mcc.team.%loop-player%} is not equal to 0:
 						execute console command "/boopboopboopbeep %loop-player's name%"
 		else if {mcc.skybattle.timeleft} is equal to 1:
 			if {mcc.skybattle.stage} is equal to 0:
@@ -452,7 +613,7 @@ every second:
 	else if {mcc.skybattle.timeleft} is equal to 0:
 		if {mcc.skybattle.stage} is equal to 0:
 			loop all players:
-				if {mcc.team.%loop-player's name%} is not equal to 0:	
+				if {mcc.team.%loop-player%} is not equal to 0:	
 					loop blocks in radius 7 around loop-player:
 						if loop-block is barrier block:
 							set loop-block to air
@@ -472,14 +633,14 @@ every second:
 				loop all players:
 					if loop-player's game mode is survival:
 						ac(loop-player, 50, "You survived the entire round!", true)
-						add "<%mcccolor({mcc.team.%loop-player's name%})%>%loop-player's name%" to {_bl::*}
+						add "<%mcccolor({mcc.team.%loop-player%})%>%loop-player's name%" to {_bl::*}
 				if size of {_bl::*} is equal to 1:
 					broadcast formatted "[<gold><bold>Sky Battle<white>] The winner of this round is %{_bl::1}%!" 
 				else:
 					broadcast formatted "[<gold><bold>Sky Battle<white>] The winners of this round are %{_bl::*}%!" 
 				if {mcc.skybattle.roundnum} is equal to 3:
 					loop all players:
-						if {mcc.team.%loop-player's name%} is not equal to 0:
+						if {mcc.team.%loop-player%} is not equal to 0:
 							send title "<pink>Game over!" to loop-player for 3 seconds
 					set {mcc.skybattle.overtimetriggered} to false
 					set {mcc.skybattle.stage} to 2
@@ -487,7 +648,7 @@ every second:
 					execute console command "/mccstandings"		
 				else:
 					loop all players:
-						if {mcc.team.%loop-player's name%} is not equal to 0:
+						if {mcc.team.%loop-player%} is not equal to 0:
 							send title "<pink>Round over!" to loop-player for 3 seconds
 					set {mcc.skybattle.overtimetriggered} to false
 					add 1 to {mcc.skybattle.roundnum} 
@@ -502,4 +663,11 @@ on craft of shield:
 	"%player's world%" is equal to "skybattle"
 	message "<pink>This recipe is disabled!"
 	cancel event
+
+on craft:
+	"%player's world%" is equal to "skybattle"
+	{mcc.skybattle.waterfight} is true
+	if item is a sword:
+		message "<pink>This recipe is disabled!"
+		cancel event
 

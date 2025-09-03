@@ -153,7 +153,6 @@ command /pkwnewgencoursebonuses:
 			if command sender is not "itsasquid2":
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
-		#execute console command "/schempaste pkw_entrance parkourwarriornew 0 -50 0"
 		set {pkw.zcord} to 0 
 		delete {_bonuspathzcords::*}
 		# bonus paths	

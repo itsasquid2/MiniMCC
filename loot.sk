@@ -87,7 +87,7 @@ command /fillchests <string>:
 			delete {lootchests::*}
 			message "<gold>Deleted all loot chests!"
 			exit trigger
-		if {mcc.hg.loot.%arg 1%::*} is empty:
+		if {mcc.hg.loot.%arg 1%::*} isn't set:
 			message "<magenta>%arg 1%<reset> is not a type of loot!"
 			exit trigger
 		if "%{mcc.hg.loot.%arg 1%::*}%" is "<none>":
@@ -113,7 +113,7 @@ command /fillchestskiwi <string>:
 			delete {lootchestskiwi::*}
 			message "<gold>Deleted all loot chests!"
 			exit trigger
-		if {mcc.hg.loot.%arg 1%::*} is empty:
+		if {mcc.hg.loot.%arg 1%::*} isn't set:
 			message "<magenta>%arg 1%<reset> is not a type of loot!"
 			exit trigger
 		if "%{mcc.hg.loot.%arg 1%::*}%" is "<none>":

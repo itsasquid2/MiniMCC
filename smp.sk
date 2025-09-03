@@ -64,7 +64,7 @@ on damage:
 
 command /giveboombox:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			give player a barrel named "<white>BoomBox"
 			give player a barrel named "<orange>FireBox"
 			give player a barrel named "<purple>LaunchBox"
@@ -75,7 +75,7 @@ command /giveboombox:
 	
 command /giveboomboxall:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			give all players 64 barrels named "<white>BoomBox"
 			give all players 64 barrels named "<orange>FireBox"
 			give all players 64 barrels named "<purple>LaunchBox"
@@ -130,7 +130,7 @@ on death of player:
 
 command /boomboxtourny <boolean>:
 	trigger:
-		if {mmcc.hoster.%command sender%} isn't true:
+		if {mmcc.hosts::*} doesn't contain command sender:
 			message "<red>>:("
 			exit trigger
 		if arg is true:
@@ -262,7 +262,7 @@ command /gotospawn:
 
 command /setsmpspawn:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {smpspawn} to player's location
 
 command /smplore:
@@ -299,13 +299,13 @@ on death of player:
 
 command /setsmpworld <text>:
 	trigger:
-		if {mmcc.hoster.%command sender%} is true:
+		if {mmcc.hosts::*} contains command sender:
 			set {smpworld} to arg 1
 	
 command /smp:
 	trigger:
 		if {mcc.currentevent} is not equal to "none":
-			if {mcc.team.%player's name%} is not equal to 0:
+			if {mcc.team.%player%} is not equal to 0:
 				message "<pink>You cannot abandon your Mini MCC teammates!"
 				exit trigger
 
@@ -383,7 +383,7 @@ on join:
 command /locksmp:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true:
+			if {mmcc.hosts::*} doesn't contain command sender:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		if {smp.locked} is true:

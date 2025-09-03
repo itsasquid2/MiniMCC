@@ -107,7 +107,7 @@ on command "//":
 on command:
 	command sender is not the console
 	if {mcc.currentevent} is not equal to "none":
-		if {mcc.team.%player's name%} is not equal to 0:
+		if {mcc.team.%player%} is not equal to 0:
 			exit trigger
 			if {superop.%player's name%} is true:
 				exit trigger
