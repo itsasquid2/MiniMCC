@@ -92,14 +92,16 @@ on break:
 	if {settingpgchests2} is true:
 		if player is "itsasquid2":
 			add event-block to {mcc.pg.coinchests::*}
+			cancel event
+			message {mcc.pg.coinchests::*}
 
 function mccpgtutorial(p:player):
 	wait 3 seconds
-	send title "<yellow>Treasure Hunt" to {_p} for 5 seconds
+	send title "<yellow>Pirate Game" to {_p} for 5 seconds
 	wait 5 seconds
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<yellow><bold>Welcome to Treasure Hunt!" to {_p}
+	send "<yellow><bold>Welcome to Pirate Game!" to {_p}
 	send "" to {_p}
 	send "<italics>Here's how you play..." to {_p}
 	send "" to {_p}
@@ -110,7 +112,7 @@ function mccpgtutorial(p:player):
 
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>Treasure Hunt is a high-seas heist!" to {_p}
+	send "<bold>Pirate Game is a high-seas heist!" to {_p}
 	send "" to {_p}
 	send "Raid the pirate ship and steal coins for your team, or defend the ship from the swarm of attackers!" to {_p}
 	send "" to {_p}
@@ -120,7 +122,7 @@ function mccpgtutorial(p:player):
 
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>In Treasure Hunt, one team defends the ship, and all other teams attack it." to {_p}
+	send "<bold>In Pirate Game, one team defends the ship, and all other teams attack it." to {_p}
 	send "" to {_p}
 	send "Every team will get one chance to defend, and attack all the other rounds." to {_p}
 	send "" to {_p}
@@ -140,11 +142,11 @@ function mccpgtutorial(p:player):
 	
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<bold>Attackers can boat or bridge over to the ship. However, be aware that blocks will dissapear after 5 seconds" to {_p}
+	send "<bold>Attackers can boat or bridge over to the ship. However, be aware that blocks can be broken by arrows!" to {_p}
 	send "" to {_p}
-	send "To score for your team, you must steal coins, and return to your island without dying!" to {_p}
+	send "To score for your team, you must steal coins, and return to an island without dying!" to {_p}
 	send "" to {_p}
-	send "If you die, you'll lose your coins and your ender pearls, if you had any." to {_p}
+	send "It does not matter which island you return to!" to {_p}
 	send "" to {_p}
 	send "<lime>--------------------------------------------------" to {_p}
 
@@ -158,8 +160,8 @@ function mccpgtutorial(p:player):
 	send "- It's harder to break non-wool blocks." to {_p}
 	send "- You can't blow up chests, just open them!" to {_p}
 	send "- Attackers can't fight other attackers." to {_p}
-	send "- Blocks will dissapear after 5 seconds." to {_p}
-	send "- Ender Pearls respawn in your spawn chests every 20 seconds." to {_p}
+	send "- Blocks can be broken by shot arrows" to {_p}
+	send "- Boats can be used to bridge faster!" to {_p}
 	send "- Ladders automatically extend downwards!" to {_p}
 	send "" to {_p}
 	send "<lime>--------------------------------------------------" to {_p}
@@ -280,12 +282,12 @@ function pgpregame():
 			#broadcast "%pgspawn(loop-player)% %loop-player%"
 			send title "Round %{mcc.pg.round}%" with subtitle "%{mcc.teams::%{mcc.pg.defendingteam}%}% are defending" to loop-player for 3 seconds
 	#refill all chests (loot and attacker island)
-	loop {mcc.pg.attackerchests::*}:
-		add 2 cobwebs to inventory of block at loop-value 
-		#add 2 potions of speed to inventory of block at loop-value
-		#add 2 splash potions of harming to inventory of block at loop-value 
-		#add 1 ender pearl to inventory of block at loop-value
-		add 15 oak boats to inventory of block at loop-value 
+	# loop {mcc.pg.attackerchests::*}:
+	# 	add 2 cobwebs to inventory of block at loop-value 
+	# 	#add 2 potions of speed to inventory of block at loop-value
+	# 	#add 2 splash potions of harming to inventory of block at loop-value 
+	# 	#add 1 ender pearl to inventory of block at loop-value
+	# 	add 15 oak boats to inventory of block at loop-value 
 	loop {mcc.pg.coinchests::*}:
 		loop 90 times:
 			set {_bla} to a random integer between 5 and 21
@@ -318,7 +320,6 @@ on damage:
 		else:
 			add 1 to the item amount of slot {_baa} of inventory of block at {mcc.pg.coinchests::%{_ba}%}
 	remove all sunflowers from the victim
-	remove all ender pearl from the victim
 	teleport victim to {mcc.pg.spawns::%pgspawn(victim)%}
 	if {mcc.pg.stage} is equal to 2:
 		set victim's gamemode to survival	
@@ -466,7 +467,6 @@ on walking on sand or sandstone:
 	{mcc.pg.timeleft} is greater than 0
 	player's game mode is not spectator
 	{mcc.team.%player%} is not equal to {mcc.pg.defendingteam}
-	distance between player and {mcc.pg.spawns::%pgspawn(player)%} is less than 10
 	if player has a sunflower:
 		set {_bla} to number of sunflowers in player's inventory
 		ac(player, {_bla}, "You stole %{_bla}% coins!", false)
@@ -529,7 +529,7 @@ every second:
 							give an iron sword of sharpness 3 to loop-player
 							give an iron axe of sharpness 2 to loop-player
 							givecoloredwool(loop-player)
-							give a crossbow of quick charge 3 and piercing 1 to loop-player
+							give a crossbow of quick charge 3 and piercing 1 and multishot 1 to loop-player
 							give 20 bread to loop-player
 							give 48 arrows to loop-player
 							give shears of efficiency 3 to loop-player
@@ -537,12 +537,15 @@ every second:
 							#give 1 TNT to loop-player
 							give 2 splash potions of strong harming to loop-player
 						else:
+							set slot 8 of loop-player to 64 boats
 							give a wooden sword to loop-player
 							give a stone axe to loop-player
 							give an iron pickaxe to loop-player
 							give 20 bread to loop-player
 							givecoloredwool(loop-player)
 							give 64 ladders to loop-player
+							give 2 cobwebs to loop-player
+							give 1 ender pearl to loop-player
 							give shears to loop-player
 		
 		else if {mcc.pg.timeleft} is equal to 3:
@@ -596,5 +599,12 @@ every second:
 				set {mcc.pg.timeleft} to -1
 				execute console command "/mccbreak"	
 
+command /setbarrierpg:
+	trigger:
+		if command sender is "itsasquid2":
+			loop blocks in radius 8 of player:
+				if loop-block is barrier:
+					if {mcc.pg.barriers::*} doesn't contain loop-block:
+						add loop-block to {mcc.pg.barriers::*}
 
 

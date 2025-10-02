@@ -767,11 +767,12 @@ command /addblocktozone <number>:
 command /swapcolors:
 	trigger:
 		if {mmcc.hosts::*} contains command sender:
-			loop all blocks in radius 30 around player:
-				if loop-block is red carpet:
-					set {mcc.db.whatblock.%loop-block%} to 3
-				if loop-block is orange carpet:
-					set {mcc.db.whatblock.%loop-block%} to 4
+			loop all blocks in radius 5 around player:
+				if loop-block is carpet:
+					if {mcc.db.whatblock.%loop-block%} is 3:
+						set {mcc.db.whatblock.%loop-block%} to 4
+					else if {mcc.db.whatblock.%loop-block%} is 4:
+						set {mcc.db.whatblock.%loop-block%} to 3
 			
 
 command /resetdbzone <number>:

@@ -167,7 +167,11 @@ every 0.15 second:
         subtract 1 from {rrr.minecarthealth.%{rrr.minecart.%loop-number%}%}
         set {rrr.minecart.%loop-number%}'s display name to {_name}
         if block at {rrr.minecart.%loop-number%} isn't air:
+            #broadcast block at {rrr.minecart.%loop-number%}
+            # if "%blockdata of block at {rrr.minecart.%loop-number%}%" contains "waterlogged=true":
+            #     push {rrr.minecart.%loop-number%} forwards at speed 5
             push {rrr.minecart.%loop-number%} forwards
+            
         if velocity of {rrr.minecart.%loop-number%} is vector(0,0,0):
             wait 0.25 second
             if velocity of {rrr.minecart.%loop-number%} is vector(0,0,0):

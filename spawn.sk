@@ -211,7 +211,7 @@ function spleefendgame(n:number):
     else if {_n} is equal to 1:
         loop all players:
             if {spleef.playing.%loop-player%} is true:
-                broadcast "<light blue>[Spleef] <cyan> %loop-player% won spleef!"	
+                broadcast "<light blue>[Spleef] <cyan> %loop-player% <white>won spleef!"	
     set {spleef.inprogress} to false
     loop all players:
         if {spleef.playing.%loop-player%} is true:

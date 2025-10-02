@@ -16,7 +16,7 @@ function mccskbtutorial(p:player):
 	wait 5 seconds
 	send "<lime>--------------------------------------------------" to {_p}
 	send "" to {_p}
-	send "<yellow>Welcome to Sky Battle! (Summer Edition)" to {_p}
+	send "<yellow>Welcome to Sky Battle!" to {_p}
 	send "" to {_p}
 	send "<italics>Here's how you play..." to {_p}
 	send "" to {_p}
@@ -69,14 +69,14 @@ function mccskbtutorial(p:player):
 
 	wait 10 seconds
 
-	send "<lime>--------------------------------------------------" to {_p}
-	send "" to {_p}
-	send "<yellow><bold>Water Gun Tips:" to {_p}
-	send "" to {_p}
-	send "- You can refill your water gun when standing in water OR with a water bottle!" to {_p}
-	send "" to {_p}
-	send "- Water Guns don't do knockback." to {_p}
-	send "<lime>--------------------------------------------------" to {_p}
+	# send "<lime>--------------------------------------------------" to {_p}
+	# send "" to {_p}
+	# send "<yellow><bold>Water Gun Tips:" to {_p}
+	# send "" to {_p}
+	# send "- You can refill your water gun when standing in water OR with a water bottle!" to {_p}
+	# send "" to {_p}
+	# send "- Water Guns don't do knockback." to {_p}
+	# send "<lime>--------------------------------------------------" to {_p}
 
 
 
@@ -146,7 +146,7 @@ function skbislands():
 			delete {skb.hitby.%loop-player's name%}
 			clear the loop-player's inventory
 			clear loop-player's potion effects
-			give {mcc.skybattle.watergun} to the loop-player
+			#give {mcc.skybattle.watergun} to the loop-player
 			set the loop-player's chestplate to iron chestplate
 			giveconc(loop-player)
 			give an iron pickaxe of efficiency 3 to the loop-player
@@ -333,8 +333,9 @@ command /mccskbresetmap:
 				message "<pink>You do not have permission to run this command!"
 				exit trigger
 		
-		execute console command "/schempaste skybattle_sand skybattle 0 24 0"
+		#execute console command "/schempaste skybattle_sand skybattle 0 24 0"
 		#execute console command "/schempaste skybattle2 skybattle 0 103 0"
+		execute console command "/schempaste skybattle skybattle 0 70 0"
 		
 		
 		#execute console command "/schempaste skbleredux skybattle 0 103 0"

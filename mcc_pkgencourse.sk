@@ -184,7 +184,7 @@ command /pkwnewgencoursebonuses:
 				else:
 					set {_diff} to "extreme"
 				set {_rand} to random element in {_%{_diff}%}
-				broadcast {_rand}
+				broadcast "pkw_bonus_%{_diff}%_%{_rand}%"
 				execute console command "/schempaste pkw_bonus_%{_diff}%_%{_rand}% parkourwarriornew %{_xcord}% %{_ycord}% %{_bonuspathzcoords::%loop-number-1%}%"
 				#pkwregiondefine(player, "B%loop-number-1%-%(loop-number-2)-1%", {_xcord}-1, {_xcord}-4, {_ycord}-1, {_ycord}+5, {_bonuspathzcoords::%loop-number-1%}-4, {_bonuspathzcoords::%loop-number-1%}+4) 
 				set {mcc.pkwnew.%{mcc.pkwnew.idof.B%loop-number-1%-%(loop-number-2)%}%.name} to {mcc.pkwnew.bonusname.%{_diff}%_%{_rand}%}

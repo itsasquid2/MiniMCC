@@ -672,11 +672,11 @@ command /mccstandingsall:
 					set {_good} to false
 					loop {mccplaying::*}:
 						if {_good} is false:
-							if {mcc.gamecoins.%loop-player%} is equal to {_indivcoins::%loop-number%}:
-								if {mcc.already.%loop-player%} is false:
-									set {_pl} to loop-player
+							if {mcc.gamecoins.%loop-value-2%} is equal to {_indivcoins::%loop-value-1%}:
+								if {mcc.already.%loop-value-2%} is false:
+									set {_pl} to loop-value-2
 									set {_good} to true
-					set {_bla} to the length of "%loop-number%. %{_pl}% %ceil({mcc.gamecoins.%{_pl}%})%"
+					set {_bla} to the length of "%loop-value-1%. %{_pl}% %ceil({mcc.gamecoins.%{_pl}%})%"
 					loop 25 - {_bla} times:
 						add " " to {_blabla::*}
 					set {_ba} to join {_blabla::*}
@@ -870,6 +870,9 @@ command /addplayertoevent <player>:
 		if {mmcc.hosts::*} contains command sender or the console:
 			add arg to {mccplaying::*}
 
+on join:
+	if {mcc.inprogress} is true:
+		add event-player to {mccplaying::*}
 
 command /mccnewevent:
 	trigger:
@@ -1049,6 +1052,7 @@ command /mccbreak [<number>]:
 						set loop-player's game mode to adventure
 						clear the loop-player's fastboard
 						clear the loop-player's potion effects
+						clear the loop-player's inventory
 				exit trigger
 			else:
 				set {_bt} to 120 

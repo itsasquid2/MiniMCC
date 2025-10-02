@@ -388,7 +388,7 @@ function givewool(p:player, c:number):
 	if {_c} is 10:
 		set {_color} to "pink"
 	execute console command "/give %{_p}'s name% %{_color}%_wool[can_place_on=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:bedrock},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool}],tooltip_display={hidden_components:[can_break,can_place_on]}] 64"
-	execute console command "/give %{_p}'s name% shears[can_break=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool}],tooltip_display={hidden_components:[can_break,can_place_on]}] 1"
+	execute console command "/give %{_p}'s name% shears[can_break=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool},{blocks:white_wool}],tooltip_display={hidden_components:[can_break,can_place_on]}] 1"
 
 function setboots(p:player, c:number):
 	set {_p}'s boots to leather boots
@@ -427,10 +427,19 @@ on rightclick:
 		set player's gamemode to survival
 		wait 1 tick
 		set player's gamemode to adventure
+	if player's tool is cobwebs:
+		set player's gamemode to survival
+		wait 1 tick
+		set player's gamemode to adventure
+	else if player's offhand tool is cobwebs:
+		set player's gamemode to survival
+		wait 1 tick
+		set player's gamemode to adventure
 
 on place:
 	player's world is "battlebox"
-	if event-block isn't wool or tnt:
+	#broadcast event-block
+	if event-block isn't wool or tnt or cobweb:
 		cancel event
 	else if event-block is tnt:
 		remove 1 tnt from player
@@ -531,6 +540,7 @@ command /teleportplayers <number> <text>:
 on place:
 	"%player's world%" is equal to "battlebox"
 	player's game mode isn't creative
+	event-block isn't tnt or cobweb
 	if event-block is white wool:
 		exit trigger
 	if block below event-block isn't bedrock:
