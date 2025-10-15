@@ -1053,7 +1053,6 @@ command /mccbreak [<number>]:
 						clear the loop-player's fastboard
 						clear the loop-player's potion effects
 						clear the loop-player's inventory
-				exit trigger
 			else:
 				set {_bt} to 120 
 		else:
@@ -1068,6 +1067,9 @@ command /mccbreak [<number>]:
 				set loop-player's game mode to adventure
 		execute console command "/mccupdateteamleaderboard"
 		execute console command "/mccupdateindivleaderboard"
+		if {mcc.gamenum} is equal to 6:
+			set {mcc.break.timeleft} to -1
+			set {mcc.currentevent} to "none"
 		teamglow("false")
 
 

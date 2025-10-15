@@ -527,7 +527,7 @@ on shoot:
 on projectile hit:
 	if the event-projectile has the scoreboard tag "dodgebolt":
 		delete the event-projectile
-		drop an arrow at the event-location 
+		drop an arrow at the event-location without velocity
 		loop entities in radius 0.5 of event-location:
 			set glowing of loop-entity to true
 
@@ -640,7 +640,7 @@ on damage:
                         broadcast formatted "<yellow>[Dodgebolt] <%mcccolor({db.color2})%>%victim% <yellow>was tagged by <%mcccolor({db.color1})%>%attacker%"
                         launch ball large colored mcccolor({db.color2}) at {baba} with duration 0
                 if victim has an arrow:
-                        drop an arrow at the event-location
+                        drop an arrow at the event-location without velocity
                 dbdead(victim)	
 
 on walking on lava:

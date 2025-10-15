@@ -473,6 +473,7 @@ command /mccrocketspleefrush:
 		loop all players:
 			if {mcc.team.%loop-player%} is not equal to 0:
 				clear the loop-player's inventory
+				wait 1 tick
 				execute console command "/rsr %loop-player%"
 				set loop-player's game mode to adventure
 				mccrocketspleefrushtutorial(loop-player)	

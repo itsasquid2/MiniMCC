@@ -195,9 +195,9 @@ on region enter:
                     if y coord of loop-player is less than 74:
                         if loop-player's gamemode is adventure:
                             ac(loop-player,4,"Survived 1 Place",false)
-                if {hitw.numplayers} is 4:
-                    ac(event-player,30,"Third Place",false)
                 if {hitw.numplayers} is 3:
+                    ac(event-player,30,"Third Place",false)
+                if {hitw.numplayers} is 2:
                     ac(event-player,70,"Second Place",false)
             else:
                 execute console command "/mvtp %event-player's name% holeinthewall"

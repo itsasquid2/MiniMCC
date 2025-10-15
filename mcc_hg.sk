@@ -90,12 +90,12 @@ function sgstartgame():
 			loop blocks in radius 5 of loop-player:
 				if loop-block is a barrier block:
 					set loop-block to air
-	execute console command "/schempaste sgcirclenobarriers %{sgmap}% 0 93 13" 
+	execute console command "/schempaste sgcirclenobarriers %{sgworld}% 0 100 13" 
 	
 	wait 1 second
 	set {sg.time} to 1
 	wait 30 seconds
-	execute console command "/schempaste sgcirclegone %{sgmap}% 0 93 13" 
+	execute console command "/schempaste sgcirclegone %{sgworld}% 0 100 13" 
 
 command /addbarrierssg <number>:
 	trigger:
@@ -630,10 +630,10 @@ every second:
 	else if {sg.time} is 390:
 		send title "<red>Sudden Death!" with subtitle "<pink>Players' health will slowly be drained" to all players for 2 seconds
 	else if {sg.time} is more than 390:
-		if mod({sg.time},5) is 0:
-			loop all players:
-				if loop-player's health is above 1:
-					damage loop-player by 1 heart
+		
+		loop all players:
+			if loop-player's health is above 1:
+				damage loop-player by 1 heart
 	else if {sg.time} is more than 420:
 		sgendgame()	
 	if mod({sg.time},50) is 0:
@@ -710,8 +710,6 @@ on inventory click:
 	loop {hg.customitems::*}:
 		if player's inventory contains loop-value:
 			set glowing of player to true
-	if player's inventory contains a crossbow:
-		set glowing of player to true
 		
 
 
