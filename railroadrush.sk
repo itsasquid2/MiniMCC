@@ -319,11 +319,11 @@ function rrrgoldrush(n:number):
     wait 10 seconds
     loop all players:
         set loop-player's gamemode to survival
-        #set loop-player's chestplate to elytra
-        # loop blocks in radius 7 around loop-player:
-        #     if loop-block is light blue stained glass:
-        #         set loop-block to air
-        add potion effect of dolphin's grace 1 for 60 seconds to potion effects of loop-player
+        set loop-player's chestplate to elytra
+        loop blocks in radius 7 around loop-player:
+            if loop-block is light blue stained glass:
+                set loop-block to air
+        # add potion effect of dolphin's grace 1 for 60 seconds to potion effects of loop-player
     wait 60 seconds
     set {mcc.rrr.event} to "main"
     loop all players:
@@ -415,10 +415,13 @@ on explode:
                         set loop-block-2 to air
                 
                 if x-coord of loop-block is -71.5:
+                    set {rrr.minecartspawn.%rrrcheckteam(z-coord of loop-block)%} to event-entity's location
                     rrrcheckpoints(1,rrrcheckteam(z-coord of loop-block))
                 else if mod(x-coord of loop-block - 27.5, 99) is 0:
+                    set {rrr.minecartspawn.%rrrcheckteam(z-coord of loop-block)%} to event-entity's location
                     rrrcheckpoints(round((x-coord of loop-block - 27.5)/99 + 2),rrrcheckteam(z-coord of loop-block))
                 else if x-coord of loop-block is 669.5:
+                    set {rrr.minecartspawn.%rrrcheckteam(z-coord of loop-block)%} to event-entity's location
                     rrrcheckpoints(8,rrrcheckteam(z-coord of loop-block))
                 set loop-block to air
             else if loop-block is gold ore:
@@ -512,6 +515,7 @@ on break of rail or golden rail:
 
 function rrrcheckpoints(cp:number, team:number):
     if {mcc.rrr.checkpoint.%{_team}%} + 1 is {_cp}:
+        
         set {mcc.rrr.checkpoint.%{_team}%} to {_cp}
         if {_cp} isn't 1:
             loop all players:
@@ -521,7 +525,7 @@ function rrrcheckpoints(cp:number, team:number):
             loop all players:
                 if {mcc.team.%loop-player%} is {_team}:
                     ac(loop-player,2.5,"You Reached a Checkpoint!", false)
-        set {rrr.minecartspawn.%{_team}%} to the location 29*({_team}-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%{_team}%}%.minecartspawn}
+        #set {rrr.minecartspawn.%{_team}%} to the location 29*({_team}-1) blocks south of {mcc.rrr.checkpoint%{mcc.rrr.checkpoint.%{_team}%}%.minecartspawn}
 
 on break:
     world is "railroadrush"
@@ -592,16 +596,17 @@ command /mccrailroadrush:
         loop all players:
             teleport loop-player to {rrr.playerspawn.%{mcc.team.%loop-player%}%}
             clear loop-player's inventory
-            add potion effect of conduit power 1 for 15 minutes to potion effects of loop-player
+            # add potion effect of conduit power 1 for 15 minutes to potion effects of loop-player
             give loop-player {mcc.rrr.startingitems::*}
-            # set loop-player's helmet to {mcc.rrr.minerhat}
-            # dye loop-player's helmet mcccolor({mcc.team.%loop-player%})
-            # set loop-player's boots to {mcc.rrr.boots}
-            # dye loop-player's boots mcccolor({mcc.team.%loop-player%})
-            set loop-player's helmet to {mcc.rrr.divehelmet}
-            set loop-player's boots to {mcc.rrr.diveboots}
+            set loop-player's helmet to {mcc.rrr.minerhat}
+            dye loop-player's helmet mcccolor({mcc.team.%loop-player%})
+            set loop-player's boots to {mcc.rrr.boots}
+            dye loop-player's boots mcccolor({mcc.team.%loop-player%})
+            # set loop-player's helmet to {mcc.rrr.divehelmet}
+            # set loop-player's boots to {mcc.rrr.diveboots}
             give loop-player 320 brown wool named "Temporary Block" with lore "It decays after 5 seconds!"
             railroadrushtutorial(loop-player)
+        send the resource pack from "https://drive.google.com/uc?export=download&id=1WhGWZOVH7lZxJvXUMvPt095djv_74zBx" with hash "44028a5122b11bfb16a94f36369edc5b2d723555" to all players
         wait 1 second
         loop all players:
             set loop-player's gamemode to adventure
@@ -667,6 +672,9 @@ every second:
     else if {mcc.rrr.stage} is 2:
         if {mcc.rrr.timeleft} is 0:
             execute console command "/mccbreak"
+            wait 1 second
+            remove all resource packs from all players
+            send resource pack from "https\://www.dropbox.com/scl/fi/cuymxurgn24ceorjxerac/Pack.zip?rlkey\=ubktg8vg1l3ss602cuq1tvbbd&st\=oehx1mw3&dl\=1" with hash "8df9ec8be42bcfbc4db4cb667673307acb88ae7a" to all players
 
 function rrrendingscoring(team:number,place:number):
     if {_place} is 1:

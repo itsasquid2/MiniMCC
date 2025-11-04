@@ -462,7 +462,7 @@ on rightclick on chest:
 
 
 
-on walking on sand or sandstone:
+on walking on sand or sandstone or suspicious sand:
 	"%player's world%" is equal to "pirategame"
 	{mcc.pg.timeleft} is greater than 0
 	player's game mode is not spectator
@@ -502,6 +502,31 @@ command /mccpirategame:
 				mccpgtutorial(loop-player)
 				
 		
+on rightclick with nautilus shell:
+	player's world is "pirategame"
+	item cooldown of player's tool for player is 0 seconds
+	set item cooldown of player's tool for player to 1 second
+	set {_yaw} to player's yaw
+	if player's z-coord is less than 701:
+		if {pgspawnsouthlocs::*} isn't set:
+			loop blocks in region "pgspawnsouth":
+				if loop-block is sand or suspicious sand:
+					if block above loop-block is air:
+						if {pgspawnsouthlocs::*} doesn't contain loop-block:
+							add location 1 block above loop-block's location to {pgspawnsouthlocs::*}
+		else:
+			teleport player to random element out of {pgspawnsouthlocs::*}
+			set player's yaw to {_yaw}+180
+	else if player's z-coord is greater than 777:
+		if {pgspawnnorthlocs::*} isn't set:
+			loop blocks in region "pgspawnnorth":
+				if loop-block is sand or suspicious sand:
+					if block above loop-block is air:
+						if {pgspawnnorthlocs::*} doesn't contain loop-block:
+							add location 1 block above loop-block's location to {pgspawnnorthlocs::*}
+		else:
+			teleport player to random element out of {pgspawnnorthlocs::*}
+			set player's yaw to {_yaw}+180
 
 
 every second:
@@ -547,6 +572,7 @@ every second:
 							give 2 cobwebs to loop-player
 							give 1 ender pearl to loop-player
 							give shears to loop-player
+							give nautilus shell with enchantment glint named "<gold>Teleport to other side (only usable when on island)" to loop-player
 		
 		else if {mcc.pg.timeleft} is equal to 3:
 			if {mcc.pg.stage} is equal to 1:

@@ -72,9 +72,6 @@ function timeticks(n:number) :: text:
 	if mod({_n},20) is less than 2:
 		return "%time(floor({_n}/20))%.0%{_bla}%"
 	return "%time(floor({_n}/20))%.%{_bla}%"
-	
-
-
 
 function gridpoint(n:number, pts:number):
 	if {mcc.grid.transitioning.%{_n}%} is false:

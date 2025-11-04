@@ -23,8 +23,9 @@ command /setbarrieracerace:
 		if {mmcc.hosts::*} contains command sender:
 			loop blocks in radius 12 of player:
 				if loop-block is minecraft:barrier:
-					add loop-block to {mcc.acerace.barriers::*}
-					broadcast "barriered"
+					if {mcc.acerace.barriers::*} doesn't contain loop-block:
+						add loop-block to {mcc.acerace.barriers::*}
+						broadcast "barriered"
 
 command /removebarrieracerace <text>:
 	trigger:
@@ -220,7 +221,7 @@ function aceracecp(p:player, n:number):
 		set {mcc.acerace.checkpoint.%{_p}%} to {_n}
 	else if {_n} is equal to 0:
 		if {mcc.acerace.official} is true:
-			if {mcc.acerace.checkpoint.%{_p}%} is 16:
+			if {mcc.acerace.checkpoint.%{_p}%} is 11:
 				add 1 to {mcc.acerace.lapsdone.%{_p}%}
 				broadcast formatted "<%mcccolor({mcc.team.%{_p}%})%>%{_p}%<gray> has finished lap <lime>%{mcc.acerace.lapsdone.%{_p}%}%<lime>/3!"
 				if {mcc.acerace.lapsdone.%{_p}%} is equal to 3:
@@ -778,20 +779,23 @@ every second:
 		exit trigger
 	if {mcc.acerace.timeleft} is greater than 0:
 		subtract 1 from {mcc.acerace.timeleft} 
-		if {mcc.acerace.timeleft} is equal to 748 or 584 or 426 or 268 or 110:
+		if mod(600-{mcc.acerace.timeleft},158) is 0:
 			execute console command "/playmusic acerace"
 		if {mcc.acerace.timeleft} is equal to 3:
 			if {mcc.acerace.stage} is equal to 0:
 				loop all players:
 					if {mcc.team.%loop-player%} is not equal to 0:
 						execute console command "/boopboopboopbeep %loop-player's name%"
+		if {mcc.acerace.timeleft} is equal to 6:				
+			if {mcc.acerace.stage} is equal to 0:
+				execute console command "/playmusic acerace"
 	else if {mcc.acerace.timeleft} is equal to 0:
 		if {mcc.acerace.stage} is equal to 0:
 			set {mcc.acerace.stage} to 1
-			set {mcc.acerace.timeleft} to 900 # to change back next time
+			set {mcc.acerace.timeleft} to 600 # to change back next time
 			loop {mcc.acerace.barriers::*}:
 				set block at loop-value to air 
-			execute console command "/playmusic acerace"
+			
 		else if {mcc.acerace.stage} is equal to 1:
 			set {mcc.acerace.stage} to 2
 			set {mcc.acerace.timeleft} to 30
@@ -809,6 +813,7 @@ every second:
 			execute console command "/mccbreak"
 			set {mcc.acerace.timeleft} to -1
 			set {mcc.acerace.official} to false
+		
 
 on rightclick on cave vines:
 	"%player's world%" is "acerace" or "acerace2"
