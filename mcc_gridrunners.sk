@@ -138,8 +138,8 @@ on join:
 command /mccgridrunners:
 	trigger:
 		if command sender is not the console:
-			if {mmcc.hoster.%command sender%} isn't true or "notcbop":
-				if command sender is not "notcbop":
+			if {mmcc.hoster.%command sender%} isn't true:
+				if command sender is not "itsasquid2":
 					message "<pink>You do not have permission to run this command!"
 					exit trigger
 		set {mcc.currentevent} to "gridrunners"

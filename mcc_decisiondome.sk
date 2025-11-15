@@ -123,11 +123,14 @@ command /mccvote <number>:
 		if {mcc.gamenum} is equal to 1:
 			execute console command "/mcccoinmultiplier 1.5"	
 		else if {mcc.gamenum} is equal to 2:
+			set {mcc.dd.consolationpowers} to 1
 			execute console command "/mcccoinmultiplier 2"	
 		else if {mcc.gamenum} is equal to 4:
+			set {mcc.dd.consolationpowers} to 2
 			execute console command "/mcccoinmultiplier 2.5"	
 		else if {mcc.gamenum} is equal to 5:
 			execute console command "/mcccoinmultiplier 3"	
+			set {mcc.dd.consolationpowers} to 3	
 		set {mcc.decisiondome.votingtime} to 55+arg 1
 		set {mcc.currentevent} to "decisiondome"
 		set {mcc.decisiondome.rigged} to 0
@@ -135,6 +138,27 @@ command /mccvote <number>:
 			if {mcc.team.%loop-player%} is not equal to 0:
 				clear the loop-player's fastboard
 				clear loop-player's inventory
+				
+function getTeamInPlace(p:number) :: number:
+	loop 10 times:
+		add {mcc.teamcoins.%loop-number%} to {_teamcoins::*}
+		add loop-number to {_already::*}
+		if {mcc.teamcoins.%loop-number%} is not equal to 0:
+			add 1 to {_numteams}
+	set {_teamcoins::*} to sorted {_teamcoins::*}
+	set {_teamcoins::*} to reversed {_teamcoins::*}
+	loop numbers from {_numteams} to 1:
+		if {_teamcoins::%loop-number%} is not equal to 0:
+			set {_good} to false
+			loop 10 times:
+				if {_good} is false:
+					if {_already::*} contains loop-number-2:
+						if {mcc.teamcoins.%loop-number-2%} is equal to {_teamcoins::%loop-number-1%}:
+							set {_team} to loop-number-2
+							set {_good} to true
+							remove loop-number-2 from {_already::*}
+			if loop-number is {_p}:
+				return {_team}
 				
 
 command /ddup:
@@ -211,17 +235,16 @@ on shoot:
 on shoot:
 	event-projectile is an egg
 	shooter is a player
-	shooter's tool is an egg of unbreaking 1 named "<pink><bold>Mega Egg" 
+	shooter's tool is an egg named "<gold>Multi-Egg" 
 	if {mcc.decisiondome.votingtime} is greater than or equal to 25:
 		if {mcc.decisiondome.votingtime} is less than or equal to 55:
-			add "mccmega" to the scoreboard tags of the event-projectile
+			add "multiegg" to the scoreboard tags of the event-projectile
 
 
 on projectile hit:
-	if the event-projectile has the scoreboard tags "mccmega":
-		broadcast formatted "[<gold><bold>Decision Dome<white>]<%mcccolor({mcc.team.%shooter%})%> %shooter%<white> has spawned a Mega Chicken!"
-		spawn a chicken at event-location with nbt from "{active_effects:[{id:glowing,duration:-1,show_particles:0b}]}"
-		set name of last spawned mob to "Mega Chicken"
+	if the event-projectile has the scoreboard tags "multiegg":
+		broadcast formatted "[<gold><bold>Decision Dome<white>]<%mcccolor({mcc.team.%shooter%})%> %shooter%<white> has used a multi-egg!"
+		spawn 4 chickens at event-location
 #		loop entities in radius 30 of event-location:
 #			if "%loop-entity%" is equal to "Mega Chicken":
 #				teleport loop-entity to event-location
@@ -232,6 +255,18 @@ on projectile hit:
 		spawn a chicken
 		kill event-projectile	
 		cancel event
+
+function givePowerupsdd():
+	set {_numteams} to 0
+	loop 10 times:
+		if {mcc.teamcoins.%loop-number%} is not equal to 0:
+			add 1 to {_numteams}
+	loop {mcc.dd.consolationpowers} times:
+		loop all players:
+			if {mcc.team.%loop-player%} is equal to getTeamInPlace({_numteams} - loop-number-1 + 1):
+				give loop-player a random element out of {mcc.dd.powerups::*}
+				exit 2 sections
+
 every second:
 	if {mcc.paused} is true:
 		exit trigger
@@ -245,12 +280,11 @@ every second:
 					reset the title of the loop-player
 					send title "<light blue>Vote!" to loop-player for 3 seconds
 					give an egg to the loop-player
-			execute console command "/randomlygivemegachicken"
 			loop 8 times:
 				if {mcc.decisiondome.red.%loop-number%} is true:
 					loop {mcc.decisiondome.slices.%loop-number%::*}:
 						set block at loop-value-2 to red wool
-						
+			givePowerupsdd()
 		if {mcc.decisiondome.votingtime} is greater than or equal to 40:
 			if {mcc.decisiondome.votingtime} is less than or equal to 55:
 				ddnextgreen()
@@ -383,8 +417,6 @@ command /dodgebolttest:
 			add loop-number to {_already::*}
 			if {mcc.teamcoins.%loop-number%} is not equal to 0:
 				add 1 to {_numteams}
-			else:
-				execute console command "/npc despawn %111+loop-number%"
 		set {_teamcoins::*} to sorted {_teamcoins::*}
 		set {_teamcoins::*} to reversed {_teamcoins::*}
 		loop numbers from 10 to 1:

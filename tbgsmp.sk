@@ -1,0 +1,29 @@
+command /tbgsmp:
+    trigger:
+        if {tbgsmp.players::*} contains command sender:
+            if {tbgsmp.lastlocation::%command sender%} is set:
+                teleport command sender to {tbgsmp.lastlocation::%command sender%}
+            else:
+                execute console command "/mvtp %command sender% tbgsmp --unsafe"
+
+on teleport:
+    set {_from} to past event-location
+    set {_to} to future event-location
+    if "%world of {_from}%" contains "tbgsmp":
+        if "%world of {_to}%" doesn't contain "tbgsmp":
+            set {tbgsmp.lastlocation::%event-player%} to {_from}
+
+on leave:
+    if "%player's world%" contains "tbgsmp":
+        set {tbgsmp.lastlocation::%event-player%} to event-player's location
+
+command /tbgsmpwhitelist <offline player>:
+    trigger:
+        if command sender is "itsasquid2" or the console:
+            if {tbgsmp.players::*} doesn't contain arg:
+                add arg to {tbgsmp.players::*}
+                message "whitelisted %arg%"
+
+on join:
+    if "%player's world%" contains "tbgsmp":
+        set player's gamemode to survival

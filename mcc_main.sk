@@ -941,6 +941,7 @@ command /mccnewevent:
 			execute console command "/ddredden %loop-number%"
 			wait 1 second
 		if {mcc.decisiondome.activated} is true:
+			execute console command "/mcccoinmultiplier 1"
 			execute console command "/mccvote 5"	
 		
 command /mcctoggledecisiondome <boolean>:

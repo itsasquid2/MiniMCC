@@ -235,30 +235,30 @@ every second:
         if {mcc.paused} is false:
             if {mcc.currentevent} is "holeinthewall":
                 if {mcc.hitw.stage} is 5:
+                    hitwsendwall()
                     set {mcc.hitw.wallinprogress} to true
                     wait 4 seconds
                     set {mcc.hitw.wallinprogress} to false
-                    hitwsendwall()
                 if {mcc.hitw.stage} is 4:
+                    hitwsendwall()
                     set {mcc.hitw.wallinprogress} to true
                     wait 6 seconds
                     set {mcc.hitw.wallinprogress} to false
-                    hitwsendwall()
                 if {mcc.hitw.stage} is 3:
+                    hitwsendwall()
                     set {mcc.hitw.wallinprogress} to true
                     wait 8 seconds
                     set {mcc.hitw.wallinprogress} to false
-                    hitwsendwall()
                 if {mcc.hitw.stage} is 2:
+                    hitwsendwall()
                     set {mcc.hitw.wallinprogress} to true
                     wait 10 seconds
                     set {mcc.hitw.wallinprogress} to false
-                    hitwsendwall()
                 if {mcc.hitw.stage} is 1:
+                    hitwsendwall()
                     set {mcc.hitw.wallinprogress} to true
                     wait 12 seconds
                     set {mcc.hitw.wallinprogress} to false
-                    hitwsendwall()
 
 command /regwalls <number>:
     permission: op

@@ -224,7 +224,7 @@ on break of gold ore:
         set the spawned entity's health to 4
         set the spawned entity's armour to air
         set the spawned entity's tool to iron pickaxe of knockback 1
-        set the spawned entity's helmet to golden helmet
+        set the spawned entity's helmet to {mcc.rrr.skellyhelmet}
     clear drops
     give player raw gold
 
@@ -598,8 +598,9 @@ command /mccrailroadrush:
             clear loop-player's inventory
             # add potion effect of conduit power 1 for 15 minutes to potion effects of loop-player
             give loop-player {mcc.rrr.startingitems::*}
-            set loop-player's helmet to {mcc.rrr.minerhat}
-            dye loop-player's helmet mcccolor({mcc.team.%loop-player%})
+            dye {mcc.rrr.minerhat} mcccolor({mcc.team.%loop-player%})
+            give loop-player {mcc.rrr.minerhat}
+            set loop-player's helmet to carved pumpkin with nbt from "{""minecraft:custom_name"":{color:""%rrrcolor({mcc.team.%loop-player%})%"",italic:0b,text:""%getTeamName({mcc.team.%loop-player%})% Mining Helmet""}}"
             set loop-player's boots to {mcc.rrr.boots}
             dye loop-player's boots mcccolor({mcc.team.%loop-player%})
             # set loop-player's helmet to {mcc.rrr.divehelmet}
@@ -611,6 +612,33 @@ command /mccrailroadrush:
         loop all players:
             set loop-player's gamemode to adventure
         
+function rrrcolor(n:number) :: string:
+    return switch return {_n}:
+        case 1 -> "red"
+        case 2 -> "gold"
+        case 3 -> "yellow"
+        case 4 -> "green"
+        case 5 -> "dark_green"
+        case 6 -> "dark_aqua"
+        case 7 -> "aqua"
+        case 8 -> "blue"
+        case 9 -> "dark_purple"
+        case 10 -> "light_purple"
+
+function getTeamName(n:number) :: string:
+    return switch return {_n}:
+        case 1 -> "Red"
+        case 2 -> "Orange"
+        case 3 -> "Yellow"
+        case 4 -> "Lime"
+        case 5 -> "Green"
+        case 6 -> "Teal"
+        case 7 -> "Aqua"
+        case 8 -> "Blue"
+        case 9 -> "Purple"
+        case 10 -> "Pink"
+      
+
 every second:
     if {mcc.currentevent} isn't "railroadrush":
         exit trigger
