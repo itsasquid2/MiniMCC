@@ -1,0 +1,47 @@
+function nearestPlayer(loc: location) :: player:
+    set {_nearest} to first element of all players in world of {_loc}
+    loop all players in world of {_loc}:
+        if distance between loop-player and {_loc} is less than distance between {_loc} and {_nearest}:
+            set {_nearest} to loop-player
+    return {_nearest}
+    
+command /setfakeoppos <number>:
+    permission: op
+    trigger:
+        if command sender is console:
+            exit trigger
+        set {fakeoppos::arg-1} to command sender's location
+
+command /fakeopplayer <player>:
+    permission: op
+    trigger:
+        if command sender is not op:
+            exit trigger
+        set {_name} to the name of arg-1
+        execute console command "tellraw %{_name}% {""text"":""[Server: Made %{_name}% a server operator]"",""color"":""gray"",""italic"":true}"
+
+
+command /fakeop <number>:
+    permission: op
+    trigger:
+
+        set {_location} to {fakeoppos::arg-1}
+        set {_name} to name of nearestPlayer({_location})
+        execute console command "tellraw %{_name}% {""text"":""[Server: Made %{_name}% a server operator]"",""color"":""gray"",""italic"":true}"
+
+
+command /demo <player=%player%> <number>:
+    trigger:
+        if player is "itsasquid2" or "minimcc":
+            set {_player} to arg 1
+            set {_packet} to new change_game_state packet
+
+
+            set field 0 of {_packet} to 5.byteValue()
+            set field 1 of {_packet} to arg 2.floatValue()
+
+            send {_player} packet {_packet}
+
+
+
+
