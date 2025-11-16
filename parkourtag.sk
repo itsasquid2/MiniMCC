@@ -94,7 +94,8 @@ function pktstartgame():
 
 on rightclick on button:
 	event-block is in world "world"
-	z coordinate of event-block is -234.5
+	event-block is in region "minigames"
+	event-block's z-coord is -234.5
 	{pkt.playing.%player%} is false
 	if {mcc.currentevent} is not equal to "none":
 		message "<pink>You cannot do this now!" to event-player
@@ -116,9 +117,11 @@ on rightclick on button:
 	add 1 to {pkt.hunters}
 	broadcast "<green>[Parkour Tag]<white> %player% has joined as a <pink>hunter!"
 
+
 on rightclick on button:
 	event-block is in world "world"
-	z coordinate of event-block is -233.5
+	event-block is in region "minigames"
+	event-block's z-coord is -233.5
 	{pkt.playing.%player%} is false
 	if {mcc.currentevent} is not equal to "none":
 		message "<pink>You cannot do this now!" to event-player

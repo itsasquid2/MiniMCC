@@ -83,8 +83,9 @@ command /togglepowerfulsnowballs:
 #spleef-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 on rightclick on button:
+    event-block's z-coord is -230.5
     if "%player's world%" is equal to "world":
-        if event-block's z coordinate is -230.5:
+        if event-block is in region "minigames":
             if {mcc.currentevent} is not equal to "none":
                 message "<pink>You cannot do this now!" to event-player
                 exit trigger

@@ -90,12 +90,12 @@ function sgstartgame():
 			loop blocks in radius 5 of loop-player:
 				if loop-block is a barrier block:
 					set loop-block to air
-	execute console command "/schempaste sgcirclenobarriers %{sgworld}% 0 100 13" 
+	execute console command "/schempaste sgcirclenobarriers %{sgworld}% 0 96 13" 
 	
 	wait 1 second
 	set {sg.time} to 1
 	wait 30 seconds
-	execute console command "/schempaste sgcirclegone %{sgworld}% 0 100 13" 
+	execute console command "/schempaste sgcirclegone %{sgworld}% 0 96 13" 
 
 command /addbarrierssg <number>:
 	trigger:
@@ -652,13 +652,13 @@ function sgspawnsupplydrops(world:world):
 	loop {sgsupplydroplocs::*}:
 		set facing of the block 1 block south of loop-value to south
 		loop blocks in radius 2 of loop-value:
-			if loop-block-2 is a gold block:
+			if loop-value-2 is a gold block:
 				
-				le spawn text display at the location 0.6 block above loop-block-2:
+				le spawn text display at the location 0.6 block above loop-value-2:
 					set billboard of spawned text display to center
 				set display text of last spawned entity to "<lime>Coin Crate(Break)"
-			if loop-block-2 is a chest:
-				add loop-block-2 to {lootchests::*}
+			if loop-value-2 is a chest:
+				add loop-value-2 to {lootchests::*}
 	execute console command "/fillchests sg_wild"
 
 on inventory click:
@@ -1024,8 +1024,8 @@ function hgrandomtp(world:world):
 		set {_loc}'s world to {_world}
 		#broadcast {_loc}
 		loop all players:
-			if {mcc.team.%loop-player-2%} is equal to {_count}:
-				teleport loop-player-2 to {_loc}
+			if {mcc.team.%loop-value-2%} is equal to {_count}:
+				teleport loop-value-2 to {_loc}
 		loop blocks in radius 3 around {_loc}:
 			if loop-block-2 is stone or concrete:
 				if {_count} is equal to 0:

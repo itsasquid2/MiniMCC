@@ -354,7 +354,6 @@ command /fixalltabpositions:
 			execute console command "/lp user %loop-player% permission set tab.%{mcc.team.%loop-player%}% true"
 
 command /fixmytabposition:
-	permission: op
 	trigger:
 		loop 10 times:
 			execute console command "/lp user %player's name% permission set tab.%loop-number% false"
@@ -663,8 +662,8 @@ command /mccstandingsall:
 			log "Individual scores this game:" to "mcc"
 			wait 3 seconds
 			loop {mccplaying::*}:
-				set {mcc.already.%loop-player%} to false
-				add {mcc.gamecoins.%loop-player%} to {_indivcoins::*}
+				set {mcc.already.%loop-value%} to false
+				add {mcc.gamecoins.%loop-value%} to {_indivcoins::*}
 			set {_indivcoins::*} to sorted {_indivcoins::*}
 			set {_indivcoins::*} to reversed {_indivcoins::*}
 			loop numbers from 1 to 40:

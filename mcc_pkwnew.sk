@@ -147,6 +147,9 @@ command /mccpkwnew:
 		loop all players:
 			if {mcc.team.%loop-player%} is not equal to 0:
 				execute console command "/mv tp %loop-player% parkourwarriornew"
+		wait 1 second
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:
 				clear the loop-player's inventory
 				set player's gamemode to adventure
 				set loop-player's boots to leather boots

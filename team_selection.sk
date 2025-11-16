@@ -1,0 +1,25 @@
+on rightclick on stone button:
+    world is "world"
+    if event-block is in region "team_selection":
+        switch block 1 block east of event-block:
+            case red concrete:
+                make event-player execute command "/jointeam Red"
+            case orange concrete:
+                make event-player execute command "/jointeam Orange"
+            case Yellow concrete:
+                make event-player execute command "/jointeam Yellow"
+            case Lime concrete:
+                make event-player execute command "/jointeam Lime"
+            case green concrete:
+                make event-player execute command "/jointeam Green"
+            case cyan concrete:
+                make event-player execute command "/jointeam Teal"
+            case light blue concrete:
+                make event-player execute command "/jointeam Aqua"
+            case blue concrete:
+                make event-player execute command "/jointeam Blue"
+            case purple concrete:
+                make event-player execute command "/jointeam Purple"
+            case pink concrete:
+                make event-player execute command "/jointeam Pink"
+            

@@ -221,7 +221,7 @@ function aceracecp(p:player, n:number):
 		set {mcc.acerace.checkpoint.%{_p}%} to {_n}
 	else if {_n} is equal to 0:
 		if {mcc.acerace.official} is true:
-			if {mcc.acerace.checkpoint.%{_p}%} is 11:
+			if {mcc.acerace.checkpoint.%{_p}%} is 16:
 				add 1 to {mcc.acerace.lapsdone.%{_p}%}
 				broadcast formatted "<%mcccolor({mcc.team.%{_p}%})%>%{_p}%<gray> has finished lap <lime>%{mcc.acerace.lapsdone.%{_p}%}%<lime>/3!"
 				if {mcc.acerace.lapsdone.%{_p}%} is equal to 3:
@@ -718,6 +718,9 @@ command /mccacerace:
 				else:
 					execute console command "/mv tp %loop-player's name% acerace%{mcc.acerace.mapnum}%"
 				set {immune.%loop-player%} to false
+		wait 1 second
+		loop all players:
+			if {mcc.team.%loop-player%} is not equal to 0:				
 				set loop-player's game mode to adventure
 				clear the loop-player's inventory
 				clear the loop-player's fastboard
@@ -725,7 +728,7 @@ command /mccacerace:
 					give a trident of riptide 3 and unbreaking 10 to the loop-player
 				set loop-player's leggings to leather pants of swift sneak 2
 				dye the loop-player's leggings mcccolor({mcc.team.%loop-player%})
-				set slot 8 of loop-player to paper with enchantment glint named "<gold>Teleport Scroll" with lore "right click to return to your checkpoint!"
+				
 				set the loop-player's boots to leather boots
 				dye the loop-player's boots mcccolor({mcc.team.%loop-player%})
 				set {mcc.acerace.checkpoint.%loop-player%} to 0
@@ -779,7 +782,7 @@ every second:
 		exit trigger
 	if {mcc.acerace.timeleft} is greater than 0:
 		subtract 1 from {mcc.acerace.timeleft} 
-		if mod(600-{mcc.acerace.timeleft},158) is 0:
+		if mod(600-{mcc.acerace.timeleft}+6,158) is 0:
 			execute console command "/playmusic acerace"
 		if {mcc.acerace.timeleft} is equal to 3:
 			if {mcc.acerace.stage} is equal to 0:
@@ -795,7 +798,7 @@ every second:
 			set {mcc.acerace.timeleft} to 600 # to change back next time
 			loop {mcc.acerace.barriers::*}:
 				set block at loop-value to air 
-			
+			give all players paper with enchantment glint named "<gold>Teleport Scroll" with lore "right click to return to your checkpoint!"
 		else if {mcc.acerace.stage} is equal to 1:
 			set {mcc.acerace.stage} to 2
 			set {mcc.acerace.timeleft} to 30

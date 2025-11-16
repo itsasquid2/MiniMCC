@@ -633,4 +633,8 @@ command /setbarrierpg:
 					if {mcc.pg.barriers::*} doesn't contain loop-block:
 						add loop-block to {mcc.pg.barriers::*}
 
-
+on rightclick with ender pearl or boat:
+	player's world is "pirategame"
+	if {mcc.pg.stage} isn't 2:
+		cancel event
+		message "<red>You cannot do that now" to player

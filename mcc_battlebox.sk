@@ -40,8 +40,11 @@ function bbtptostart():
 
 on break:
 	world is "battlebox"
-	if block below event-block isn't bedrock:
-		cancel event
+	if event-block isn't cobweb:
+		if block below event-block isn't bedrock:
+			cancel event
+	else:
+		clear drops
 
 function roundrobin():
 	delete {_teamlist::*}
@@ -388,7 +391,7 @@ function givewool(p:player, c:number):
 	if {_c} is 10:
 		set {_color} to "pink"
 	execute console command "/give %{_p}'s name% %{_color}%_wool[can_place_on=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:bedrock},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool}],tooltip_display={hidden_components:[can_break,can_place_on]}] 64"
-	execute console command "/give %{_p}'s name% shears[can_break=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool},{blocks:white_wool}],tooltip_display={hidden_components:[can_break,can_place_on]}] 1"
+	execute console command "/give %{_p}'s name% shears[can_break=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool},{blocks:white_wool},{blocks:cobweb}],tooltip_display={hidden_components:[can_break,can_place_on]}] 1"
 
 function setboots(p:player, c:number):
 	set {_p}'s boots to leather boots
@@ -461,24 +464,25 @@ on rightclick:
 	if player's tool is end crystal:
 		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
 			#broadcast ((player's health)^(1/3))
-			set {_exp} to ((player's health)^(1/3))
+			set {_exp} to (1*(player's health)^(1/3))
+			add potion effect of resistance of tier 255 for 0.1 seconds to potion effects of player 
 			spawn creeper at player's location:
 				
 				set explosive yield of spawned entity to {_exp}
 				add "att %player%" to the scoreboard tags of the spawned entity
 				instantly explode spawned entity
 			#create safe explosion of force (player's health^(1/3)) at player's location
-			set {mcc.battlebox.abilitycooldown.%player%} to 60
+			set {mcc.battlebox.abilitycooldown.%player%} to 20
 	if player's tool is obsidian:
 		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
 			set {mcc.battlebox.parrying.%player%} to true
 			set glowing of player to true
 			set {mcc.battlebox.abilitycooldown.%player%} to 3
-			wait 0.3 seconds
+			wait 0.5 seconds
 			if {mcc.battlebox.parrying.%player%} is true:
 				set {mcc.battlebox.parrying.%player%} to false
 				set glowing of player to false
-				apply slowness of tier 2 to player for 2 seconds
+				# apply slowness of tier 2 to player for 2 seconds
 				message "You did not parry an attack!" to event-player
 	if player's tool is feather:
 		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:

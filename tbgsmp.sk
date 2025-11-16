@@ -26,4 +26,5 @@ command /tbgsmpwhitelist <offline player>:
 
 on join:
     if "%player's world%" contains "tbgsmp":
+        wait 1 second
         set player's gamemode to survival
