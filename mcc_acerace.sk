@@ -27,6 +27,15 @@ command /setbarrieracerace:
 						add loop-block to {mcc.acerace.barriers::*}
 						broadcast "barriered"
 
+command /setbarrieraceracespecificblock:
+	trigger:
+		if {mmcc.hosts::*} contains command sender:
+			loop blocks in radius 12 of player:
+				if loop-block is amethyst block:
+					if {mcc.acerace.barriers::*} doesn't contain loop-block:
+						add loop-block to {mcc.acerace.barriers::*}
+						broadcast "barriered"
+
 command /removebarrieracerace <text>:
 	trigger:
 		if {mmcc.hosts::*} contains command sender:

@@ -45,3 +45,24 @@ function teamglowplayer(p:player, t:text):
         loop all players:
             execute console command "/onesidedglow %loop-player% %{_p}% false"
             execute console command "/onesidedglow %{_p}% %loop-player% false"
+    
+#lobby
+
+function teamglowlobbybb(b:boolean):
+    if {_b} is true:
+        loop all players:
+            loop all players:
+                if {battlebox.playing.%loop-player-1%} is true:
+                    if {battlebox.team.%loop-player-1%} is equal to {battlebox.team.%loop-player-2%}:
+                        #broadcast "/onesidedglow %loop-player-2% %loop-player-1% true"
+                        execute console command "/onesidedglow %loop-player-2% %loop-player-1% true"
+                        execute console command "/onesidedglow %loop-player-1% %loop-player-2% true"
+                    else:
+                        #broadcast "/onesidedglow %loop-player-2% %loop-player-1% false"
+                        execute console command "/onesidedglow %loop-player-2% %loop-player-1% false"
+                        execute console command "/onesidedglow %loop-player-1% %loop-player-2% false"
+    else:
+        loop all players:
+            loop all players:
+                execute console command "/onesidedglow %loop-player-2% %loop-player-1% false"
+                execute console command "/onesidedglow %loop-player-1% %loop-player-2% false"

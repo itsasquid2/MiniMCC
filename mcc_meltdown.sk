@@ -448,8 +448,8 @@ command /meltdownviewarrowsshot:
 			set {mcc.meltdown.arrowsshot::*} to sorted {mcc.meltdown.arrowsshot::*}
 			loop {mcc.meltdown.arrowsshot::*}:
 				loop all players:
-					if {mcc.meltdown.arrowsshot::%loop-player-2%} is equal to loop-value-1:
-						message "%loop-player-2% - %loop-value-1%"
+					if {mcc.meltdown.arrowsshot::%loop-value-2%} is equal to loop-value-1:
+						message "%loop-value-2% - %loop-value-1%"
 
 
 every second:

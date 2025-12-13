@@ -24,27 +24,27 @@ command /maxedset:
                 give a fishing rod of luck of the sea 3 and lure 3 and mending and unbreaking 3 to the player
                 give a flint and steel of mending and unbreaking 3 to the player
 
-command /boomboxall:
-        trigger:
-                if command sender is not the console:
-                        if {mmcc.hosts::*} doesn't contain command sender:
-                                if sender is not "MiniMCC":
-                                        message "<pink>You do not have permission to run this command!"
-                                        exit trigger
-                loop {boomboxkits.universal::*}:
-                        give loop-value to all players in world "boombox"
+# command /boomboxall:
+#         trigger:
+#                 if command sender is not the console:
+#                         if {mmcc.hosts::*} doesn't contain command sender:
+#                                 if sender is not "MiniMCC":
+#                                         message "<pink>You do not have permission to run this command!"
+#                                         exit trigger
+#                 loop {boomboxkits.universal::*}:
+#                         give loop-value to all players in world "boombox"
 
-command /boomboxpvp <boolean>:
-        trigger:
-                if command sender is not the console:
-                        if {mmcc.hosts::*} doesn't contain command sender:
-                                if sender is not "MiniMCC":
-                                        message "<pink>You do not have permission to run this command!"
-                                        exit trigger
-                set {boomboxpvp} to arg
+# command /boomboxpvp <boolean>:
+#         trigger:
+#                 if command sender is not the console:
+#                         if {mmcc.hosts::*} doesn't contain command sender:
+#                                 if sender is not "MiniMCC":
+#                                         message "<pink>You do not have permission to run this command!"
+#                                         exit trigger
+#                 set {boomboxpvp} to arg
 
-on damage:
-        world is "boombox":
-                if {boomboxpvp} is true:
-                        send message "<red>You may not attack people right now" to attacker
-                        cancel event
+# on damage:
+#         world is "boombox":
+#                 if {boomboxpvp} is true:
+#                         send message "<red>You may not attack people right now" to attacker
+#                         cancel event

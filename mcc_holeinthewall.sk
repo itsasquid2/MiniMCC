@@ -423,12 +423,12 @@ function movewall(direction:text,wall:number):
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
                 #broadcast loop-entity
-                if block below loop-entity-2 is not slime block:
-                    teleport loop-entity-2 to the location 1 block north of loop-entity-2's location
-                    push loop-entity-2 north
-                else if block above loop-entity-2 is slime block:
-                    teleport loop-entity-2 to the location 1 block north of loop-entity-2's location
-                    push loop-entity-2 north
+                if block below loop-value-2 is not slime block:
+                    teleport loop-value-2 to the location 1 block north of loop-value-2's location
+                    push loop-value-2 north
+                else if block above loop-value-2 is slime block:
+                    teleport loop-value-2 to the location 1 block north of loop-value-2's location
+                    push loop-value-2 north
             
     if {_direction} is "east":
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
@@ -440,12 +440,12 @@ function movewall(direction:text,wall:number):
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
                 #broadcast loop-entity
-                if block below loop-entity-2 is not slime block:
-                    teleport loop-entity-2 to the location 1 block east of loop-entity-2's location
-                    push loop-entity-2 east 
-                else if block above loop-entity-2 is slime block:
-                    teleport loop-entity-2 to the location 1 block east of loop-entity-2's location
-                    push loop-entity-2 east
+                if block below loop-value-2 is not slime block:
+                    teleport loop-value-2 to the location 1 block east of loop-value-2's location
+                    push loop-value-2 east 
+                else if block above loop-value-2 is slime block:
+                    teleport loop-value-2 to the location 1 block east of loop-value-2's location
+                    push loop-value-2 east
             
     if {_direction} is "west":
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
@@ -457,12 +457,12 @@ function movewall(direction:text,wall:number):
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
                 #broadcast loop-entity-2
-                if block below loop-entity-2 is not slime block:
-                    teleport loop-entity-2 to the location 1 block west of loop-entity-2's location
-                    push loop-entity-2 west 
-                else if block above loop-entity-2 is slime block:
-                    teleport loop-entity-2 to the location 1 block west of loop-entity-2's location
-                    push loop-entity-2 west
+                if block below loop-value-2 is not slime block:
+                    teleport loop-value-2 to the location 1 block west of loop-value-2's location
+                    push loop-value-2 west 
+                else if block above loop-value-2 is slime block:
+                    teleport loop-value-2 to the location 1 block west of loop-value-2's location
+                    push loop-value-2 west
             
     if {_direction} is "south":
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
@@ -474,10 +474,10 @@ function movewall(direction:text,wall:number):
         loop {mcc.hitw.currentwalls.%{_wall}%::*}:
             loop entities in radius 1 of loop-value:
                 #broadcast loop-entity-2
-                if block below loop-entity-2 is not slime block:
-                    teleport loop-entity-2 to the location 1 block south of loop-entity-2's location
-                    push loop-entity-2 south 
-                else if block above loop-entity-2 is slime block:
-                    teleport loop-entity-2 to the location 1 block south of loop-entity-2's location
-                    push loop-entity-2 south
+                if block below loop-value-2 is not slime block:
+                    teleport loop-value-2 to the location 1 block south of loop-value-2's location
+                    push loop-value-2 south 
+                else if block above loop-value-2 is slime block:
+                    teleport loop-value-2 to the location 1 block south of loop-value-2's location
+                    push loop-value-2 south
                 

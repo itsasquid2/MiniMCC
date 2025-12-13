@@ -3,7 +3,7 @@ on death of player:
 	onsmp(victim) is true
 	attacker is a player
 	attacker is not equal to victim
-	drop the victim's head	
+	drop the victim's head at event-location
 
 on place:
 	name of player's tool is "&aJump Pad"

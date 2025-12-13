@@ -390,6 +390,8 @@ function givewool(p:player, c:number):
 		set {_color} to "purple"
 	if {_c} is 10:
 		set {_color} to "pink"
+	if {_c} is 12:
+		set {_color} to "black"
 	execute console command "/give %{_p}'s name% %{_color}%_wool[can_place_on=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:bedrock},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool}],tooltip_display={hidden_components:[can_break,can_place_on]}] 64"
 	execute console command "/give %{_p}'s name% shears[can_break=[{blocks:red_wool},{blocks:orange_wool},{blocks:yellow_wool},{blocks:lime_wool},{blocks:green_wool},{blocks:cyan_wool},{blocks:light_blue_wool},{blocks:blue_wool},{blocks:purple_wool},{blocks:pink_wool},{blocks:white_wool},{blocks:cobweb}],tooltip_display={hidden_components:[can_break,can_place_on]}] 1"
 
@@ -415,6 +417,8 @@ function setboots(p:player, c:number):
 		dye {_p}'s boots purple
 	if {_c} is 10:
 		dye {_p}'s boots pink
+	if {_c} is 12:
+		dye {_p}'s boots black
 	
 on drop:
 	world is "battlebox"

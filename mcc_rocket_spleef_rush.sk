@@ -499,8 +499,8 @@ command /rocketspleefrushviewrocketsshot:
 			set {mcc.rocketspleefrush.arrowsshot::*} to sorted {mcc.rocketspleefrush.arrowsshot::*}
 			loop {mcc.rocketspleefrush.arrowsshot::*}:
 				loop all players:
-					if {mcc.rocketspleefrush.arrowsshot::%loop-player-2%} is equal to loop-value-1:
-						message "%loop-player-2% - %loop-value-1%"
+					if {mcc.rocketspleefrush.arrowsshot::%loop-value-2%} is equal to loop-value-1:
+						message "%loop-value-2% - %loop-value-1%"
 
 every second:
 	if {mcc.paused} is true:

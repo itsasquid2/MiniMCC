@@ -1,4 +1,4 @@
-using damage source
+using damage sources
 
 variables:
 	{mcc.skybattle.borderradius} = 10
@@ -174,7 +174,6 @@ on rightclick with wooden hoe:
 	if player has player's tool on cooldown:
 		exit trigger
 	else:
-		
 		if {mcc.skybattle.waterfight.water.%player%} isn't set:
 			set {mcc.skybattle.waterfight.water.%player%} to 20
 		if {mcc.skybattle.waterfight.water.%player%} is greater than 0:
@@ -552,7 +551,7 @@ on death of player:
 		set {_msg} to "%{_pl}% <white>was hit by a falling block"
 	else if damage cause is suffocation:
 		set {_msg} to "%{_pl}% <white>suffocated"
-	if "%damage source%" contains "bad_respawn_point":
+	if the damage type of event-damage source is bad respawn point:
 		if {skb.hitby.%victim%} is set:
 			set {_msg} to "%{_pl}%<white> got soaked by %{_at}% <white>with a water gun" 
 		else:

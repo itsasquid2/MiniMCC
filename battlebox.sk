@@ -1,68 +1,25 @@
-variables:
-	{battlebox.team.%player%} = "none"
-	{battlebox.playing.%player%} = false
-	{battlebox.kit.%player%} = 0
-	{battlebox.inprogress} = false
-	{battlebox.ready.%player%} = false
-	{battlebox.timeleft} = 60
-
 
 
 on skript start:
 	set {battlebox.inprogress} to false
 
 function bbopencages():
-	execute console command "/schempaste emptycage world 16 50 -305"
-	execute console command "/schempaste emptycage world 48 50 -305"
+	execute console command "/fill 15 60 -302 15 58 -308 air"
+	execute console command "/fill 47 60 -308 47 58 -302 air"
 
 function bbclosecages():
-	execute console command "/schempaste greenwall world 16 51 -305"
-	execute console command "/schempaste blackwall world 48 51 -305"
-
-
-function bbkit(p:player, n:number):
-	loop all players:
-		if {battlebox.team.%loop-player%} is equal to {battlebox.team.%{_p}%}:
-			if {battlebox.kit.%loop-player%} is equal to {_n}:
-				send "<light blue>[Battle Box] <pink>This kit has already been chosen!" to {_p}
-				exit
-	set {battlebox.kit.%{_p}%} to {_n}
-	if {_n} is equal to 1:
-		send "<light blue>[Battle Box] <gray>You will receive <white>Crossbow<gray> when the game starts." to {_p}
-	if {_n} is equal to 2:
-		send "<light blue>[Battle Box] <gray>You will receive <white>8 arrows<gray> when the game starts." to {_p}
-	if {_n} is equal to 3:
-		send "<light blue>[Battle Box] <gray>You will receive <white>Depth Strider III Boots<gray> when the game starts." to {_p}
-	if {_n} is equal to 4:
-		send "<light blue>[Battle Box] <gray>You will receive <white>Knockback II Sword<gray> when the game starts." to {_p}
-
+	execute console command "/fill 15 60 -302 15 58 -308 lime_stained_glass"
+	execute console command "/fill 47 60 -308 47 58 -302 black_stained_glass"
 
 function bbgivekit(p:player):
-	if {_p} is in world "world":
-		clear {_p}'s inventory
-		if {battlebox.kit.%{_p}%} is equal to 4:
-			give {_p} a stone sword of knockback 2
-		else:
-			give {_p} a stone sword
-	set {_p}'s boots to leather boots
+	loop 7 times:
+		give slot ({mcc.bb.selectedkit.%{_p}'s name%}*9 + loop-number + 1) of {mcc.bb.lobbykitselect} to {_p}
 	if {battlebox.team.%{_p}%} is equal to "dream":
-		dye {_p}'s boots lime
-	if {battlebox.team.%{_p}%} is equal to "bad":
-		dye {_p}'s boots black 
-
-	if {battlebox.kit.%{_p}%} is equal to 3:
-		enchant {_p}'s boots with depth strider 3
-	give a bow to {_p}
-	give a shears to {_p}
-	if {battlebox.team.%{_p}%} is equal to "dream":
-		give 64 lime wool to {_p}
-	if {battlebox.team.%{_p}%} is equal to "bad":
-		give 64 black wool to {_p}	
-	give 8 arrows to {_p}
-	if {battlebox.kit.%{_p}%} is equal to 2:
-		give 8 arrows to {_p}
-	if {battlebox.kit.%{_p}%} is equal to 1:
-		give a crossbow to {_p}
+		givewool({_p}, 4)
+		setboots({_p}, 4)
+	else:
+		givewool({_p}, 12)
+		setboots({_p}, 12)
 	 
 function bballready() :: boolean:
 	set {_good1} to false
@@ -94,10 +51,10 @@ function bbstartgame():
 			set title of loop-player's fastboard to "<light blue>Battle Box"
 			set line 14 of loop-player's fastboard to ""
 			set line 13 of loop-player's fastboard to "<lime>Get ready!"	
-			if {battlebox.team.%loop-player%} is equal to "dream":
-				teleport loop-player to location at 11, 51, -304 of world "world" 
-			else:
-				teleport loop-player to location at 51, 51, -304 of world "world" 
+			# if {battlebox.team.%loop-player%} is equal to "dream":
+			# 	teleport loop-player to location at 11, 51, -304 of world "world" 
+			# else:
+			# 	teleport loop-player to location at 51, 51, -304 of world "world" 
 	bbclosecages()
 	loop all players:
 		if {battlebox.playing.%loop-player%} is true:
@@ -117,9 +74,10 @@ function bbstartgame():
 	loop all players:
 		if {battlebox.playing.%loop-player%} is true:
 			execute console command "/note 18 %loop-player%"
-	drop a splash potion of strong harming at {bbpot1} without velocity
-	drop a splash potion of strong harming at {bbpot2} without velocity 
-	set {battlebox.timeleft} to 60
+	drop a splash potion of healing at {bbpot1} without velocity
+	drop a splash potion of healing at {bbpot2} without velocity 
+	set {battlebox.timeleft} to 75
+	teamglowlobbybb(true)
 	bbopencages()
 	set {battlebox.inprogress} to true
 
@@ -173,49 +131,177 @@ function bbendgame(n: number):
 		set {battlebox.ready.%loop-player%} to false
 		set {battlebox.team.%loop-player%} to "none"
 		set {battlebox.kit.%loop-player%} to 0
+	loop {lobby.bb.cobwebs::*}:
+		set block at loop-value's location to air
+	delete {lobby.bb.cobwebs::*}
 	set {battlebox.timeleft} to 0	
+	resetlobbybbkits()
+	bbclosecages()
+	teamglowlobbybb(false)
+	execute console command "/schempaste lobbybbreset world 31 57 -305"
 
-
+function resetlobbybbkits():
+	loop 2 times:
+		set {_temp} to chest inventory with 5 rows
+		loop 45 times:
+			set slot loop-number-2 of {_temp} to slot loop-number-2 of {mcc.bb.lobbykitselect}
+		set {mcc.bb.kitselect.lobby%loop-number-1%} to {_temp}
+		delete {_temp}
 
 on rightclick:
-	event-block is tagged as tag "buttons"
-	if {battlebox.playing.%player%} is true:
-		if x-coordinate of event-location is equal to 6.5:
-			bbkit(player, 1)		
-		if x-coordinate of event-location is equal to 8.5:
-			bbkit(player, 2)		
-		if x-coordinate of event-location is equal to 10.5:
-			bbkit(player, 3)		
-		if x-coordinate of event-location is equal to 12.5:
-			bbkit(player, 4)		
-		if x-coordinate of event-location is equal to 56.5:
-			bbkit(player, 1)		
-		if x-coordinate of event-location is equal to 54.5:
-			bbkit(player, 2)		
-		if x-coordinate of event-location is equal to 52.5:
-			bbkit(player, 3)		
-		if x-coordinate of event-location is equal to 50.5:
-			bbkit(player, 4)		
+	player's world is "world"
+	{battlebox.playing.%player%} is true
+	if name of player's tool is "<light cyan>Ability: Syphon Heal":
+	#broadcast player's target
+		if player's target is a player:
+			#broadcast {mcc.team.%player's target's name%}
+			if {mcc.team.%player's target's name%} is equal to {mcc.team.%player%}:
+				#broadcast {mcc.battlebox.abilitycooldown.%player%}
+				if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
+					damage player by 2 hearts
+					heal player's target by 3 hearts
+					set {mcc.battlebox.abilitycooldown.%player%} to 2
+	if player's tool is end crystal:
+		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
+			#broadcast ((player's health)^(1/3))
+			set {_exp} to (1*(player's health)^(1/3))
+			add potion effect of resistance of tier 255 for 0.1 seconds to potion effects of player 
+			spawn creeper at player's location:
+				
+				set explosive yield of spawned entity to {_exp}
+				add "att %player%" to the scoreboard tags of the spawned entity
+				instantly explode spawned entity
+			#create safe explosion of force (player's health^(1/3)) at player's location
+			set {mcc.battlebox.abilitycooldown.%player%} to 20
+	if player's tool is obsidian:
+		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
+			set {mcc.battlebox.parrying.%player%} to true
+			set glowing of player to true
+			set {mcc.battlebox.abilitycooldown.%player%} to 3
+			wait 0.5 seconds
+			if {mcc.battlebox.parrying.%player%} is true:
+				set {mcc.battlebox.parrying.%player%} to false
+				set glowing of player to false
+				# apply slowness of tier 2 to player for 2 seconds
+				message "You did not parry an attack!" to event-player
+	if player's tool is feather:
+		if {mcc.battlebox.abilitycooldown.%player%} is less than 1:
+			set {mcc.battlebox.abilitycooldown.%player%} to 5
+			push player forward at speed 1
+	if player's tool is brick:
+		set {_helm} to player's helmet
+		set player's helmet to brick block
+		wait 5 seconds
+		set player's helmet to {_helm}
+	
+on damage:
+	if {mcc.battlebox.parrying.%victim%} is true:
+		cancel event
+		set {_v} to vector between victim and the location 2 block above attacker's location
+		broadcast {_v}
+		push attacker {_v} at speed 2
+		set {mcc.battlebox.parrying.%victim%} to false
+		set glowing of victim to false
+		message "Your attack was parried!" to attacker
+		message "Successfully parried an attack!" to victim
 
+every second:
+	loop all players in world "world":
+		if {battlebox.playing.%loop-player%} is true:
+			if {mcc.battlebox.abilitycooldown.%loop-player%} isn't set:
+				set {mcc.battlebox.abilitycooldown.%loop-player%} to 0
+			if {mcc.battlebox.abilitycooldown.%loop-player%} is more than 0:
+				subtract 1 from {mcc.battlebox.abilitycooldown.%loop-player%}
+				send action bar "Ability Cooldown: <light cyan>%{mcc.battlebox.abilitycooldown.%loop-player%}%<reset> Seconds" to loop-player
+
+# on rightclick:
+# 	event-block is tagged as tag "buttons"
+# 	if {battlebox.playing.%player%} is true:
+# 		if x-coordinate of event-location is equal to 6.5:
+# 			bbkit(player, 1)		
+# 		if x-coordinate of event-location is equal to 8.5:
+# 			bbkit(player, 2)		
+# 		if x-coordinate of event-location is equal to 10.5:
+# 			bbkit(player, 3)		
+# 		if x-coordinate of event-location is equal to 12.5:
+# 			bbkit(player, 4)		
+# 		if x-coordinate of event-location is equal to 56.5:
+# 			bbkit(player, 1)		
+# 		if x-coordinate of event-location is equal to 54.5:
+# 			bbkit(player, 2)		
+# 		if x-coordinate of event-location is equal to 52.5:
+# 			bbkit(player, 3)		
+# 		if x-coordinate of event-location is equal to 50.5:
+# 			bbkit(player, 4)		
+
+command /openbattleboxlobbykitselect:
+	permission: op
+	trigger:
+		if {mcc.bb.lobbykitselect} isn't set:
+			set {mcc.bb.lobbykitselect} to chest inventory with 5 rows
+		open {mcc.bb.lobbykitselect} to player
+		loop 45 times:
+			set slot loop-number of {mcc.bb.lobbykitselect} to {mcc.bb.lobbykitselectstorage::%loop-number%}
+
+on inventory close:
+	if event-inventory is {mcc.bb.lobbykitselect}:
+		loop 45 times:
+			set {mcc.bb.lobbykitselectstorage::%loop-number%} to slot loop-number of {mcc.bb.lobbykitselect}
+
+on rightclick:
+	player's world is "world"
+	player's tool is recovery compass
+	if {battlebox.playing.%player%} is true:
+		if {battlebox.team.%player%} is equal to "dream":
+			open {mcc.bb.kitselect.lobby1} to player
+		else:
+			open {mcc.bb.kitselect.lobby2} to player
+
+on inventory click:
+	player's world is "world"
+	if {battlebox.team.%player%} is "dream":
+		if player's current inventory is {mcc.bb.kitselect.lobby1}:
+			cancel event
+			if slot floor(index of event-slot/9)*9 of {mcc.bb.kitselect.lobby1} isn't player head:
+				if {mcc.bb.selectedkit.%player's name%} is set:
+					set slot {mcc.bb.selectedkit.%player's name%}*9 of {mcc.bb.kitselect.lobby1} to air
+				set {mcc.bb.selectedkit.%player's name%} to floor(index of event-slot/9)
+				set slot {mcc.bb.selectedkit.%player's name%}*9 of {mcc.bb.kitselect.lobby1} to player's skull
+			else:
+				message "<red>This kit is already taken, please choose another kit."
+	else:
+		if player's current inventory is {mcc.bb.kitselect.lobby2}:
+			cancel event
+			if slot floor(index of event-slot/9)*9 of {mcc.bb.kitselect.lobby2} isn't player head:
+				if {mcc.bb.selectedkit.%player's name%} is set:
+					set slot {mcc.bb.selectedkit.%player's name%}*9 of {mcc.bb.kitselect.lobby2} to air
+				set {mcc.bb.selectedkit.%player's name%} to floor(index of event-slot/9)
+				set slot {mcc.bb.selectedkit.%player's name%}*9 of {mcc.bb.kitselect.lobby2} to player's skull
+			else:
+				message "<red>This kit is already taken, please choose another kit."
+	
 
 on rightclick:
 	event-block is tagged as tag "buttons"
 	event-block's z-coord is -231.5
-	if "%player's world%" is equal to "world":
+	if "%player's world%" is "world":
 		if event-block is in region "minigames":
-			if {mcc.currentevent} is not equal to "none":
+			if {mcc.currentevent} is not "none":
 				message "<pink>You cannot do this now!" to event-player
 				exit trigger
 			
 			if {battlebox.playing.%player%} is false:
 				if {battlebox.inprogress} is false:
 					broadcast "<light blue>[Battle Box] <white>%player% has joined team <gray>Black BadBoyHalos!"
-					teleport player to the location at 53, 57, -305 of world "world"
+					teleport player to {bb.lobby.blackspawn}
 					clear the player's inventory
 					set slot 4 of player's inventory to gunpowder named "<lime>Ready"
 					set slot 8 of player's inventory to red dye named "<pink>Leave"
 					set {battlebox.team.%player%} to "bad"
 					set {battlebox.playing.%player%} to true
+					delete {mcc.bb.selectedkit.%player%}
+					set {mcc.battlebox.abilitycooldown.%player%} to 0
+					give player recovery compass named "<purple>Kit Selection"
 				else:
 					message "<light blue>[Battle Box] <pink>This arena is in use!" to event-player
 			else:
@@ -233,12 +319,15 @@ on rightclick:
 			if {battlebox.playing.%player%} is false:
 				if {battlebox.inprogress} is false:
 					broadcast "<light blue>[Battle Box] <white>%player% has joined team <lime>Green Dreams!"
-					teleport player to the location at 9, 57, -305 of world "world"
+					teleport player to {bb.lobby.greenspawn}
 					clear the player's inventory
 					set slot 4 of player's inventory to gunpowder named "<lime>Ready"
 					set slot 8 of player's inventory to red dye named "<pink>Leave"
 					set {battlebox.team.%player%} to "dream"
 					set {battlebox.playing.%player%} to true
+					set {mcc.battlebox.abilitycooldown.%player%} to 0
+					delete {mcc.bb.selectedkit.%player%}
+					give player recovery compass named "<purple>Kit Selection"
 				else:
 					message "<light blue>[Battle Box] <pink>This arena is in use!" to event-player
 			else:
@@ -282,6 +371,14 @@ on damage:
 				broadcast "<light blue>[Battle Box] <lime>%victim%<yellow> was killed by <gray>%attacker%"
 			else:
 				broadcast "<light blue>[Battle Box] <gray>%victim%<yellow> was killed by <lime>%attacker%"
+		else if attacker is TNT:
+			loop all players:
+				if attacker has scoreboard tags "att %loop-player's name%":
+					set {_atkr} to loop-player
+			if {battlebox.team.%victim%} is equal to "dream":
+				broadcast "<light blue>[Battle Box] <lime>%victim%<yellow> was exploded by <gray>%{_atkr}%"
+			else:
+				broadcast "<light blue>[Battle Box] <gray>%victim%<yellow> was exploded by <lime>%{_atkr}%"
 		set {battlebox.playing.%victim%} to false
 		set {battlebox.ready.%victim%} to false
 		set {battlebox.team.%victim%} to "none"
@@ -293,6 +390,8 @@ on damage:
 		set victim's health to 10
 		cancel event
 
+	
+
 on damage:
 	victim is a player
 	attacker is a player
@@ -303,26 +402,47 @@ on damage:
 					send "<pink>You cannot attack teammates!" to attacker
 					cancel event
 
+
+
 on break:
 	if {battlebox.playing.%player%} is true:
-		if block is not wool:
+		if block is not wool or cobweb:
 			cancel event
 
 on place:
 	if {battlebox.playing.%player%} is true:
-		
-		if block is not wool:
+		if block is not wool or cobweb or tnt:
 			cancel event
-		set {bb.good} to false
-		if x-coordinate of event-location is between 30.5 and 32.5:
-			if y-coordinate of event-location is equal to 56.5:
-				if z-coordinate of event-location is between -303.5 and -305.5:
-					set {bb.good} to true			
-		if {bb.good} is false:
-			cancel event
-		else:
-			if bbgameover() is greater than 0:
-				bbendgame(bbgameover())	
+		if block is cobweb or tnt:
+			loop blocks in radius 1 of event-block:
+				if loop-block is bubble column:
+					set {_bad} to true
+			if {_bad} is true:
+				cancel event
+				if event-block is tnt:
+					remove 1 tnt from player
+		if block is tnt:
+			wait a tick
+			set event-block to air
+			spawn a primed tnt at event-location
+			add "att %player%" to the scoreboard tags of the spawned primed tnt
+		if block is wool:
+			set {bb.good} to false
+			if x-coordinate of event-location is between 30.5 and 32.5:
+				if y-coordinate of event-location is equal to 56.5:
+					if z-coordinate of event-location is between -303.5 and -305.5:
+						set {bb.good} to true			
+			if {bb.good} is false:
+				cancel event
+			else:
+				if bbgameover() is greater than 0:
+					bbendgame(bbgameover())	
+		else if block is cobweb:
+			add block to {lobby.bb.cobwebs::*}
+
+on explode:
+	world is "world"
+	clear exploded blocks
 
 on hunger meter change:
 	if {battlebox.playing.%player%} is true:
@@ -349,10 +469,7 @@ every second in "world":
 				bbendgame(-1)
 		loop all players:
 			if {battlebox.playing.%loop-player%} is true:
-				if {battlebox.timeleft} is greater than 9:
-					set line 13 of loop-player's fastboard to "<pink>Time left: <white>00:%{battlebox.timeleft}%"	
-				else:
-					set line 13 of loop-player's fastboard to "<pink>Time left: <white>00:0%{battlebox.timeleft}%"	
+				set line 13 of loop-player's fastboard to "<pink>Time left: <white>%time({battlebox.timeleft})%"	
 				set line 12 of loop-player's fastboard to ""
 				set line 11 of loop-player's fastboard to "<lime>Green Dreams: %{_dream}%"
 				set line 10 of loop-player's fastboard to "<gray>Black BadBoyHalos: %{_bad}%"

@@ -1027,29 +1027,29 @@ function hgrandomtp(world:world):
 			if {mcc.team.%loop-value-2%} is equal to {_count}:
 				teleport loop-value-2 to {_loc}
 		loop blocks in radius 3 around {_loc}:
-			if loop-block-2 is stone or concrete:
+			if loop-value-2 is stone or concrete:
 				if {_count} is equal to 0:
-					set loop-block-2 to white concrete
+					set loop-value-2 to white concrete
 				else if {_count} is equal to 1:
-					set loop-block-2 to red concrete
+					set loop-value-2 to red concrete
 				else if {_count} is equal to 2:
-					set loop-block-2 to orange concrete
+					set loop-value-2 to orange concrete
 				else if {_count} is equal to 3:
-					set loop-block-2 to yellow concrete
+					set loop-value-2 to yellow concrete
 				else if {_count} is equal to 4:
-					set loop-block-2 to lime concrete
+					set loop-value-2 to lime concrete
 				else if {_count} is equal to 5:
-					set loop-block-2 to green concrete
+					set loop-value-2 to green concrete
 				else if {_count} is equal to 6:
-					set loop-block-2 to cyan concrete
+					set loop-value-2 to cyan concrete
 				else if {_count} is equal to 7:
-					set loop-block-2 to light blue concrete
+					set loop-value-2 to light blue concrete
 				else if {_count} is equal to 8:
-					set loop-block-2 to blue concrete
+					set loop-value-2 to blue concrete
 				else if {_count} is equal to 9:
-					set loop-block-2 to purple concrete
+					set loop-value-2 to purple concrete
 				else if {_count} is equal to 10:
-					set loop-block-2 to magenta concrete
+					set loop-value-2 to magenta concrete
 		add 1 to {_count}
 
 function hgcircletp(world:world):
