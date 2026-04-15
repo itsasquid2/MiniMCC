@@ -217,7 +217,7 @@ every second:
 				loop all players:
 					if loop-player's game mode is adventure:
 						send title "<pink>OVERTIME" with subtitle "Don't fall!" to loop-player for 3 seconds
-				broadcast "Overtime has started. Remaining players get <pink><bold>one more attempt <white> to complete the course. If they fall, they're out."
+				broadcast "Overtime has started. Remaining players get <pink><bold>one more attempt <white> to complete the course. If they fall, they're out. (also no more teleportation scroll)"
 			else if {mcc.pkwnew.stage} is equal to 2:
 				set {mcc.pkwnew.stage} to 3
 				set {mcc.pkwnew.timeleft} to 60
@@ -359,8 +359,10 @@ on drop:
 on rightclick:	
 	player's tool is paper
 	event-world is "parkourwarriornew"
-	{mcc.pkwnew.stage} is equal to 1 or 2
-	{mcc.pkwnew.timeleft} is less than 590
-	teleport player to {mcc.pkwnew.dojospawn.%{mcc.pkwnew.lastdojo.%player's name%}%}
-	message "<lime>Used teleportation scroll!" to event-player
+	if {mcc.pkwnew.stage} is equal to 1:
+		{mcc.pkwnew.timeleft} is less than 590
+		teleport player to {mcc.pkwnew.dojospawn.%{mcc.pkwnew.lastdojo.%player's name%}%}
+		message "<lime>Used teleportation scroll!" to event-player
+	else:
+		message "<red>Sorry, people keep using the scroll to cheat death in overtime, so it is disabled" to event-player
 

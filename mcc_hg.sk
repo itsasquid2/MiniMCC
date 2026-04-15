@@ -32,6 +32,7 @@ function sgover() :: boolean:
 	return true
 
 function sgendgame():
+	set {sg.suddendeath} to false
 	set {sg.time} to 0
 	set {_w} to 0
 	delete {_win::*}
@@ -90,12 +91,12 @@ function sgstartgame():
 			loop blocks in radius 5 of loop-player:
 				if loop-block is a barrier block:
 					set loop-block to air
-	execute console command "/schempaste sgcirclenobarriers %{sgworld}% 0 96 13" 
+	execute console command "/schempaste sgcirclenobarriers %{sgworld}% 0 97 13" 
 	
 	wait 1 second
 	set {sg.time} to 1
 	wait 30 seconds
-	execute console command "/schempaste sgcirclegone %{sgworld}% 0 96 13" 
+	execute console command "/schempaste sgcirclegone %{sgworld}% 0 97 13" 
 
 command /addbarrierssg <number>:
 	trigger:
@@ -453,25 +454,17 @@ on death of player:
 every second:
 	if {sg.time} is equal to 0:
 		exit trigger
-	add 1 to {sg.time}
+	if {sg.suddendeath} isn't true:
+		add 1 to {sg.time}
 	if {sg.time} is less than 20:
 		set {sg.event} to "PVP on"
 		set {sg.tim} to 20
-	else if {sg.time} is less than 60:
-		set {sg.event} to "Mini feast 1"
-		set {sg.tim} to 60
-	else if {sg.time} is less than 120:
-		set {sg.event} to "Mini feast 2"
-		set {sg.tim} to 120 
 	else if {sg.time} is less than 180:
 		set {sg.event} to "Border shrinking"
 		set {sg.tim} to 180 
-	else if {sg.time} is less than 210:
-		set {sg.event} to "Feast"
-		set {sg.tim} to 210 
-	else if {sg.time} is less than 420:
-		set {sg.event} to "Game end"
-		set {sg.tim} to 420 
+	else if {sg.time} is less than 390:
+		set {sg.event} to "Sudden Death"
+		set {sg.tim} to 390 
 	set {sg.playersleft} to 0
 	loop all players:
 		if {sg.playing.%loop-player's name%} is true:
@@ -629,6 +622,8 @@ every second:
 			drop {hg.customitems::star} at location(0.5,50,0.5,{sgworld}) without velocity
 	else if {sg.time} is 390:
 		send title "<red>Sudden Death!" with subtitle "<pink>Players' health will slowly be drained" to all players for 2 seconds
+		wait 1 second
+		set {sg.suddendeath} to true
 	else if {sg.time} is more than 390:
 		
 		loop all players:
@@ -971,8 +966,8 @@ command /mcchungergames:
 				mccsgtutorial(loop-player)
 		set worldborder center of world border of world "survivalgames2" to location(0,0,0)
 		set worldborder center of world border of world "survivalgames1" to location(0,0,0)
-		expand world border of world "survivalgames2" to 275 over 1 second
-		expand world border of world "survivalgames" to 275 over 1 second
+		expand world border of world "survivalgames2" to 320 over 1 second
+		expand world border of world "survivalgames" to 320 over 1 second
 		teamglow("true")
 		while {mcc.sg.round} is equal to 1:
 			wait 1 second

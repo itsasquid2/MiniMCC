@@ -21,7 +21,7 @@ on inventory click:
             wait 3 seconds
             spawn a zombie at location(0,-60,15, world "bossworld")
             set name of last spawned entity to "Zombie Tier 1 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
-            apply infinite potion of speed of tier 4 without particles to last spawned entity
+            apply infinite potion of speed of tier 4 to last spawned entity
             
             set {spawner.%uuid of last spawned entity%} to event-player
             set {spawnedboss.%event-player's name%} to last spawned entity
@@ -38,8 +38,8 @@ on inventory click:
             wait 3 seconds
             spawn a zombie at location(0,-60,15, world "bossworld")
             set name of last spawned entity to "Zombie Tier 2 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
-            apply infinite potion of speed of tier 4 without particles to last spawned entity
-            apply infinite potion of strength of tier 5 without particles to last spawned entity
+            apply infinite potion of speed of tier 4 to last spawned entity
+            apply infinite potion of strength of tier 5 to last spawned entity
             set {spawner.%uuid of last spawned entity%} to event-player
             set {spawnedboss.%event-player's name%} to last spawned entity
         if event-item is rotten flesh named "<red>Tier 3":
@@ -55,8 +55,8 @@ on inventory click:
             wait 3 seconds
             spawn a zombie at location(0,-60,15, world "bossworld")
             set name of last spawned entity to "Zombie Tier 3 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
-            apply infinite potion of speed of tier 4 without particles to last spawned entity
-            apply infinite potion of strength of tier 5 without particles to last spawned entity
+            apply infinite potion of speed of tier 4 to last spawned entity
+            apply infinite potion of strength of tier 5 to last spawned entity
            
             set {spawner.%uuid of last spawned entity%} to event-player
             
@@ -74,8 +74,8 @@ on inventory click:
             wait 3 seconds
             spawn a zombie at location(0,-60,15, world "bossworld")
             set name of last spawned entity to "Zombie Tier 4 &8[&c%last spawned entity's health*2% &8/ &c%last spawned entity's max health*2%&8]"
-            apply infinite potion of speed of tier 4 without particles to last spawned entity
-            apply infinite potion of strength of tier 5 without particles to last spawned entity
+            apply infinite potion of speed of tier 4 to last spawned entity
+            apply infinite potion of strength of tier 5 to last spawned entity
             add last spawned entity to {bosses.regenlist::*}
             set {spawner.%uuid of last spawned entity%} to event-player
             set {spawnedboss.%event-player's name%} to last spawned entity
@@ -147,7 +147,7 @@ on potion effect removed:
     event-entity is a zombie
     if event-potioneffecttype = slowness:
         if event-entity's name contains "Zombie Tier 1" or "Zombie Tier 2" or "Zombie Tier 3" or "Zombie Tier 4":
-            apply infinite potion of speed of tier 4 without particles to event-entity
+            apply infinite potion of speed of tier 4 to event-entity
 
 every 0.5 seconds:
     loop {bosses.regenlist::*}:

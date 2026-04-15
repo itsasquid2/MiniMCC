@@ -14,7 +14,7 @@ command /mccupdateteamleaderboard:
 			if {mcc.teamcoins.%loop-number%} is not equal to 0:
 				add 1 to {_numteams}
 			else:
-				execute console command "/npc despawn %111+loop-number%"
+				#execute console command "/npc despawn %111+loop-number%"
 		set {_teamcoins::*} to sorted {_teamcoins::*}
 		set {_teamcoins::*} to reversed {_teamcoins::*}
 		loop numbers from 10 to 1:

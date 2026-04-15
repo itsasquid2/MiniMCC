@@ -531,8 +531,8 @@ on projectile hit:
 	if the event-projectile has the scoreboard tag "dodgebolt":
 		delete the event-projectile
 		set {_loc} to event-location
-		if x-coord of {_loc} is less than 62:
-			set {_loc} to the location 1 block east of {_loc} 
+		if x-coord of {_loc} is less than 63:
+			set {_loc} to the location 2 blocks east of {_loc} 
 		else if x-coord of {_loc} is greater than 94:
 			set {_loc} to the location 1 block west of {_loc} 
 		else if z-coord of {_loc} is less than -187:

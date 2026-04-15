@@ -1,6 +1,6 @@
 on rightclick with popped chorus fruit:
     world is "skybattle"
-    set {_p} to potion effect of levitation of tier 10 without particles for 2 seconds
+    set {_p} to potion effect of levitation of tier 10 for 2 seconds
     add {_p} to potion effects of player
     remove 1 popped chorus fruit from player
 

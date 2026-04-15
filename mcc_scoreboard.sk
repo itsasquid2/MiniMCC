@@ -420,6 +420,8 @@ function mccupdatefastboard(p:player):
 			set line 1 of {_p}'s fastboard to "<light blue><bold>Game %{mcc.gamenum}%/6: <white>Hunger Games"
 			if {mcc.sg.stage} is equal to 0:
 				set line 2 of {_p}'s fastboard to "<pink><bold>Game begins in: <white>%time({mcc.sg.timeleft})%"
+			else if {sg.suddendeath} is true:
+				set line 2 of {_p}'s fastboard to "<pink><bold>Sudden Death"
 			else if {mcc.sg.stage} is equal to 1:
 				set line 2 of {_p}'s fastboard to "<pink><bold>%{sg.event}% <pink><bold>in: <white>%time({sg.tim}-{sg.time})%"
 			else if {mcc.sg.stage} is equal to 2:				

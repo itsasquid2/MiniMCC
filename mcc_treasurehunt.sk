@@ -157,10 +157,9 @@ function mccpgtutorial(p:player):
 	send "<bold>Some things to note:" to {_p}
 	send "" to {_p}
 	send "<pink>- Water does damage to you." to {_p}
-	send "- It's harder to break non-wool blocks." to {_p}
 	send "- You can't blow up chests, just open them!" to {_p}
 	send "- Attackers can't fight other attackers." to {_p}
-	send "- Blocks can be broken by shot arrows" to {_p}
+	send "- Wool can be broken by arrows" to {_p}
 	send "- Boats can be used to bridge faster!" to {_p}
 	send "- Ladders automatically extend downwards!" to {_p}
 	send "" to {_p}

@@ -476,6 +476,10 @@ on break of rail or golden rail:
         else:
             cancel event
             message "<red>You cannot break pre-placed rails!" to event-player
+    else:
+        if event-block's x-coord is less than x-coord of {rrr.minecartspawn.%rrrcheckteam(z-coord of event-block)%}:
+            cancel event
+            message "<red>You cannot break rails in previous sections!" to event-player
     # if {mcc.rrr.checkpoint.%{mcc.team.%player%}%} is 1:
     #     if x-coord of event-block is less than 21.5:
     #         cancel event
@@ -607,7 +611,7 @@ command /mccrailroadrush:
             # set loop-player's boots to {mcc.rrr.diveboots}
             give loop-player 320 brown wool named "Temporary Block" with lore "It decays after 5 seconds!"
             railroadrushtutorial(loop-player)
-        send the resource pack from "https://drive.google.com/uc?export=download&id=1WhGWZOVH7lZxJvXUMvPt095djv_74zBx" with hash "44028a5122b11bfb16a94f36369edc5b2d723555" to all players
+        send the resource pack from "https://download.mc-packs.net/pack/c56bb37a85cddcac55f2c5356045bcee0ba58198.zip" with hash "c56bb37a85cddcac55f2c5356045bcee0ba58198" to all players
         wait 1 second
         loop all players:
             set loop-player's gamemode to adventure
@@ -702,7 +706,8 @@ every second:
             execute console command "/mccbreak"
             wait 1 second
             remove all resource packs from all players
-            send resource pack from "https\://www.dropbox.com/scl/fi/cuymxurgn24ceorjxerac/Pack.zip?rlkey\=ubktg8vg1l3ss602cuq1tvbbd&st\=oehx1mw3&dl\=1" with hash "8df9ec8be42bcfbc4db4cb667673307acb88ae7a" to all players
+            wait 1 seconds
+            send resource pack from "https://download.mc-packs.net/pack/fb39b6c1a8055b675c401052c69b1227c7ab1c18.zip" with hash "fb39b6c1a8055b675c401052c69b1227c7ab1c18" to all players
 
 function rrrendingscoring(team:number,place:number):
     if {_place} is 1:
@@ -761,7 +766,7 @@ on damage:
     if victim isn't a skeleton:
         set damage to 0
         if damage cause is lava:
-            push victim upwards at speed 1
+            push victim upwards at speed 0.3
 
 
 on hunger bar change:

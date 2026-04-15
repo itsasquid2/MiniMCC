@@ -159,11 +159,11 @@ function skbislands():
 on rightclick with popped chorus fruit:
 	player's world is "skybattle"
 	if name of player's tool is "levi spark":
-		set {_p} to potion effect of levitation of tier 10 without particles for 2 seconds
+		set {_p} to potion effect of levitation of tier 10 for 2 seconds
 		add {_p} to potion effects of player
 		remove 1 popped chorus fruit from player
 	if name of player's offhand tool is "levi spark":
-		set {_p} to potion effect of levitation of tier 10 without particles for 2 seconds
+		set {_p} to potion effect of levitation of tier 10 for 2 seconds
 		add {_p} to potion effects of player
 		remove 1 popped chorus fruit from player
 

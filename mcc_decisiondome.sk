@@ -264,7 +264,9 @@ function givePowerupsdd():
 	loop {mcc.dd.consolationpowers} times:
 		loop all players:
 			if {mcc.team.%loop-player%} is equal to getTeamInPlace({_numteams} - loop-number-1 + 1):
-				give loop-player a random element out of {mcc.dd.powerups::*}
+				set {_item} to a random element out of {mcc.dd.powerups::*}
+				give loop-player {_item}
+				broadcast formatted "[<gold><bold>Decision Dome<white>]<%mcccolor({mcc.team.%loop-player%})%> %loop-player%<white> has been given a %name of {_item}%"
 				exit 2 sections
 
 every second:

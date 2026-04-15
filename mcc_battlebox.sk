@@ -12,7 +12,7 @@ command /mccbattlebox:
 				mccbbtutorial(loop-player)
 				set {immune.%loop-player%} to false
 		wait a tick
-		set game mode of all players to adventure
+		set game mode of all players to spectator
 		set {_over} to false
 		set {mcc.bb.timeleft} to 30
 		wait 30 seconds
@@ -90,6 +90,7 @@ function roundrobin():
 		if {mcc.team.%loop-player%} is not equal to 0:
 			send title "<pink>Game over!" to loop-player for 3 seconds
 			set loop-player's gamemode to spectator
+	execute console command "/playmusic none"
 	execute console command "/mccstandings"
 	wait 30 seconds
 	execute console command "/mccbreak"
@@ -646,6 +647,7 @@ every second:
 								execute console command "/boopboopboopbeep %loop-player's name%"
 							if {mcc.team.%loop-player%} is equal to {mcc.bb.teamb.%loop-value-1%}:
 								execute console command "/boopboopboopbeep %loop-player's name%"
+				execute console command "/playmusic battlebox"
 	else:
 		if {mcc.bb.kits} is true:
 			set {mcc.bb.kits} to false
@@ -664,6 +666,7 @@ every second:
 			loop all players:
 				if {mcc.team.%loop-player%} is not equal to 0:
 					send title "<pink>Round over!" to loop-player for 3 seconds
+			execute console command "/playmusic none"
 			loop 20 times:
 				if {mcc.bb.teama.%loop-value%} is set:
 					set {_count1} to 0

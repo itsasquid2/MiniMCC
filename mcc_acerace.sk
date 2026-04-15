@@ -506,15 +506,15 @@ on damage:
 on walking on yellow glazed terracotta:
 	#block below event-block is minecraft:barrier
 	if world is "acerace5":
-		set {_p} to potion effect of speed of tier 3 without particles for 3 seconds
+		set {_p} to potion effect of speed of tier 3 for 3 seconds
 		add {_p} to potion effects of the player
 		play sound "ENTITY_GUARDIAN_DEATH" with volume 0.2 to the player
 	if world is "acerace4" or "acerace6":
-		set {_p} to potion effect of speed of tier 2 without particles for 4 seconds
+		set {_p} to potion effect of speed of tier 2 for 4 seconds
 		add {_p} to potion effects of the player
 		play sound "ENTITY_GUARDIAN_DEATH" with volume 0.2 to the player
 	else:
-		set {_p} to potion effect of speed of tier 4 without particles for 1.5 seconds
+		set {_p} to potion effect of speed of tier 4 for 1.5 seconds
 		add {_p} to potion effects of the player
 		play sound "ENTITY_GUARDIAN_DEATH" with volume 0.2 to the player
 
@@ -522,14 +522,14 @@ on region enter:
 	"%player's world%" starts with "acerace"
 	if the first 2 characters of "%region%" are "ss":	
 		if "%player's world%" ends with "4" or "6":
-			set {_p} to potion effect of speed of tier 4 without particles for 9999 seconds
+			set {_p} to potion effect of speed of tier 4 for 9999 seconds
 			add {_p} to potion effects of event-player
-			set {_p} to potion effect of jump boost of tier 4 without particles for 9999 seconds
+			set {_p} to potion effect of jump boost of tier 4 for 9999 seconds
 			add {_p} to potion effects of event-player
 		else:
-			set {_p} to potion effect of speed of tier 5 without particles for 9999 seconds
+			set {_p} to potion effect of speed of tier 5 for 9999 seconds
 			add {_p} to potion effects of event-player
-			set {_p} to potion effect of jump boost of tier 5 without particles for 9999 seconds
+			set {_p} to potion effect of jump boost of tier 5 for 9999 seconds
 			add {_p} to potion effects of event-player
 		send action bar "<lime>[Swift Sprint on]" to event-player
 		
