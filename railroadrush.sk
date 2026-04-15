@@ -371,16 +371,16 @@ command /setrrrminecartcheckpointloc <number>:
 on place of red candle or light blue candle:
     world is "railroadrush"
     le spawn text display at the location 0.4 block above event-location
-    set display text of last spawned entity to "<lime>||||"
+    set text of last spawned entity to "<lime>||||"
     set {_display} to last spawned entity
-    set display billboard of {_display} to center
-    set display text of {_display} to "<lime>||||"
+    set billboard of {_display} to center
+    set text of {_display} to "<lime>||||"
     wait 0.5 seconds
-    set display text of {_display} to "<lime>|||<white>|"
+    set text of {_display} to "<lime>|||<white>|"
     wait 0.5 seconds
-    set display text of {_display} to "<yellow>||<white>||"
+    set text of {_display} to "<yellow>||<white>||"
     wait 0.5 seconds
-    set display text of {_display} to "<red>|<white>|||"
+    set text of {_display} to "<red>|<white>|||"
     wait 0.5 seconds
     kill {_display}
     spawn a creeper at event-block's location

@@ -157,11 +157,12 @@ command /sgreloadkiwi:
 		# set {sg.ycoords.1} to {sg.ycord}
 
 		
-		set the gamerule doImmediateRespawn of {sgworld} to true
-		set the gamerule doMobSpawning of {sgworld} to false
-		set the gamerule showDeathMessages of {sgworld} to false
-		set the gamerule doDaylightCycle of {sgworld} to false
-		set the gamerule doWeatherCycle of {sgworld} to false
+		set gamerule immediate_respawn of {sgworld} to true
+		set gamerule spawn_mobs of {sgworld} to false
+		set gamerule show_death_messages of {sgworld} to false
+		set gamerule locator_bar of {sgworld} to false
+		set gamerule advance_time of {sgworld} to false
+		set gamerule advance_weather of {sgworld} to false
 		set world border damage buffer of world border of {sgworld} to 0
 		execute console command "/fillchestskiwi sg_wild"
 		# loop blocks in radius 10 of the location 0.5, 43.5, 0.5 of {sgworld}:
@@ -191,11 +192,12 @@ command /sgreloadkiwi2:
 		# 	subtract 1 from {sg.ycord}
 		# set {sg.ycoords.2} to {sg.ycord}
 	
-		set the gamerule doImmediateRespawn of {sgworld} to true
-		set the gamerule doMobSpawning of {sgworld} to false
-		set the gamerule showDeathMessages of {sgworld} to false
-		set the gamerule doDaylightCycle of {sgworld} to false
-		set the gamerule doWeatherCycle of {sgworld} to false
+		set gamerule immediate_respawn of {sgworld} to true
+		set gamerule spawn_mobs of {sgworld} to false
+		set gamerule show_death_messages of {sgworld} to false
+		set gamerule locator_bar of {sgworld} to false
+		set gamerule advance_time of {sgworld} to false
+		set gamerule advance_weather of {sgworld} to false
 		set world border damage buffer of world border of {sgworld} to 0
 		execute console command "/fillchestskiwi sg_wild"
 		loop blocks in radius 10 of the location 0.5, 43.5, 0.5 of {sgworld}:
@@ -278,7 +280,7 @@ on block damaging:
 	"%player's world%" is equal to "survivalgames"
 	player's game mode is survival
 	if {sgmapset} isn't true:
-		apply mining fatigue 1 to the player for 10 seconds replacing existing effect
+		apply mining fatigue 1 to the player for 10 seconds
 
 on break:
 	"%player's world%" is equal to "survivalgames"
@@ -374,7 +376,7 @@ on death of player:
 		set {_pl} to "<%mcccolor({mcc.team.%victim%})%>%victim%"
 		set {_msg} to "%{_pl}%<white> died"
 		if attacker is a player:
-			apply potion of regeneration of tier 3 to attacker for 3 seconds
+			apply regeneration 3 to attacker for 3 seconds
 			set {_at} to "<%mcccolor({mcc.team.%attacker%})%>%attacker%"
 			if damage cause is attack:
 				set {_msg} to "%{_pl}% <white>was slain by %{_at}%"
@@ -390,31 +392,31 @@ on death of player:
 			set {_msg} to "%{_pl}% <white>was killed by a mob"
 		else if "%damage cause%" is "unknown":
 			if {skb.hitby.%victim%} is set:
-				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
+				apply regeneration 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}% <white>didn't want to live in the same world as %{_at}%"
 			else:
 				set {_msg} to "%{_pl}% <white>fell out of the world"
 		else if "%damage cause%" contains "explosion":
 			if {skb.hitby.%victim%} is set:
-				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
+				apply regeneration 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}% <white>was blown up by %{_at}%"
 			else:
 				set {_msg} to "%{_pl}% <white>blew up"
 		else if damage cause is fall:
 			if {skb.hitby.%victim%} is set:
-				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
+				apply regeneration 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}% fell from a high place while trying to escape %{_at}%" 
 			else:
 				set {_msg} to "%{_pl}% <white>fell from a high place"
 		else if damage cause is lava:
 			if {skb.hitby.%victim%} is set:
-				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
+				apply regeneration 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}%<white> tried to swim in lava while trying to escape %{_at}%" 
 			else:
 				set {_msg} to "%{_pl}% <white>tried to swim in lava"
 		else if damage cause is fire:
 			if {skb.hitby.%victim%} is set:
-				apply potion of regeneration of tier 3 to {skb.hitby.%victim%} for 3 seconds
+				apply regeneration 3 to {skb.hitby.%victim%} for 3 seconds
 				set {_msg} to "%{_pl}%<white> burnt to a crisp while trying to escape %{_at}%" 
 			else:
 				set {_msg} to "%{_pl}% <white>burnt to a crisp"
@@ -648,10 +650,9 @@ function sgspawnsupplydrops(world:world):
 		set facing of the block 1 block south of loop-value to south
 		loop blocks in radius 2 of loop-value:
 			if loop-value-2 is a gold block:
-				
 				le spawn text display at the location 0.6 block above loop-value-2:
 					set billboard of spawned text display to center
-				set display text of last spawned entity to "<lime>Coin Crate(Break)"
+					set text of spawned text display to "<lime>Coin Crate(Break)"
 			if loop-value-2 is a chest:
 				add loop-value-2 to {lootchests::*}
 	execute console command "/fillchests sg_wild"
@@ -662,7 +663,7 @@ on inventory click:
 		wait a tick
 		if player's inventory contains {hg.customitems::speedfeather}:
 			set glowing of player to true
-			apply swiftness of tier 2 to player for 999 days
+			apply swiftness 2 to player for 999 days
 		else:
 			remove speed from player
 			set glowing of player to false
@@ -682,7 +683,7 @@ on inventory click:
 		wait a tick
 		if player's inventory contains {hg.customitems::frogaxe}:
 			set glowing of player to true
-			apply jump boost of tier 1 to player for 999 days
+			apply jump boost 1 to player for 999 days
 		else:
 			remove jump boost from player
 			set glowing of player to false
@@ -693,7 +694,7 @@ on inventory click:
 		wait a tick
 		if player's inventory contains {hg.customitems::shulker}:
 			set glowing of player to true
-			apply resistance of tier 1 to player for 999 days
+			apply resistance 1 to player for 999 days
 		else:
 			remove resistance from player
 			set glowing of player to false
@@ -714,7 +715,7 @@ on pick up:
 		wait a tick
 		if player's inventory contains {hg.customitems::speedfeather}:
 			set glowing of player to true
-			apply swiftness of tier 2 to player for 999 days
+			apply swiftness 2 to player for 999 days
 		else:
 			remove speed from player
 			set glowing of player to false
@@ -734,7 +735,7 @@ on pick up:
 		wait a tick
 		if player's inventory contains {hg.customitems::frogaxe}:
 			set glowing of player to true
-			apply jump boost of tier 1 to player for 999 days
+			apply jump boost 1 to player for 999 days
 		else:
 			remove jump boost from player
 			set glowing of player to false
@@ -745,7 +746,7 @@ on pick up:
 		wait a tick
 		if player's inventory contains {hg.customitems::shulker}:
 			set glowing of player to true
-			apply resistance of tier 1 to player for 999 days
+			apply resistance 1 to player for 999 days
 		else:
 			remove resistance from player
 			set glowing of player to false
@@ -766,7 +767,7 @@ on drop:
 		wait a tick
 		if player's inventory contains {hg.customitems::speedfeather}:
 			set glowing of player to true
-			apply swiftness of tier 2 to player for 999 days
+			apply swiftness 2 to player for 999 days
 		else:
 			remove speed from player
 			set glowing of player to false
@@ -786,7 +787,7 @@ on drop:
 		wait a tick
 		if player's inventory contains {hg.customitems::frogaxe}:
 			set glowing of player to true
-			apply jump boost of tier 1 to player for 999 days
+			apply jump boost 1 to player for 999 days
 		else:
 			remove jump boost from player
 			set glowing of player to false
@@ -797,7 +798,7 @@ on drop:
 		wait a tick
 		if player's inventory contains {hg.customitems::shulker}:
 			set glowing of player to true
-			apply resistance of tier 1 to player for 999 days
+			apply resistance 1 to player for 999 days
 		else:
 			remove resistance from player
 			set glowing of player to false
@@ -836,7 +837,7 @@ on rightclick:
 			message "<red>You ran out of charges! Next charge in <light cyan>%15-{hg.dashcooldown}%<red> seconds." to event-player
 	if player's tool is {hg.customitems::star}:
 		if {hg.starcooldown} is less than 1:
-			apply regeneration of tier 10 to player for 0.5 seconds
+			apply regeneration 10 to player for 0.5 seconds
 			set {hg.starcooldown} to 30
 		else:
 			message "<red>Your ability is on cooldown! Cooldown time: <light cyan>%{hg.starcooldown}%<red> seconds." to event-player
@@ -875,7 +876,7 @@ every second:
 on projectile hit:
 	world is {sgworld}
 	if event-projectile is a trident:
-		apply resistance of tier 1 to victim for 0.05 seconds
+		apply resistance 1 to victim for 0.05 seconds
 
 function spawnsgrelics(world:world):
 	set {_loc} to {hg.reliclocs::dash}

@@ -300,7 +300,7 @@ function raycast(p: player, length: number, dmg: number):
     set {_x} to 0
     loop {_length} times:
         add 1 to {_x}
-        show 4 blue dust at {_rg%{_x}%} #change color or particle type
+        draw 4 of blue dust particle at {_rg%{_x}%} #change color or particle type
         loop entities in radius 0.75 around {_rg%{_x}%}:
             loop-entity is not {_p}
             damage loop-entity by {_dmg}
